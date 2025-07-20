@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>eFlow 业务门户 - Business Portal</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --business-primary: #00BCD4;
+            --business-secondary: #26C6DA;
+            --business-accent: #B2EBF2;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #e0f2f1 0%, #b2dfdb 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+        
+        .sidebar {
+            background: linear-gradient(135deg, var(--business-primary) 0%, var(--business-secondary) 100%);
+            width: 280px;
+            min-height: 100vh;
+            color: white;
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .main-content {
+            margin-left: 280px;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .top-bar {
+            background: white;
+            border-radius: 16px;
+            padding: 20px 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: between;
+            align-items: center;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+        }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 16px 24px;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+        
+        .nav-item:hover, .nav-item.active {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border-left-color: white;
+        }
+        
+        .nav-icon {
+            margin-right: 12px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .logo-section {
+            padding: 24px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .logo-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+        
+        .user-info {
+            padding: 20px 24px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .user-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 24px;
+            background: rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 12px;
+        }
+        
+        .breadcrumb {
+            color: #757575;
+            margin-bottom: 8px;
+        }
+        
+        .page-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #212121;
+        }
+        
+        .action-button {
+            background: var(--business-primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .action-button:hover {
+            background: var(--business-secondary);
+            transform: translateY(-1px);
+        }
+        
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+        
+        .grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 24px;
+        }
+        
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+        }
+        
+        .kpi-card {
+            text-align: center;
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--business-primary);
+        }
+        
+        .kpi-icon {
+            font-size: 36px;
+            margin-bottom: 16px;
+        }
+        
+        .kpi-value {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        
+        .kpi-label {
+            color: #757575;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+        
+        .kpi-change {
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 12px;
+        }
+        
+        .change-positive {
+            background: #E8F5E8;
+            color: #2E7D32;
+        }
+        
+        .change-negative {
+            background: #FFEBEE;
+            color: #C62828;
+        }
+        
+        .order-card {
+            border-left: 4px solid var(--business-primary);
+            margin-bottom: 16px;
+            position: relative;
+        }
+        
+        .order-header {
+            display: flex;
+            justify-content: between;
+            align-items: start;
+            margin-bottom: 16px;
+        }
+        
+        .order-id {
+            font-size: 18px;
+            font-weight: bold;
+            color: #212121;
+            margin-bottom: 8px;
+        }
+        
+        .order-meta {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 14px;
+            color: #757575;
+        }
+        
+        .order-status {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+        }
+        
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-pending {
+            background: #FFF3E0;
+            color: #F57C00;
+        }
+        
+        .status-processing {
+            background: #E3F2FD;
+            color: #1976D2;
+        }
+        
+        .status-shipping {
+            background: #F3E5F5;
+            color: #7B1FA2;
+        }
+        
+        .status-delivered {
+            background: #E8F5E8;
+            color: #2E7D32;
+        }
+        
+        .customer-card {
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            border: 1px solid #E0E0E0;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            transition: all 0.3s ease;
+        }
+        
+        .customer-card:hover {
+            border-color: var(--business-primary);
+            transform: translateY(-1px);
+        }
+        
+        .customer-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 24px;
+            background: var(--business-accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 16px;
+        }
+        
+        .customer-info {
+            flex: 1;
+        }
+        
+        .customer-name {
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+        
+        .customer-details {
+            font-size: 14px;
+            color: #757575;
+        }
+        
+        .customer-value {
+            font-weight: bold;
+            color: var(--business-primary);
+        }
+        
+        .route-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            margin-bottom: 8px;
+            background: #F8F9FA;
+            border-radius: 8px;
+        }
+        
+        .route-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 16px;
+            background: var(--business-primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-size: 14px;
+        }
+        
+        .route-info {
+            flex: 1;
+        }
+        
+        .route-name {
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+        
+        .route-details {
+            font-size: 12px;
+            color: #757575;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #E0E0E0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 12px 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: var(--business-primary);
+            transition: width 0.3s ease;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-top: 16px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-top: 16px;
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 16px;
+            background: #F8F9FA;
+            border-radius: 8px;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--business-primary);
+            margin-bottom: 4px;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #757575;
+        }
+        
+        .notification-item {
+            display: flex;
+            align-items: start;
+            padding: 12px;
+            border-bottom: 1px solid #F0F0F0;
+        }
+        
+        .notification-item:last-child {
+            border-bottom: none;
+        }
+        
+        .notification-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-size: 14px;
+        }
+        
+        .notification-content {
+            flex: 1;
+        }
+        
+        .notification-title {
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+        
+        .notification-text {
+            font-size: 14px;
+            color: #757575;
+            margin-bottom: 4px;
+        }
+        
+        .notification-time {
+            font-size: 12px;
+            color: #BDBDBD;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <!-- Logo Section -->
+        <div class="logo-section">
+            <div class="logo-icon">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <h2 class="text-xl font-bold">eFlow 业务门户</h2>
+            <p class="text-sm opacity-75">Business Portal</p>
+        </div>
+        
+        <!-- User Info -->
+        <div class="user-info">
+            <div class="user-avatar">
+                <i class="fas fa-user-tie text-xl"></i>
+            </div>
+            <div class="font-medium">业务经理</div>
+            <div class="text-sm opacity-75">business@company.com</div>
+        </div>
+        
+        <!-- Navigation -->
+        <nav class="py-4">
+            <a href="#" class="nav-item active">
+                <i class="fas fa-tachometer-alt nav-icon"></i>
+                业务仪表板
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-shopping-cart nav-icon"></i>
+                订单管理
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-users nav-icon"></i>
+                客户管理
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-route nav-icon"></i>
+                运输路线
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-warehouse nav-icon"></i>
+                仓储管理
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-truck nav-icon"></i>
+                车辆调度
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-chart-bar nav-icon"></i>
+                业务分析
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-handshake nav-icon"></i>
+                合作伙伴
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-cog nav-icon"></i>
+                系统设置
+            </a>
+        </nav>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div>
+                <div class="breadcrumb">首页 / 业务门户</div>
+                <h1 class="page-title">业务仪表板</h1>
+            </div>
+            <div class="flex items-center gap-4">
+                <button class="action-button">
+                    <i class="fas fa-plus"></i>
+                    新建订单
+                </button>
+                <button class="action-button">
+                    <i class="fas fa-file-export"></i>
+                    导出报表
+                </button>
+            </div>
+        </div>
+        
+        <!-- KPI Cards -->
+        <div class="grid-4">
+            <div class="card kpi-card">
+                <i class="fas fa-shopping-cart kpi-icon text-blue-500"></i>
+                <div class="kpi-value text-blue-600">1,248</div>
+                <div class="kpi-label">今日订单</div>
+                <div class="kpi-change change-positive">
+                    <i class="fas fa-arrow-up"></i> +12.5%
+                </div>
+            </div>
+            <div class="card kpi-card">
+                <i class="fas fa-truck kpi-icon text-green-500"></i>
+                <div class="kpi-value text-green-600">856</div>
+                <div class="kpi-label">运输中</div>
+                <div class="kpi-change change-positive">
+                    <i class="fas fa-arrow-up"></i> +8.3%
+                </div>
+            </div>
+            <div class="card kpi-card">
+                <i class="fas fa-users kpi-icon text-purple-500"></i>
+                <div class="kpi-value text-purple-600">2,341</div>
+                <div class="kpi-label">活跃客户</div>
+                <div class="kpi-change change-positive">
+                    <i class="fas fa-arrow-up"></i> +15.2%
+                </div>
+            </div>
+            <div class="card kpi-card">
+                <i class="fas fa-dollar-sign kpi-icon text-orange-500"></i>
+                <div class="kpi-value text-orange-600">¥1.2M</div>
+                <div class="kpi-label">今日收入</div>
+                <div class="kpi-change change-negative">
+                    <i class="fas fa-arrow-down"></i> -2.1%
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Grid -->
+        <div class="grid-2">
+            <!-- Recent Orders -->
+            <div class="card">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-bold">最新订单</h3>
+                    <select class="px-3 py-1 border border-gray-300 rounded-lg text-sm">
+                        <option>全部状态</option>
+                        <option>待处理</option>
+                        <option>运输中</option>
+                        <option>已完成</option>
+                    </select>
+                </div>
+                
+                <!-- Order List -->
+                <div class="space-y-4">
+                    <div class="order-card card">
+                        <div class="order-status">
+                            <span class="status-badge status-shipping">运输中</span>
+                        </div>
+                        <div class="order-id">订单 #EF202501180001</div>
+                        <div class="order-meta">
+                            <div class="meta-item">
+                                <i class="fas fa-user text-sm"></i>
+                                <span>北京科技有限公司</span>
+                            </div>
+                            <div class="meta-item">
+                                <i class="fas fa-map-marker-alt text-sm"></i>
+                                <span>北京 → 上海</span>
+                            </div>
+                            <div class="meta-item">
+                                <i class="fas fa-box text-sm"></i>
+                                <span>电子产品 | 15.5吨</span>
+                            </div>
+                            <div class="meta-item">
+                                <i class="fas fa-dollar-sign text-sm"></i>
+                                <span>¥8,500</span>
+                            </div>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 65%"></div>
+                        </div>
+                        <div class="text-sm text-gray-600">预计到达：明天 14:30</div>
+                    </div>
+                    
+                    <div class="order-card card">
+                        <div class="order-status">
+                            <span class="status-badge status-processing">处理中</span>
+                        </div>
+                        <div class="order-id">订单 #EF202501180002</div>
+                        <div class="order-meta">
+                            <div class="meta-item">
+                                <i class="fas fa-user text-sm"></i>
+                                <span>深圳制造公司</span>
+                            </div>
+                            <div class="meta-item">
+                                <i class="fas fa-map-marker-alt text-sm"></i>
+                                <span>深圳 → 武汉</span>
+                            </div>
+                            <div class="meta-item">
+                                <i class="fas fa-box text-sm"></i>
+                                <span>机械设备 | 28.2吨</span>
+                            </div>
+                            <div class="meta-item">
+                                <i class="fas fa-dollar-sign text-sm"></i>
+                                <span>¥15,200</span>
+                            </div>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 25%"></div>
+                        </div>
+                        <div class="text-sm text-gray-600">准备装车，预计今晚发车</div>
+                    </div>
+                    
+                    <div class="order-card card">
+                        <div class="order-status">
+                            <span class="status-badge status-delivered">已完成</span>
+                        </div>
+                        <div class="order-id">订单 #EF202501170056</div>
+                        <div class="order-meta">
+                            <div class="meta-item">
+                                <i class="fas fa-user text-sm"></i>
+                                <span>广州贸易公司</span>
+                            </div>
+                            <div class="meta-item">
+                                <i class="fas fa-map-marker-alt text-sm"></i>
+                                <span>广州 → 成都</span>
+                            </div>
+                            <div class="meta-item">
+                                <i class="fas fa-box text-sm"></i>
+                                <span>日用品 | 12.8吨</span>
+                            </div>
+                            <div class="meta-item">
+                                <i class="fas fa-dollar-sign text-sm"></i>
+                                <span>¥6,800</span>
+                            </div>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 100%"></div>
+                        </div>
+                        <div class="text-sm text-green-600">已签收，客户满意度：5星</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Business Analytics -->
+            <div class="card">
+                <h3 class="text-lg font-bold mb-4">业务分析</h3>
+                <div class="chart-container">
+                    <canvas id="businessChart"></canvas>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-value">98.5%</div>
+                        <div class="stat-label">准时率</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">4.8</div>
+                        <div class="stat-label">客户评分</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">15.6天</div>
+                        <div class="stat-label">平均周期</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">85.2%</div>
+                        <div class="stat-label">客户留存率</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Additional Content -->
+        <div class="grid-2">
+            <!-- Top Customers -->
+            <div class="card">
+                <h3 class="text-lg font-bold mb-4">重要客户</h3>
+                <div class="space-y-3">
+                    <div class="customer-card">
+                        <div class="customer-avatar">
+                            <i class="fas fa-building text-lg" style="color: var(--business-primary)"></i>
+                        </div>
+                        <div class="customer-info">
+                            <div class="customer-name">北京科技有限公司</div>
+                            <div class="customer-details">本月订单：18单 | 总金额：¥156,000</div>
+                        </div>
+                        <div class="customer-value">VIP</div>
+                    </div>
+                    
+                    <div class="customer-card">
+                        <div class="customer-avatar">
+                            <i class="fas fa-industry text-lg" style="color: var(--business-primary)"></i>
+                        </div>
+                        <div class="customer-info">
+                            <div class="customer-name">深圳制造公司</div>
+                            <div class="customer-details">本月订单：12单 | 总金额：¥128,500</div>
+                        </div>
+                        <div class="customer-value">金牌</div>
+                    </div>
+                    
+                    <div class="customer-card">
+                        <div class="customer-avatar">
+                            <i class="fas fa-store text-lg" style="color: var(--business-primary)"></i>
+                        </div>
+                        <div class="customer-info">
+                            <div class="customer-name">广州贸易公司</div>
+                            <div class="customer-details">本月订单：15单 | 总金额：¥98,200</div>
+                        </div>
+                        <div class="customer-value">银牌</div>
+                    </div>
+                    
+                    <div class="customer-card">
+                        <div class="customer-avatar">
+                            <i class="fas fa-shopping-bag text-lg" style="color: var(--business-primary)"></i>
+                        </div>
+                        <div class="customer-info">
+                            <div class="customer-name">杭州电商公司</div>
+                            <div class="customer-details">本月订单：22单 | 总金额：¥86,700</div>
+                        </div>
+                        <div class="customer-value">铜牌</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Popular Routes -->
+            <div class="card">
+                <h3 class="text-lg font-bold mb-4">热门路线</h3>
+                <div class="space-y-2">
+                    <div class="route-item">
+                        <div class="route-icon">1</div>
+                        <div class="route-info">
+                            <div class="route-name">北京 → 上海</div>
+                            <div class="route-details">本周订单：125单 | 平均时效：24小时</div>
+                        </div>
+                        <div class="text-sm font-bold" style="color: var(--business-primary)">¥2,500</div>
+                    </div>
+                    
+                    <div class="route-item">
+                        <div class="route-icon">2</div>
+                        <div class="route-info">
+                            <div class="route-name">深圳 → 北京</div>
+                            <div class="route-details">本周订单：98单 | 平均时效：28小时</div>
+                        </div>
+                        <div class="text-sm font-bold" style="color: var(--business-primary)">¥2,800</div>
+                    </div>
+                    
+                    <div class="route-item">
+                        <div class="route-icon">3</div>
+                        <div class="route-info">
+                            <div class="route-name">广州 → 成都</div>
+                            <div class="route-details">本周订单：87单 | 平均时效：32小时</div>
+                        </div>
+                        <div class="text-sm font-bold" style="color: var(--business-primary)">¥2,200</div>
+                    </div>
+                    
+                    <div class="route-item">
+                        <div class="route-icon">4</div>
+                        <div class="route-info">
+                            <div class="route-name">杭州 → 武汉</div>
+                            <div class="route-details">本周订单：76单 | 平均时效：26小时</div>
+                        </div>
+                        <div class="text-sm font-bold" style="color: var(--business-primary)">¥2,100</div>
+                    </div>
+                    
+                    <div class="route-item">
+                        <div class="route-icon">5</div>
+                        <div class="route-info">
+                            <div class="route-name">成都 → 西安</div>
+                            <div class="route-details">本周订单：65单 | 平均时效：18小时</div>
+                        </div>
+                        <div class="text-sm font-bold" style="color: var(--business-primary)">¥1,800</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Notifications and Alerts -->
+        <div class="card">
+            <h3 class="text-lg font-bold mb-4">系统通知</h3>
+            <div class="space-y-0">
+                <div class="notification-item">
+                    <div class="notification-icon" style="background: #E8F5E8; color: #2E7D32;">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <div class="notification-content">
+                        <div class="notification-title">订单 #EF202501170056 已完成配送</div>
+                        <div class="notification-text">广州贸易公司的订单已成功送达成都，客户确认签收。</div>
+                        <div class="notification-time">2分钟前</div>
+                    </div>
+                </div>
+                
+                <div class="notification-item">
+                    <div class="notification-icon" style="background: #FFF3E0; color: #F57C00;">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="notification-content">
+                        <div class="notification-title">订单 #EF202501180003 延迟预警</div>
+                        <div class="notification-text">由于天气原因，苏州到济南的货运可能延迟6小时到达。</div>
+                        <div class="notification-time">15分钟前</div>
+                    </div>
+                </div>
+                
+                <div class="notification-item">
+                    <div class="notification-icon" style="background: #E3F2FD; color: #1976D2;">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                    <div class="notification-content">
+                        <div class="notification-title">新客户注册</div>
+                        <div class="notification-text">西安物流有限公司完成注册，已自动分配专属客户经理。</div>
+                        <div class="notification-time">1小时前</div>
+                    </div>
+                </div>
+                
+                <div class="notification-item">
+                    <div class="notification-icon" style="background: #F3E5F5; color: #7B1FA2;">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <div class="notification-content">
+                        <div class="notification-title">客户评价</div>
+                        <div class="notification-text">北京科技有限公司对订单 #EF202501170045 给出5星好评。</div>
+                        <div class="notification-time">2小时前</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 导航交互
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+        
+        // 初始化业务分析图表
+        const ctx = document.getElementById('businessChart').getContext('2d');
+        const businessChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+                datasets: [{
+                    label: '订单量',
+                    data: [1200, 1350, 1180, 1650, 1890, 2100, 2350, 2180, 2450, 2680, 2520, 2800],
+                    borderColor: '#00BCD4',
+                    backgroundColor: 'rgba(0, 188, 212, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }, {
+                    label: '收入 (万元)',
+                    data: [850, 920, 780, 1150, 1350, 1480, 1650, 1520, 1720, 1880, 1760, 1950],
+                    borderColor: '#26C6DA',
+                    backgroundColor: 'rgba(38, 198, 218, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0,0,0,0.1)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            color: 'rgba(0,0,0,0.1)'
+                        }
+                    }
+                }
+            }
+        });
+        
+        // 顶部操作按钮
+        document.querySelectorAll('.action-button').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const action = this.textContent.trim();
+                if (action.includes('新建订单')) {
+                    alert('跳转到订单创建页面...');
+                } else if (action.includes('导出报表')) {
+                    alert('正在生成业务报表...');
+                }
+            });
+        });
+        
+        // 客户卡片点击事件
+        document.querySelectorAll('.customer-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const customerName = this.querySelector('.customer-name').textContent;
+                alert(`查看客户详情：${customerName}`);
+            });
+        });
+        
+        // 路线卡片点击事件
+        document.querySelectorAll('.route-item').forEach(route => {
+            route.addEventListener('click', function() {
+                const routeName = this.querySelector('.route-name').textContent;
+                alert(`查看路线详情：${routeName}`);
+            });
+        });
+        
+        // 实时数据更新
+        setInterval(() => {
+            // 更新KPI数据
+            const kpiValues = document.querySelectorAll('.kpi-value');
+            kpiValues.forEach(value => {
+                if (value.textContent.includes('¥')) {
+                    // 收入数据
+                    const currentValue = parseFloat(value.textContent.replace('¥', '').replace('M', ''));
+                    const change = (Math.random() - 0.5) * 0.1;
+                    const newValue = Math.max(0, currentValue + change);
+                    value.textContent = `¥${newValue.toFixed(1)}M`;
+                } else if (!isNaN(parseInt(value.textContent))) {
+                    // 数量数据
+                    const currentValue = parseInt(value.textContent.replace(',', ''));
+                    const change = Math.floor((Math.random() - 0.5) * 10);
+                    const newValue = Math.max(0, currentValue + change);
+                    value.textContent = newValue.toLocaleString();
+                }
+            });
+            
+            // 更新进度条
+            document.querySelectorAll('.progress-fill').forEach(fill => {
+                const currentWidth = parseInt(fill.style.width);
+                if (currentWidth < 100) {
+                    const newWidth = Math.min(100, currentWidth + Math.random() * 5);
+                    fill.style.width = `${newWidth}%`;
+                }
+            });
+        }, 15000);
+        
+        // 订单卡片悬停效果
+        document.querySelectorAll('.order-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.borderLeftWidth = '6px';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.borderLeftWidth = '4px';
+            });
+        });
+        
+        // 通知点击事件
+        document.querySelectorAll('.notification-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const title = this.querySelector('.notification-title').textContent;
+                alert(`查看通知详情：${title}`);
+            });
+        });
+    </script>
+</body>
+</html>

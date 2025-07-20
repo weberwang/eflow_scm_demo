@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>财务订单管理 - eFlow</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .status-chip {
+            transition: all 0.2s ease;
+        }
+        .status-chip:hover {
+            transform: scale(1.05);
+        }
+        .order-card {
+            border-left: 4px solid #f59e0b;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 顶部导航 -->
+    <div class="gradient-bg text-white p-4">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center">
+                <button onclick="goBack()" class="mr-4">
+                    <i class="fas fa-arrow-left text-xl"></i>
+                </button>
+                <h1 class="text-xl font-bold">
+                    <i class="fas fa-coins mr-2"></i>
+                    财务订单管理
+                </h1>
+            </div>
+            <div class="flex items-center space-x-3">
+                <button onclick="searchOrders()" class="p-2">
+                    <i class="fas fa-search"></i>
+                </button>
+                <button onclick="addFinanceOrder()" class="p-2">
+                    <i class="fas fa-plus"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 统计卡片 -->
+    <div class="p-4">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <div class="bg-white rounded-lg p-4 text-center shadow-sm">
+                <div class="text-2xl font-bold text-orange-600">¥45.2万</div>
+                <div class="text-sm text-gray-600">待收款</div>
+            </div>
+            <div class="bg-white rounded-lg p-4 text-center shadow-sm">
+                <div class="text-2xl font-bold text-green-600">¥123.8万</div>
+                <div class="text-sm text-gray-600">已收款</div>
+            </div>
+            <div class="bg-white rounded-lg p-4 text-center shadow-sm">
+                <div class="text-2xl font-bold text-blue-600">¥28.5万</div>
+                <div class="text-sm text-gray-600">部分付款</div>
+            </div>
+            <div class="bg-white rounded-lg p-4 text-center shadow-sm">
+                <div class="text-2xl font-bold text-red-600">¥8.7万</div>
+                <div class="text-sm text-gray-600">逾期未付</div>
+            </div>
+        </div>
+
+        <!-- 状态筛选 -->
+        <div class="flex space-x-2 mb-4 overflow-x-auto">
+            <button onclick="filterByStatus('all')" class="status-chip px-4 py-2 bg-orange-100 text-orange-800 rounded-full text-sm whitespace-nowrap">
+                全部财务
+            </button>
+            <button onclick="filterByStatus('pending')" class="status-chip px-4 py-2 bg-orange-100 text-orange-800 rounded-full text-sm whitespace-nowrap">
+                待付款
+            </button>
+            <button onclick="filterByStatus('paid')" class="status-chip px-4 py-2 bg-green-100 text-green-800 rounded-full text-sm whitespace-nowrap">
+                已付款
+            </button>
+            <button onclick="filterByStatus('partial')" class="status-chip px-4 py-2 bg-blue-100 text-blue-800 rounded-full text-sm whitespace-nowrap">
+                部分付款
+            </button>
+            <button onclick="filterByStatus('overdue')" class="status-chip px-4 py-2 bg-red-100 text-red-800 rounded-full text-sm whitespace-nowrap">
+                逾期未付
+            </button>
+        </div>
+
+        <!-- 订单列表 -->
+        <div class="space-y-4">
+            <!-- 待付款订单 -->
+            <div class="order-card bg-white rounded-lg p-4 shadow-sm card-hover" data-status="pending">
+                <div class="flex items-start justify-between mb-3">
+                    <div>
+                        <div class="flex items-center mb-2">
+                            <span class="bg-orange-100 text-orange-800 px-2 py-1 rounded text-xs font-medium">待付款</span>
+                            <span class="ml-2 text-sm font-medium">#F2025072001</span>
+                        </div>
+                        <div class="text-sm text-gray-600">
+                            <i class="fas fa-file-invoice mr-1"></i>
+                            运输费用结算
+                        </div>
+                    </div>
+                    <button onclick="viewFinanceDetail('F2025072001')" class="text-orange-600">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+                <div class="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                        <div class="text-gray-500">订单编号</div>
+                        <div class="font-medium">T2025072001</div>
+                    </div>
+                    <div>
+                        <div class="text-gray-500">客户名称</div>
+                        <div class="font-medium">上海物流公司</div>
+                    </div>
+                    <div>
+                        <div class="text-gray-500">开票日期</div>
+                        <div class="font-medium">2025-07-18</div>
+                    </div>
+                    <div>
+                        <div class="text-gray-500">账期</div>
+                        <div class="font-medium">30天</div>
+                    </div>
+                </div>
+                <div class="mt-3 pt-3 border-t flex justify-between items-center">
+                    <div class="text-lg font-bold text-orange-600">¥4,800</div>
+                    <div class="flex space-x-2">
+                        <button onclick="sendReminder('F2025072001')" class="bg-orange-600 text-white px-3 py-1 rounded text-sm">
+                            <i class="fas fa-bell mr-1"></i>催收
+                        </button>
+                        <button onclick="recordPayment('F2025072001')" class="bg-green-600 text-white px-3 py-1 rounded text-sm">
+                            <i class="fas fa-money-bill mr-1"></i>收款
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 已付款订单 -->
+            <div class="order-card bg-white rounded-lg p-4 shadow-sm card-hover" data-status="paid">
+                <div class="flex items-start justify-between mb-3">
+                    <div>
+                        <div class="flex items-center mb-2">
+                            <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-medium">已付款</span>
+                            <span class="ml-2 text-sm font-medium">#F2025071801</span>
+                        </div>
+                        <div class="text-sm text-gray-600">
+                            <i class="fas fa-credit-card mr-1"></i>
+                            服务费用结算
+                        </div>
+                    </div>
+                    <button onclick="viewFinanceDetail('F2025071801')" class="text-orange-600">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+                <div class="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                        <div class="text-gray-500">服务编号</div>
+                        <div class="font-medium">S2025071801</div>
+                    </div>
+                    <div>
+                        <div class="text-gray-500">客户名称</div>
+                        <div class="font-medium">北京贸易有限公司</div>
+                    </div>
+                    <div>
+                        <div class="text-gray-500">付款日期</div>
+                        <div class="font-medium">2025-07-19</div>
+                    </div>
+                    <div>
+                        <div class="text-gray-500">付款方式</div>
+                        <div class="font-medium">银行转账</div>
+                    </div>
+                </div>
+                <div class="mt-3 pt-3 border-t flex justify-between items-center">
+                    <div class="text-lg font-bold text-green-600">¥1,200</div>
+                    <div class="flex space-x-2">
+                        <button onclick="downloadReceipt('F2025071801')" class="bg-gray-600 text-white px-3 py-1 rounded text-sm">
+                            <i class="fas fa-download mr-1"></i>收据
+                        </button>
+                        <button onclick="viewPaymentRecord('F2025071801')" class="bg-blue-600 text-white px-3 py-1 rounded text-sm">
+                            <i class="fas fa-history mr-1"></i>记录
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 部分付款订单 -->
+            <div class="order-card bg-white rounded-lg p-4 shadow-sm card-hover" data-status="partial">
+                <div class="flex items-start justify-between mb-3">
+                    <div>
+                        <div class="flex items-center mb-2">
+                            <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-medium">部分付款</span>
+                            <span class="ml-2 text-sm font-medium">#F2025071901</span>
+                        </div>
+                        <div class="text-sm text-gray-600">
+                            <i class="fas fa-percentage mr-1"></i>
+                            大额运输合同
+                        </div>
+                    </div>
+                    <button onclick="viewFinanceDetail('F2025071901')" class="text-orange-600">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+                <div class="bg-blue-50 p-3 rounded mb-3">
+                    <div class="flex items-center justify-between text-blue-800">
+                        <span class="text-sm font-medium">付款进度</span>
+                        <span class="text-sm">60% (¥18,000 / ¥30,000)</span>
+                    </div>
+                    <div class="w-full bg-blue-200 rounded-full h-2 mt-1">
+                        <div class="bg-blue-600 h-2 rounded-full" style="width: 60%"></div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                        <div class="text-gray-500">合同编号</div>
+                        <div class="font-medium">CT2025071901</div>
+                    </div>
+                    <div>
+                        <div class="text-gray-500">客户名称</div>
+                        <div class="font-medium">深圳制造集团</div>
+                    </div>
+                    <div>
+                        <div class="text-gray-500">最后付款</div>
+                        <div class="font-medium">3天前</div>
+                    </div>
+                    <div>
+                        <div class="text-gray-500">下次付款</div>
+                        <div class="font-medium">7天后</div>
+                    </div>
+                </div>
+                <div class="mt-3 pt-3 border-t flex justify-between items-center">
+                    <div class="text-lg font-bold text-blue-600">余款¥12,000</div>
+                    <div class="flex space-x-2">
+                        <button onclick="recordPartialPayment('F2025071901')" class="bg-blue-600 text-white px-3 py-1 rounded text-sm">
+                            <i class="fas fa-plus mr-1"></i>记账
+                        </button>
+                        <button onclick="adjustPaymentPlan('F2025071901')" class="bg-purple-600 text-white px-3 py-1 rounded text-sm">
+                            <i class="fas fa-calendar mr-1"></i>调整
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 逾期未付订单 -->
+            <div class="order-card bg-white rounded-lg p-4 shadow-sm card-hover" data-status="overdue">
+                <div class="flex items-start justify-between mb-3">
+                    <div>
+                        <div class="flex items-center mb-2">
+                            <span class="bg-red-100 text-red-800 px-2 py-1 rounded text-xs font-medium">逾期未付</span>
+                            <span class="ml-2 text-sm font-medium">#F2025071201</span>
+                        </div>
+                        <div class="text-sm text-gray-600">
+                            <i class="fas fa-exclamation-triangle mr-1"></i>
+                            紧急运输费用
+                        </div>
+                    </div>
+                    <button onclick="viewFinanceDetail('F2025071201')" class="text-orange-600">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+                <div class="bg-red-50 p-3 rounded mb-3">
+                    <div class="flex items-center text-red-800">
+                        <i class="fas fa-clock mr-2"></i>
+                        <span class="text-sm font-medium">逾期15天，产生滞纳金¥240</span>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                        <div class="text-gray-500">订单编号</div>
+                        <div class="font-medium">T2025071201</div>
+                    </div>
+                    <div>
+                        <div class="text-gray-500">客户名称</div>
+                        <div class="font-medium">广州进出口公司</div>
+                    </div>
+                    <div>
+                        <div class="text-gray-500">到期日期</div>
+                        <div class="font-medium">2025-07-05</div>
+                    </div>
+                    <div>
+                        <div class="text-gray-500">逾期天数</div>
+                        <div class="font-medium text-red-600">15天</div>
+                    </div>
+                </div>
+                <div class="mt-3 pt-3 border-t flex justify-between items-center">
+                    <div class="text-lg font-bold text-red-600">¥8,240</div>
+                    <div class="flex space-x-2">
+                        <button onclick="urgentCollection('F2025071201')" class="bg-red-600 text-white px-3 py-1 rounded text-sm">
+                            <i class="fas fa-phone mr-1"></i>催收
+                        </button>
+                        <button onclick="legalAction('F2025071201')" class="bg-gray-600 text-white px-3 py-1 rounded text-sm">
+                            <i class="fas fa-gavel mr-1"></i>法务
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 贷款还款订单 -->
+            <div class="order-card bg-white rounded-lg p-4 shadow-sm card-hover" data-status="pending">
+                <div class="flex items-start justify-between mb-3">
+                    <div>
+                        <div class="flex items-center mb-2">
+                            <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded text-xs font-medium">待还款</span>
+                            <span class="ml-2 text-sm font-medium">#F2025072005</span>
+                        </div>
+                        <div class="text-sm text-gray-600">
+                            <i class="fas fa-university mr-1"></i>
+                            供应链金融还款
+                        </div>
+                    </div>
+                    <button onclick="viewFinanceDetail('F2025072005')" class="text-orange-600">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+                <div class="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                        <div class="text-gray-500">贷款编号</div>
+                        <div class="font-medium">L2025060001</div>
+                    </div>
+                    <div>
+                        <div class="text-gray-500">贷款银行</div>
+                        <div class="font-medium">工商银行</div>
+                    </div>
+                    <div>
+                        <div class="text-gray-500">还款日期</div>
+                        <div class="font-medium">明天</div>
+                    </div>
+                    <div>
+                        <div class="text-gray-500">年化利率</div>
+                        <div class="font-medium">6.8%</div>
+                    </div>
+                </div>
+                <div class="mt-3 pt-3 border-t flex justify-between items-center">
+                    <div class="text-lg font-bold text-purple-600">¥22,568</div>
+                    <div class="flex space-x-2">
+                        <button onclick="autoRepayment('F2025072005')" class="bg-purple-600 text-white px-3 py-1 rounded text-sm">
+                            <i class="fas fa-robot mr-1"></i>自动
+                        </button>
+                        <button onclick="manualRepayment('F2025072005')" class="bg-blue-600 text-white px-3 py-1 rounded text-sm">
+                            <i class="fas fa-hand-paper mr-1"></i>手动
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部操作栏 -->
+    <div class="fixed bottom-0 left-0 right-0 bg-white border-t p-4">
+        <div class="flex space-x-3">
+            <button onclick="financialReports()" class="flex-1 bg-gray-100 text-gray-700 py-3 rounded-lg">
+                <i class="fas fa-chart-bar mr-2"></i>财务报表
+            </button>
+            <button onclick="batchPayment()" class="flex-1 bg-orange-600 text-white py-3 rounded-lg">
+                <i class="fas fa-layer-group mr-2"></i>批量操作
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // 页面导航
+        function goBack() {
+            window.history.back();
+        }
+
+        // 状态筛选
+        function filterByStatus(status) {
+            const orders = document.querySelectorAll('.order-card');
+            const chips = document.querySelectorAll('.status-chip');
+            
+            // 重置所有筛选按钮样式
+            chips.forEach(chip => {
+                chip.className = 'status-chip px-4 py-2 bg-gray-100 text-gray-600 rounded-full text-sm whitespace-nowrap';
+            });
+            
+            // 设置当前选中按钮样式
+            event.target.className = 'status-chip px-4 py-2 bg-orange-100 text-orange-800 rounded-full text-sm whitespace-nowrap';
+            
+            // 显示/隐藏订单
+            orders.forEach(order => {
+                if (status === 'all' || order.dataset.status === status) {
+                    order.style.display = 'block';
+                } else {
+                    order.style.display = 'none';
+                }
+            });
+        }
+
+        // 财务操作
+        function viewFinanceDetail(financeId) {
+            alert(`查看财务详情: ${financeId}\n\n功能包括：\n• 完整账单信息\n• 付款记录\n• 发票详情\n• 催收记录\n• 对账单据`);
+        }
+
+        function sendReminder(financeId) {
+            alert(`发送催收提醒: ${financeId}\n\n催收方式：\n• 短信提醒\n• 邮件通知\n• 电话催收\n• 微信推送\n• 系统消息`);
+        }
+
+        function recordPayment(financeId) {
+            const amount = prompt('请输入收款金额（元）：');
+            if (amount) {
+                alert(`收款记录成功！\n\n财务单号: ${financeId}\n收款金额: ¥${amount}\n收款时间: ${new Date().toLocaleString()}\n\n系统将自动更新账目状态`);
+            }
+        }
+
+        function downloadReceipt(financeId) {
+            alert(`下载收据: ${financeId}\n\n收据内容：\n• 收款确认单\n• 付款凭证\n• 税务发票\n• 对账单\n• 财务记录`);
+        }
+
+        function viewPaymentRecord(financeId) {
+            alert(`查看付款记录: ${financeId}\n\n记录详情：\n• 付款时间轴\n• 各次付款金额\n• 付款方式\n• 银行流水\n• 备注信息`);
+        }
+
+        function recordPartialPayment(financeId) {
+            const amount = prompt('请输入本次收款金额（元）：');
+            if (amount) {
+                alert(`部分收款记录成功！\n\n财务单号: ${financeId}\n本次收款: ¥${amount}\n\n系统将更新付款进度和余额`);
+            }
+        }
+
+        function adjustPaymentPlan(financeId) {
+            alert(`调整付款计划: ${financeId}\n\n可调整内容：\n• 付款时间节点\n• 付款金额分配\n• 付款方式\n• 账期安排\n• 优惠条件`);
+        }
+
+        function urgentCollection(financeId) {
+            alert(`紧急催收处理: ${financeId}\n\n催收措施：\n• 电话催收\n• 上门拜访\n• 法律函件\n• 停止合作\n• 法律诉讼`);
+        }
+
+        function legalAction(financeId) {
+            alert(`启动法务程序: ${financeId}\n\n法务流程：\n• 律师函发送\n• 仲裁申请\n• 诉讼准备\n• 资产保全\n• 强制执行`);
+        }
+
+        function autoRepayment(financeId) {
+            if (confirm('启用自动还款？\n\n系统将在还款日自动从绑定账户扣款')) {
+                alert(`自动还款设置成功！\n\n财务单号: ${financeId}\n还款日期: 明天\n扣款账户: 尾号1234\n\n请确保账户余额充足`);
+            }
+        }
+
+        function manualRepayment(financeId) {
+            alert(`手动还款: ${financeId}\n\n还款方式：\n• 网银转账\n• 银行柜台\n• 支付宝转账\n• 微信支付\n• 现金支付`);
+        }
+
+        function searchOrders() {
+            alert('财务订单搜索\n\n支持搜索：\n• 财务单号\n• 客户名称\n• 订单编号\n• 金额范围\n• 时间范围\n• 付款状态');
+        }
+
+        function addFinanceOrder() {
+            alert('创建财务订单\n\n订单类型：\n• 应收账款\n• 应付账款\n• 贷款记录\n• 费用报销\n• 投资收益');
+        }
+
+        function financialReports() {
+            alert('财务报表\n\n报表类型：\n• 应收账款汇总\n• 现金流报表\n• 利润分析\n• 账龄分析\n• 客户对账单');
+        }
+
+        function batchPayment() {
+            alert('批量财务操作\n\n批量功能：\n• 批量收款确认\n• 批量开票\n• 批量对账\n• 批量催收\n• 批量导出');
+        }
+    </script>
+</body>
+</html>

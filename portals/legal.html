@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>eFlow 法务门户 - Legal Portal</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --legal-primary: #1976D2;
+            --legal-secondary: #42A5F5;
+            --legal-accent: #BBDEFB;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+        
+        .sidebar {
+            background: linear-gradient(135deg, var(--legal-primary) 0%, var(--legal-secondary) 100%);
+            width: 280px;
+            min-height: 100vh;
+            color: white;
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .main-content {
+            margin-left: 280px;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .top-bar {
+            background: white;
+            border-radius: 16px;
+            padding: 20px 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: between;
+            align-items: center;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+        }
+        
+        .contract-card {
+            border-left: 4px solid var(--legal-primary);
+            margin-bottom: 16px;
+            position: relative;
+        }
+        
+        .contract-header {
+            display: flex;
+            justify-content: between;
+            align-items: start;
+            margin-bottom: 16px;
+        }
+        
+        .contract-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #212121;
+            margin-bottom: 8px;
+        }
+        
+        .contract-meta {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 12px;
+        }
+        
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 14px;
+            color: #757575;
+        }
+        
+        .contract-status {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+        }
+        
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-draft {
+            background: #FFF3E0;
+            color: #F57C00;
+        }
+        
+        .status-review {
+            background: #E3F2FD;
+            color: #1976D2;
+        }
+        
+        .status-signed {
+            background: #E8F5E8;
+            color: #2E7D32;
+        }
+        
+        .status-expired {
+            background: #FFEBEE;
+            color: #C62828;
+        }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 16px 24px;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+        
+        .nav-item:hover, .nav-item.active {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border-left-color: white;
+        }
+        
+        .nav-icon {
+            margin-right: 12px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .logo-section {
+            padding: 24px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .logo-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+        
+        .user-info {
+            padding: 20px 24px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .user-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 24px;
+            background: rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 12px;
+        }
+        
+        .breadcrumb {
+            color: #757575;
+            margin-bottom: 8px;
+        }
+        
+        .page-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #212121;
+        }
+        
+        .action-button {
+            background: var(--legal-primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .action-button:hover {
+            background: var(--legal-secondary);
+            transform: translateY(-1px);
+        }
+        
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+        
+        .grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 24px;
+        }
+        
+        .stats-card {
+            text-align: center;
+            padding: 32px 24px;
+        }
+        
+        .stats-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+        
+        .stats-value {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        
+        .stats-label {
+            color: #757575;
+            font-size: 14px;
+        }
+        
+        .risk-alert {
+            background: linear-gradient(135deg, #FFEBEE 0%, #FFCDD2 100%);
+            border-left: 4px solid #F44336;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .alert-title {
+            font-weight: bold;
+            color: #C62828;
+            margin-bottom: 8px;
+        }
+        
+        .alert-content {
+            color: #424242;
+            font-size: 14px;
+        }
+        
+        .timeline-item {
+            position: relative;
+            padding-left: 32px;
+            margin-bottom: 24px;
+        }
+        
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 8px;
+            top: 8px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--legal-primary);
+        }
+        
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            left: 11px;
+            top: 16px;
+            width: 2px;
+            height: calc(100% + 8px);
+            background: #E0E0E0;
+        }
+        
+        .timeline-item:last-child::after {
+            display: none;
+        }
+        
+        .timeline-date {
+            font-size: 12px;
+            color: #757575;
+            margin-bottom: 4px;
+        }
+        
+        .timeline-title {
+            font-weight: 500;
+            color: #212121;
+            margin-bottom: 4px;
+        }
+        
+        .timeline-desc {
+            font-size: 14px;
+            color: #757575;
+        }
+        
+        .filter-bar {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .filter-select {
+            padding: 8px 16px;
+            border: 1px solid #E0E0E0;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+        }
+        
+        .contract-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+        }
+        
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: var(--legal-primary);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: #F5F5F5;
+            color: #424242;
+        }
+        
+        .btn-danger {
+            background: #F44336;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <!-- Logo Section -->
+        <div class="logo-section">
+            <div class="logo-icon">
+                <i class="fas fa-balance-scale"></i>
+            </div>
+            <h2 class="text-xl font-bold">eFlow 法务门户</h2>
+            <p class="text-sm opacity-75">Legal Portal</p>
+        </div>
+        
+        <!-- User Info -->
+        <div class="user-info">
+            <div class="user-avatar">
+                <i class="fas fa-user-tie text-xl"></i>
+            </div>
+            <div class="font-medium">法务专员</div>
+            <div class="text-sm opacity-75">legal@company.com</div>
+        </div>
+        
+        <!-- Navigation -->
+        <nav class="py-4">
+            <a href="#" class="nav-item active">
+                <i class="fas fa-tachometer-alt nav-icon"></i>
+                法务仪表板
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-file-contract nav-icon"></i>
+                合同管理
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-gavel nav-icon"></i>
+                诉讼案件
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-shield-alt nav-icon"></i>
+                风险评估
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-book-open nav-icon"></i>
+                法规库
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-certificate nav-icon"></i>
+                资质管理
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-users nav-icon"></i>
+                律师团队
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-archive nav-icon"></i>
+                文档归档
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-cog nav-icon"></i>
+                系统设置
+            </a>
+        </nav>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div>
+                <div class="breadcrumb">首页 / 法务门户</div>
+                <h1 class="page-title">法务仪表板</h1>
+            </div>
+            <div class="flex items-center gap-4">
+                <button class="action-button">
+                    <i class="fas fa-plus"></i>
+                    新建合同
+                </button>
+                <button class="action-button">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    风险预警
+                    <span class="bg-red-500 text-white text-xs rounded-full px-2 py-1 ml-2">2</span>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Risk Alerts -->
+        <div class="risk-alert">
+            <div class="alert-title">
+                <i class="fas fa-exclamation-triangle mr-2"></i>
+                风险预警
+            </div>
+            <div class="alert-content">
+                检测到3份合同即将到期，请及时处理续签事宜。其中《物流服务框架协议》将于7天后到期。
+            </div>
+        </div>
+        
+        <!-- Stats Grid -->
+        <div class="grid-3">
+            <div class="card stats-card">
+                <i class="fas fa-file-contract stats-icon text-blue-500"></i>
+                <div class="stats-value text-blue-600">156</div>
+                <div class="stats-label">活跃合同</div>
+            </div>
+            <div class="card stats-card">
+                <i class="fas fa-clock stats-icon text-orange-500"></i>
+                <div class="stats-value text-orange-600">8</div>
+                <div class="stats-label">待审核合同</div>
+            </div>
+            <div class="card stats-card">
+                <i class="fas fa-exclamation-triangle stats-icon text-red-500"></i>
+                <div class="stats-value text-red-600">3</div>
+                <div class="stats-label">即将到期</div>
+            </div>
+        </div>
+        
+        <!-- Main Grid -->
+        <div class="grid-2">
+            <!-- Contract Management -->
+            <div class="card">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-bold">合同管理</h3>
+                    <div class="filter-bar">
+                        <select class="filter-select">
+                            <option>全部状态</option>
+                            <option>草稿</option>
+                            <option>审核中</option>
+                            <option>已签署</option>
+                            <option>已到期</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Contract List -->
+                <div class="space-y-4">
+                    <div class="contract-card card">
+                        <div class="contract-status">
+                            <span class="status-badge status-signed">已签署</span>
+                        </div>
+                        <div class="contract-title">物流服务框架协议</div>
+                        <div class="contract-meta">
+                            <div class="meta-item">
+                                <i class="fas fa-building text-sm"></i>
+                                <span>北京物流有限公司</span>
+                            </div>
+                            <div class="meta-item">
+                                <i class="fas fa-calendar text-sm"></i>
+                                <span>2024-01-15 - 2025-01-15</span>
+                            </div>
+                            <div class="meta-item">
+                                <i class="fas fa-dollar-sign text-sm"></i>
+                                <span>年度总额: ¥500万</span>
+                            </div>
+                        </div>
+                        <div class="contract-actions">
+                            <button class="btn-sm btn-primary">查看详情</button>
+                            <button class="btn-sm btn-secondary">下载PDF</button>
+                            <button class="btn-sm btn-secondary">续签</button>
+                        </div>
+                    </div>
+                    
+                    <div class="contract-card card">
+                        <div class="contract-status">
+                            <span class="status-badge status-review">审核中</span>
+                        </div>
+                        <div class="contract-title">货物运输保险合同</div>
+                        <div class="contract-meta">
+                            <div class="meta-item">
+                                <i class="fas fa-shield-alt text-sm"></i>
+                                <span>中国人保财险</span>
+                            </div>
+                            <div class="meta-item">
+                                <i class="fas fa-calendar text-sm"></i>
+                                <span>2025-02-01 - 2026-02-01</span>
+                            </div>
+                            <div class="meta-item">
+                                <i class="fas fa-dollar-sign text-sm"></i>
+                                <span>保费总额: ¥85万</span>
+                            </div>
+                        </div>
+                        <div class="contract-actions">
+                            <button class="btn-sm btn-primary">审核通过</button>
+                            <button class="btn-sm btn-secondary">查看详情</button>
+                            <button class="btn-sm btn-danger">驳回</button>
+                        </div>
+                    </div>
+                    
+                    <div class="contract-card card">
+                        <div class="contract-status">
+                            <span class="status-badge status-draft">草稿</span>
+                        </div>
+                        <div class="contract-title">设备租赁协议</div>
+                        <div class="contract-meta">
+                            <div class="meta-item">
+                                <i class="fas fa-truck text-sm"></i>
+                                <span>专业运输设备公司</span>
+                            </div>
+                            <div class="meta-item">
+                                <i class="fas fa-calendar text-sm"></i>
+                                <span>待确定</span>
+                            </div>
+                            <div class="meta-item">
+                                <i class="fas fa-dollar-sign text-sm"></i>
+                                <span>月租金: ¥12万</span>
+                            </div>
+                        </div>
+                        <div class="contract-actions">
+                            <button class="btn-sm btn-primary">继续编辑</button>
+                            <button class="btn-sm btn-secondary">发送审核</button>
+                            <button class="btn-sm btn-danger">删除草稿</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recent Activities -->
+            <div class="card">
+                <h3 class="text-lg font-bold mb-4">最近活动</h3>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-date">2025-01-18 14:30</div>
+                        <div class="timeline-title">合同审核完成</div>
+                        <div class="timeline-desc">《货物运输保险合同》审核通过，已发送给对方签署</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-date">2025-01-18 11:20</div>
+                        <div class="timeline-title">风险评估报告</div>
+                        <div class="timeline-desc">完成北京物流公司的信用风险评估，评级为A级</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-date">2025-01-18 09:15</div>
+                        <div class="timeline-title">合同模板更新</div>
+                        <div class="timeline-desc">根据最新法规要求，更新了运输服务合同模板</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-date">2025-01-17 16:45</div>
+                        <div class="timeline-title">法律咨询</div>
+                        <div class="timeline-desc">就国际物流合规问题咨询了外部律师事务所</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-date">2025-01-17 13:30</div>
+                        <div class="timeline-title">案件进展更新</div>
+                        <div class="timeline-desc">货损纠纷案已达成调解协议，案件结案</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Legal Resources -->
+        <div class="card">
+            <h3 class="text-lg font-bold mb-4">法律资源</h3>
+            <div class="grid-3">
+                <div class="text-center p-6 bg-blue-50 rounded-lg">
+                    <i class="fas fa-book text-3xl text-blue-500 mb-4"></i>
+                    <h4 class="font-bold text-lg mb-2">法规库</h4>
+                    <p class="text-sm text-gray-600 mb-4">最新物流相关法规</p>
+                    <button class="btn-sm btn-primary">查看法规</button>
+                </div>
+                <div class="text-center p-6 bg-green-50 rounded-lg">
+                    <i class="fas fa-file-alt text-3xl text-green-500 mb-4"></i>
+                    <h4 class="font-bold text-lg mb-2">合同模板</h4>
+                    <p class="text-sm text-gray-600 mb-4">标准化合同模板库</p>
+                    <button class="btn-sm btn-primary">选择模板</button>
+                </div>
+                <div class="text-center p-6 bg-orange-50 rounded-lg">
+                    <i class="fas fa-users text-3xl text-orange-500 mb-4"></i>
+                    <h4 class="font-bold text-lg mb-2">律师团队</h4>
+                    <p class="text-sm text-gray-600 mb-4">专业法律顾问</p>
+                    <button class="btn-sm btn-primary">联系律师</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Compliance Check -->
+        <div class="grid-2">
+            <div class="card">
+                <h3 class="text-lg font-bold mb-4">合规检查</h3>
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between p-4 bg-green-50 rounded-lg">
+                        <div class="flex items-center">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <div>
+                                <div class="font-medium">营业执照</div>
+                                <div class="text-sm text-gray-600">有效期至 2026-12-31</div>
+                            </div>
+                        </div>
+                        <span class="text-green-600 font-medium">正常</span>
+                    </div>
+                    <div class="flex items-center justify-between p-4 bg-green-50 rounded-lg">
+                        <div class="flex items-center">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <div>
+                                <div class="font-medium">道路运输许可证</div>
+                                <div class="text-sm text-gray-600">有效期至 2025-08-15</div>
+                            </div>
+                        </div>
+                        <span class="text-green-600 font-medium">正常</span>
+                    </div>
+                    <div class="flex items-center justify-between p-4 bg-yellow-50 rounded-lg">
+                        <div class="flex items-center">
+                            <i class="fas fa-exclamation-triangle text-yellow-500 mr-3"></i>
+                            <div>
+                                <div class="font-medium">危险品运输资质</div>
+                                <div class="text-sm text-gray-600">有效期至 2025-03-20</div>
+                            </div>
+                        </div>
+                        <span class="text-yellow-600 font-medium">即将到期</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3 class="text-lg font-bold mb-4">案件统计</h3>
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-600">进行中案件</span>
+                        <span class="font-bold text-blue-600">2</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-600">已结案件</span>
+                        <span class="font-bold text-green-600">15</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-600">胜诉率</span>
+                        <span class="font-bold text-green-600">86.7%</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-600">平均处理时间</span>
+                        <span class="font-bold text-gray-800">45天</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 导航交互
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+        
+        // 合同操作按钮
+        document.querySelectorAll('.btn-sm').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const action = this.textContent.trim();
+                alert(`执行操作：${action}`);
+            });
+        });
+        
+        // 顶部操作按钮
+        document.querySelectorAll('.action-button').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const action = this.textContent.trim();
+                if (action.includes('新建合同')) {
+                    alert('跳转到合同编辑器...');
+                } else if (action.includes('风险预警')) {
+                    alert('风险预警详情：\n\n1. 3份合同即将到期\n2. 1个资质需要续期\n3. 2个案件需要跟进');
+                }
+            });
+        });
+        
+        // 筛选器变化
+        document.querySelectorAll('.filter-select').forEach(select => {
+            select.addEventListener('change', function() {
+                console.log('筛选条件变更：', this.value);
+                // 这里可以添加筛选逻辑
+            });
+        });
+        
+        // 模拟实时数据更新
+        setInterval(() => {
+            // 更新统计数据
+            const statsValues = document.querySelectorAll('.stats-value');
+            statsValues.forEach(value => {
+                const currentValue = parseInt(value.textContent);
+                const change = Math.floor((Math.random() - 0.5) * 2);
+                const newValue = Math.max(0, currentValue + change);
+                value.textContent = newValue;
+            });
+        }, 30000);
+        
+        // 合同卡片悬停效果
+        document.querySelectorAll('.contract-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.borderLeftWidth = '6px';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.borderLeftWidth = '4px';
+            });
+        });
+        
+        // 时间线动画
+        document.querySelectorAll('.timeline-item').forEach((item, index) => {
+            item.style.animationDelay = `${index * 0.1}s`;
+            item.style.animation = 'fadeInLeft 0.5s ease-out forwards';
+        });
+        
+        // 添加 CSS 动画
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeInLeft {
+                from {
+                    opacity: 0;
+                    transform: translateX(-20px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateX(0);
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

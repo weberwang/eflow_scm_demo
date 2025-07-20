@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>eFlow - 身份验证</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="../components/styles.css" rel="stylesheet">
+    <style>
+        .auth-container {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px 0;
+        }
+        
+        .auth-card {
+            background: white;
+            border-radius: 24px;
+            padding: 32px 24px;
+            margin: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        
+        .auth-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        
+        .auth-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #212121;
+            margin-bottom: 8px;
+        }
+        
+        .auth-subtitle {
+            color: #757575;
+            font-size: 16px;
+        }
+        
+        .role-option {
+            background: #F8F9FA;
+            border: 2px solid #E0E0E0;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .role-option:hover {
+            border-color: #1B73E8;
+            background: #F3F8FF;
+        }
+        
+        .role-option.selected {
+            border-color: #1B73E8;
+            background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%);
+        }
+        
+        .role-option.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: #F5F5F5;
+        }
+        
+        .role-option.disabled:hover {
+            border-color: #E0E0E0;
+            background: #F5F5F5;
+        }
+        
+        .role-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            color: #1B73E8;
+        }
+        
+        .role-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #212121;
+            margin-bottom: 8px;
+        }
+        
+        .role-description {
+            color: #757575;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .role-badge {
+            display: inline-block;
+            background: #FF8F00;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-top: 8px;
+        }
+        
+        .auth-buttons {
+            margin-top: 32px;
+            display: flex;
+            gap: 12px;
+        }
+        
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .steps-indicator {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 24px;
+            gap: 8px;
+        }
+        
+        .step-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 4px;
+            background: #E0E0E0;
+            transition: all 0.3s ease;
+        }
+        
+        .step-dot.active {
+            background: #1B73E8;
+            width: 24px;
+        }
+        
+        .feature-list {
+            text-align: left;
+            margin-top: 16px;
+        }
+        
+        .feature-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            color: #424242;
+            font-size: 14px;
+        }
+        
+        .feature-item i {
+            color: #34A853;
+            margin-right: 8px;
+            font-size: 12px;
+        }
+        
+        .role-stats {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #E0E0E0;
+            font-size: 12px;
+            color: #757575;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <button class="back-btn">
+            <i class="fas fa-arrow-left text-xl"></i>
+        </button>
+        
+        <div class="auth-card">
+            <!-- Steps Indicator -->
+            <div class="steps-indicator">
+                <div class="step-dot active"></div>
+                <div class="step-dot"></div>
+                <div class="step-dot"></div>
+            </div>
+            
+            <!-- Header -->
+            <div class="auth-header">
+                <div class="auth-title">
+                    <i class="fas fa-shield-alt text-blue-500 mr-2"></i>
+                    身份验证
+                </div>
+                <div class="auth-subtitle">请选择您的身份类型</div>
+            </div>
+            
+            <!-- Role Options -->
+            <div class="space-y-4">
+                <!-- 货主企业 -->
+                <div class="role-option" data-role="shipper">
+                    <div class="role-icon">
+                        <i class="fas fa-building"></i>
+                    </div>
+                    <div class="role-title">货主企业</div>
+                    <div class="role-description">发布货源，寻找承运商</div>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <i class="fas fa-check"></i>
+                            <span>发布货源信息</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-check"></i>
+                            <span>筛选优质承运商</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-check"></i>
+                            <span>运费支付管理</span>
+                        </div>
+                    </div>
+                    <div class="role-stats">
+                        当前平台货主数量：12,580+ | 平均运价：¥3.2/吨公里
+                    </div>
+                </div>
+                
+                <!-- 物流公司 -->
+                <div class="role-option" data-role="carrier">
+                    <div class="role-icon">
+                        <i class="fas fa-truck"></i>
+                    </div>
+                    <div class="role-title">物流公司</div>
+                    <div class="role-description">承接货源，提供运输服务</div>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <i class="fas fa-check"></i>
+                            <span>承接货源订单</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-check"></i>
+                            <span>车辆管理调度</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-check"></i>
+                            <span>运费收款结算</span>
+                        </div>
+                    </div>
+                    <div class="role-stats">
+                        当前承运商数量：8,920+ | 平均接单率：85%
+                    </div>
+                </div>
+                
+                <!-- 个体司机 -->
+                <div class="role-option" data-role="driver">
+                    <div class="role-icon">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
+                    <div class="role-title">个体司机</div>
+                    <div class="role-description">接单拉货，灵活就业</div>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <i class="fas fa-check"></i>
+                            <span>快速抢单接货</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-check"></i>
+                            <span>路线智能规划</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-check"></i>
+                            <span>在线收款服务</span>
+                        </div>
+                    </div>
+                    <div class="role-stats">
+                        当前司机数量：25,860+ | 平均月收入：¥8,500
+                    </div>
+                </div>
+                
+                <!-- 金融机构 - 即将开放 -->
+                <div class="role-option disabled" data-role="finance">
+                    <div class="role-icon">
+                        <i class="fas fa-university"></i>
+                    </div>
+                    <div class="role-title">金融机构</div>
+                    <div class="role-description">提供供应链金融服务</div>
+                    <div class="role-badge">即将开放</div>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <i class="fas fa-clock"></i>
+                            <span>运费垫付服务</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-clock"></i>
+                            <span>信用评估服务</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-clock"></i>
+                            <span>风险管理服务</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 服务提供商 - 即将开放 -->
+                <div class="role-option disabled" data-role="service">
+                    <div class="role-icon">
+                        <i class="fas fa-cogs"></i>
+                    </div>
+                    <div class="role-title">服务提供商</div>
+                    <div class="role-description">提供专业增值服务</div>
+                    <div class="role-badge">即将开放</div>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <i class="fas fa-clock"></i>
+                            <span>仓储管理服务</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-clock"></i>
+                            <span>保险理赔服务</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-clock"></i>
+                            <span>技术支持服务</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="auth-buttons">
+                <button class="btn-secondary flex-1" id="cancelBtn">取消</button>
+                <button class="btn-primary flex-1" id="confirmBtn" disabled>确认选择</button>
+            </div>
+            
+            <!-- Additional Info -->
+            <div class="mt-6 text-center text-sm text-gray-500">
+                <p>选择身份后需要进行实名认证</p>
+                <p class="mt-1">我们将保护您的个人信息安全</p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let selectedRole = null;
+        
+        // 角色选择逻辑
+        document.querySelectorAll('.role-option').forEach(option => {
+            option.addEventListener('click', function() {
+                // 如果是禁用的选项，直接返回
+                if (this.classList.contains('disabled')) {
+                    alert('该身份类型即将开放，敬请期待！');
+                    return;
+                }
+                
+                // 清除之前的选择
+                document.querySelectorAll('.role-option').forEach(opt => {
+                    opt.classList.remove('selected');
+                });
+                
+                // 选中当前选项
+                this.classList.add('selected');
+                selectedRole = this.dataset.role;
+                
+                // 启用确认按钮
+                document.getElementById('confirmBtn').disabled = false;
+                
+                // 添加选择动画
+                this.style.transform = 'scale(0.98)';
+                setTimeout(() => {
+                    this.style.transform = 'scale(1)';
+                }, 150);
+            });
+        });
+        
+        // 确认按钮点击
+        document.getElementById('confirmBtn').addEventListener('click', function() {
+            if (!selectedRole) return;
+            
+            const roleNames = {
+                'shipper': '货主企业',
+                'carrier': '物流公司',
+                'driver': '个体司机'
+            };
+            
+            const roleName = roleNames[selectedRole];
+            
+            // 模拟跳转到注册页面
+            alert(`您选择的身份：${roleName}\n\n即将跳转到注册页面进行身份认证...`);
+            
+            // 这里可以跳转到对应的注册页面
+            // window.location.href = `register.html?role=${selectedRole}`;
+        });
+        
+        // 取消按钮点击
+        document.getElementById('cancelBtn').addEventListener('click', function() {
+            if (confirm('确定要取消身份验证吗？')) {
+                // 返回上一页或首页
+                window.history.back();
+            }
+        });
+        
+        // 返回按钮点击
+        document.querySelector('.back-btn').addEventListener('click', function() {
+            window.history.back();
+        });
+        
+        // 选项悬停效果
+        document.querySelectorAll('.role-option:not(.disabled)').forEach(option => {
+            option.addEventListener('mouseenter', function() {
+                if (!this.classList.contains('selected')) {
+                    this.style.transform = 'translateY(-2px)';
+                    this.style.boxShadow = '0 8px 24px rgba(0,0,0,0.15)';
+                }
+            });
+            
+            option.addEventListener('mouseleave', function() {
+                if (!this.classList.contains('selected')) {
+                    this.style.transform = 'translateY(0)';
+                    this.style.boxShadow = 'none';
+                }
+            });
+        });
+        
+        // 步骤指示器动画
+        function updateStepIndicator(step) {
+            document.querySelectorAll('.step-dot').forEach((dot, index) => {
+                dot.classList.toggle('active', index <= step);
+            });
+        }
+        
+        // 模拟加载数据
+        setTimeout(() => {
+            // 可以在这里添加加载真实数据的逻辑
+            console.log('身份验证页面数据加载完成');
+        }, 1000);
+        
+        // 键盘快捷键支持
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                document.getElementById('cancelBtn').click();
+            } else if (e.key === 'Enter' && selectedRole) {
+                document.getElementById('confirmBtn').click();
+            }
+        });
+    </script>
+</body>
+</html>

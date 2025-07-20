@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>eFlow - 个人中心</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="../components/styles.css" rel="stylesheet">
+    <style>
+        body {
+            padding-bottom: 80px;
+        }
+        
+        .user-header {
+            background: linear-gradient(135deg, #1B73E8 0%, #4285F4 100%);
+            color: white;
+            padding: 24px 16px;
+            border-radius: 0 0 24px 24px;
+        }
+        
+        .user-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 40px;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            margin-bottom: 16px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .user-name {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        
+        .user-role {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 14px;
+            display: inline-block;
+            margin-bottom: 8px;
+        }
+        
+        .credit-score {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+        
+        .menu-section {
+            background: white;
+            margin: 16px;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        }
+        
+        .section-title {
+            padding: 16px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #212121;
+            border-bottom: 1px solid #F0F0F0;
+            background: #FAFAFA;
+        }
+        
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 16px 20px;
+            border-bottom: 1px solid #F0F0F0;
+            text-decoration: none;
+            color: #212121;
+            transition: all 0.3s ease;
+        }
+        
+        .menu-item:hover {
+            background: #F8F9FA;
+        }
+        
+        .menu-item:last-child {
+            border-bottom: none;
+        }
+        
+        .menu-icon {
+            width: 24px;
+            height: 24px;
+            margin-right: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+        
+        .menu-content {
+            flex: 1;
+        }
+        
+        .menu-title {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+        
+        .menu-subtitle {
+            font-size: 12px;
+            color: #757575;
+        }
+        
+        .menu-arrow {
+            color: #BDBDBD;
+        }
+        
+        .menu-badge {
+            background: #FF5722;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 8px;
+            font-size: 10px;
+            margin-right: 8px;
+        }
+        
+        .login-prompt {
+            background: white;
+            margin: 16px;
+            border-radius: 16px;
+            padding: 32px 20px;
+            text-align: center;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        }
+        
+        .login-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 40px;
+            background: linear-gradient(135deg, #1B73E8 0%, #4285F4 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            color: white;
+            margin: 0 auto 20px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin: 16px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .stat-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #1B73E8;
+            margin-bottom: 4px;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #757575;
+        }
+        
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin: 16px;
+        }
+        
+        .quick-action {
+            background: white;
+            border-radius: 12px;
+            padding: 16px 8px;
+            text-align: center;
+            text-decoration: none;
+            color: #212121;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .quick-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+        }
+        
+        .quick-action i {
+            font-size: 24px;
+            margin-bottom: 8px;
+            display: block;
+        }
+        
+        .quick-action span {
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .version-info {
+            text-align: center;
+            padding: 20px;
+            color: #BDBDBD;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 判断登录状态 -->
+    <div id="loggedInContent" style="display: none;">
+        <!-- User Header -->
+        <div class="user-header">
+            <div class="flex items-start justify-between">
+                <div class="flex items-start">
+                    <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="ml-4">
+                        <div class="user-name">张三</div>
+                        <div class="user-role">
+                            <i class="fas fa-building mr-1"></i>
+                            认证货主
+                        </div>
+                        <div class="credit-score">
+                            <i class="fas fa-star text-yellow-300"></i>
+                            <span>信用分 485</span>
+                            <span class="text-xs opacity-75">优秀</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex flex-col items-end gap-2">
+                    <button class="p-2 bg-white bg-opacity-20 rounded-lg">
+                        <i class="fas fa-cog text-xl"></i>
+                    </button>
+                    <button class="p-2 bg-white bg-opacity-20 rounded-lg">
+                        <i class="fas fa-edit text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quick Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value">12</div>
+                <div class="stat-label">进行中订单</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">3</div>
+                <div class="stat-label">待发布货源</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">¥2.3万</div>
+                <div class="stat-label">本月交易</div>
+            </div>
+        </div>
+        
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <a href="#" class="quick-action">
+                <i class="fas fa-plus text-blue-500"></i>
+                <span>发布货源</span>
+            </a>
+            <a href="#" class="quick-action">
+                <i class="fas fa-search text-green-500"></i>
+                <span>找车源</span>
+            </a>
+            <a href="#" class="quick-action">
+                <i class="fas fa-file-alt text-orange-500"></i>
+                <span>合同管理</span>
+            </a>
+            <a href="#" class="quick-action">
+                <i class="fas fa-headset text-purple-500"></i>
+                <span>客服中心</span>
+            </a>
+        </div>
+        
+        <!-- Business Section -->
+        <div class="menu-section">
+            <div class="section-title">
+                <i class="fas fa-briefcase mr-2 text-blue-500"></i>
+                我的业务
+            </div>
+            <a href="#" class="menu-item">
+                <div class="menu-icon">
+                    <i class="fas fa-boxes text-orange-500"></i>
+                </div>
+                <div class="menu-content">
+                    <div class="menu-title">我的货源</div>
+                    <div class="menu-subtitle">管理发布的货源信息</div>
+                </div>
+                <span class="menu-badge">3</span>
+                <i class="fas fa-chevron-right menu-arrow"></i>
+            </a>
+            <a href="orders.html" class="menu-item" onclick="navigateToOrders(event)">
+                <div class="menu-icon">
+                    <i class="fas fa-clipboard-list text-blue-500"></i>
+                </div>
+                <div class="menu-content">
+                    <div class="menu-title">我的订单</div>
+                    <div class="menu-subtitle">查看订单状态和详情</div>
+                </div>
+                <span class="menu-badge">12</span>
+                <i class="fas fa-chevron-right menu-arrow"></i>
+            </a>
+            <a href="#" class="menu-item">
+                <div class="menu-icon">
+                    <i class="fas fa-wallet text-green-500"></i>
+                </div>
+                <div class="menu-content">
+                    <div class="menu-title">资金账户</div>
+                    <div class="menu-subtitle">余额、交易记录、提现</div>
+                </div>
+                <i class="fas fa-chevron-right menu-arrow"></i>
+            </a>
+            <a href="#" class="menu-item">
+                <div class="menu-icon">
+                    <i class="fas fa-chart-bar text-purple-500"></i>
+                </div>
+                <div class="menu-content">
+                    <div class="menu-title">数据报表</div>
+                    <div class="menu-subtitle">业务数据统计分析</div>
+                </div>
+                <i class="fas fa-chevron-right menu-arrow"></i>
+            </a>
+        </div>
+        
+        <!-- Tools Section -->
+        <div class="menu-section">
+            <div class="section-title">
+                <i class="fas fa-tools mr-2 text-orange-500"></i>
+                工具服务
+            </div>
+            <a href="#" class="menu-item">
+                <div class="menu-icon">
+                    <i class="fas fa-receipt text-blue-500"></i>
+                </div>
+                <div class="menu-content">
+                    <div class="menu-title">发票管理</div>
+                    <div class="menu-subtitle">开票申请、发票下载</div>
+                </div>
+                <i class="fas fa-chevron-right menu-arrow"></i>
+            </a>
+            <a href="#" class="menu-item">
+                <div class="menu-icon">
+                    <i class="fas fa-bell text-orange-500"></i>
+                </div>
+                <div class="menu-content">
+                    <div class="menu-title">消息设置</div>
+                    <div class="menu-subtitle">通知偏好设置</div>
+                </div>
+                <i class="fas fa-chevron-right menu-arrow"></i>
+            </a>
+            <a href="#" class="menu-item">
+                <div class="menu-icon">
+                    <i class="fas fa-headset text-green-500"></i>
+                </div>
+                <div class="menu-content">
+                    <div class="menu-title">客服中心</div>
+                    <div class="menu-subtitle">在线客服、问题反馈</div>
+                </div>
+                <i class="fas fa-chevron-right menu-arrow"></i>
+            </a>
+            <a href="#" class="menu-item">
+                <div class="menu-icon">
+                    <i class="fas fa-question-circle text-blue-500"></i>
+                </div>
+                <div class="menu-content">
+                    <div class="menu-title">帮助中心</div>
+                    <div class="menu-subtitle">常见问题、使用指南</div>
+                </div>
+                <i class="fas fa-chevron-right menu-arrow"></i>
+            </a>
+        </div>
+    </div>
+    
+    <!-- 未登录状态 -->
+    <div id="notLoggedInContent">
+        <!-- Login Prompt -->
+        <div class="login-prompt">
+            <div class="login-icon">
+                <i class="fas fa-user"></i>
+            </div>
+            <h2 class="text-xl font-bold text-gray-800 mb-4">登录/注册</h2>
+            <p class="text-gray-600 mb-6">登录后享受更多专业服务</p>
+            <div class="flex gap-3 justify-center">
+                <button id="loginBtn" class="btn-primary px-8 py-3">立即登录</button>
+                <button id="registerBtn" class="btn-secondary px-8 py-3">快速注册</button>
+            </div>
+        </div>
+        
+        <!-- Basic Features -->
+        <div class="menu-section">
+            <div class="section-title">
+                <i class="fas fa-cog mr-2 text-gray-500"></i>
+                基础功能
+            </div>
+            <a href="#" class="menu-item">
+                <div class="menu-icon">
+                    <i class="fas fa-headset text-green-500"></i>
+                </div>
+                <div class="menu-content">
+                    <div class="menu-title">客服中心</div>
+                    <div class="menu-subtitle">7×24小时在线服务</div>
+                </div>
+                <i class="fas fa-chevron-right menu-arrow"></i>
+            </a>
+            <a href="#" class="menu-item">
+                <div class="menu-icon">
+                    <i class="fas fa-question-circle text-blue-500"></i>
+                </div>
+                <div class="menu-content">
+                    <div class="menu-title">帮助中心</div>
+                    <div class="menu-subtitle">常见问题、使用指南</div>
+                </div>
+                <i class="fas fa-chevron-right menu-arrow"></i>
+            </a>
+            <a href="#" class="menu-item">
+                <div class="menu-icon">
+                    <i class="fas fa-balance-scale text-purple-500"></i>
+                </div>
+                <div class="menu-content">
+                    <div class="menu-title">法律条款</div>
+                    <div class="menu-subtitle">用户协议、服务条款</div>
+                </div>
+                <i class="fas fa-chevron-right menu-arrow"></i>
+            </a>
+            <a href="#" class="menu-item">
+                <div class="menu-icon">
+                    <i class="fas fa-shield-alt text-gray-500"></i>
+                </div>
+                <div class="menu-content">
+                    <div class="menu-title">隐私政策</div>
+                    <div class="menu-subtitle">数据保护、隐私说明</div>
+                </div>
+                <i class="fas fa-chevron-right menu-arrow"></i>
+            </a>
+            <a href="#" class="menu-item">
+                <div class="menu-icon">
+                    <i class="fas fa-info-circle text-blue-500"></i>
+                </div>
+                <div class="menu-content">
+                    <div class="menu-title">关于我们</div>
+                    <div class="menu-subtitle">公司介绍、联系方式</div>
+                </div>
+                <i class="fas fa-chevron-right menu-arrow"></i>
+            </a>
+        </div>
+    </div>
+    
+    <!-- Version Info -->
+    <div class="version-info">
+        <p>eFlow 智慧货运平台 v2.1.0</p>
+        <p>© 2025 eFlow Technology</p>
+    </div>
+    
+    <!-- Tab Bar -->
+    <div class="tab-bar flex">
+        <a href="#" class="tab-item">
+            <i class="fas fa-home"></i>
+            <span>首页</span>
+        </a>
+        <a href="#" class="tab-item">
+            <i class="fas fa-truck"></i>
+            <span>货运</span>
+        </a>
+        <a href="#" class="tab-item">
+            <i class="fas fa-cogs"></i>
+            <span>服务</span>
+        </a>
+        <a href="#" class="tab-item">
+            <i class="fas fa-chart-bar"></i>
+            <span>数据</span>
+        </a>
+        <a href="#" class="tab-item active">
+            <i class="fas fa-user"></i>
+            <span>我的</span>
+        </a>
+    </div>
+    
+    <script>
+        // 模拟登录状态 - 默认显示未登录状态
+        let isLoggedIn = false;
+        
+        // 切换登录状态显示
+        function toggleLoginState() {
+            const loggedInContent = document.getElementById('loggedInContent');
+            const notLoggedInContent = document.getElementById('notLoggedInContent');
+            
+            if (isLoggedIn) {
+                loggedInContent.style.display = 'block';
+                notLoggedInContent.style.display = 'none';
+            } else {
+                loggedInContent.style.display = 'none';
+                notLoggedInContent.style.display = 'block';
+            }
+        }
+        
+        // 初始化页面
+        toggleLoginState();
+        
+        // 登录按钮点击
+        document.getElementById('loginBtn').addEventListener('click', function() {
+            // 模拟登录
+            isLoggedIn = true;
+            toggleLoginState();
+            
+            // 显示登录成功提示
+            setTimeout(() => {
+                alert('登录成功！\n\n欢迎回来，张三\n您的身份：认证货主');
+            }, 500);
+        });
+        
+        // 注册按钮点击
+        document.getElementById('registerBtn').addEventListener('click', function() {
+            alert('跳转到注册页面\n\n请选择您的身份类型：\n- 货主企业\n- 物流公司\n- 个体司机');
+        });
+        
+        // 菜单项点击交互
+        document.querySelectorAll('.menu-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                const title = this.querySelector('.menu-title').textContent;
+                
+                // 根据不同菜单项显示不同内容
+                if (title.includes('客服中心')) {
+                    alert('客服中心\n\n📞 客服热线：400-888-6688\n💬 在线客服：24小时服务\n📧 邮箱：service@eflow.com');
+                } else if (title.includes('帮助中心')) {
+                    alert('帮助中心\n\n常见问题：\n- 如何发布货源？\n- 如何寻找车源？\n- 运费如何结算？\n- 发票如何开具？');
+                } else if (title.includes('关于我们')) {
+                    alert('关于 eFlow\n\n🌐 专业的网络货运平台\n🚀 智慧物流解决方案\n📍 总部：北京市朝阳区\n📞 联系电话：010-12345678');
+                } else {
+                    alert(`您点击了：${title}\n\n该功能正在开发中，敬请期待！`);
+                }
+            });
+        });
+        
+        // 快速操作按钮点击
+        document.querySelectorAll('.quick-action').forEach(action => {
+            action.addEventListener('click', function(e) {
+                e.preventDefault();
+                const title = this.querySelector('span').textContent;
+                alert(`${title}功能\n\n即将跳转到相应页面...`);
+            });
+        });
+        
+        // 设置和编辑按钮点击
+        document.querySelectorAll('.user-header button').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const icon = this.querySelector('i');
+                if (icon.classList.contains('fa-cog')) {
+                    alert('账户设置\n\n- 个人信息修改\n- 密码修改\n- 通知设置\n- 隐私设置');
+                } else if (icon.classList.contains('fa-edit')) {
+                    alert('编辑资料\n\n- 头像更换\n- 昵称修改\n- 企业信息更新\n- 联系方式修改');
+                }
+            });
+        });
+        
+        // 统计数据点击
+        document.querySelectorAll('.stat-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const label = this.querySelector('.stat-label').textContent;
+                const value = this.querySelector('.stat-value').textContent;
+                alert(`${label}: ${value}\n\n点击查看详细数据...`);
+            });
+        });
+        
+        // 导航到订单页面
+        function navigateToOrders(event) {
+            event.preventDefault();
+            window.location.href = 'orders.html';
+        }
+        
+        // 模拟数据更新
+        setInterval(() => {
+            if (isLoggedIn) {
+                const orderCount = document.querySelector('.stat-card .stat-value');
+                if (orderCount && orderCount.textContent === '12') {
+                    const newCount = Math.floor(Math.random() * 5) + 10;
+                    orderCount.textContent = newCount;
+                }
+            }
+        }, 10000);
+    </script>
+</body>
+</html>

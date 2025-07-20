@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>eFlow 智慧货运平台 - 原型展示</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .prototype-container {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .phone-frame {
+            width: 375px;
+            height: 812px;
+            background: #000;
+            border-radius: 25px;
+            padding: 8px;
+            margin: 0 auto 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .phone-screen {
+            width: 100%;
+            height: 100%;
+            border-radius: 20px;
+            overflow: hidden;
+            background: white;
+            border: none;
+        }
+        .desktop-view {
+            width: 1200px;
+            height: 800px;
+            background: white;
+            border-radius: 12px;
+            margin: 0 auto 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+            border: none;
+        }
+        .section-title {
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(375px, 1fr));
+            gap: 30px;
+            justify-items: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="prototype-container">
+        <h1 class="text-4xl font-bold text-white text-center mb-8">
+            <i class="fas fa-truck mr-3"></i>
+            eFlow 智慧货运平台 - 完整原型展示
+        </h1>
+        
+        <!-- 移动端界面展示 -->
+        <div class="section-title">📱 移动端界面展示</div>
+        <div class="grid-container">
+            <!-- 启动页 -->
+            <!-- <div class="phone-frame">
+                <div class="text-white text-center mb-2">启动页</div>
+                <iframe src="pages/splash.html" class="phone-screen"></iframe>
+            </div> -->
+            
+            <!-- 首页 -->
+            <div class="phone-frame">
+                <div class="text-white text-center mb-2">首页</div>
+                <iframe src="pages/home.html" class="phone-screen"></iframe>
+            </div>
+            
+            <!-- 货运页 -->
+            <div class="phone-frame">
+                <div class="text-white text-center mb-2">货运服务</div>
+                <iframe src="pages/transport.html" class="phone-screen"></iframe>
+            </div>
+            
+            <!-- 服务市场 -->
+            <div class="phone-frame">
+                <div class="text-white text-center mb-2">服务市场</div>
+                <iframe src="pages/service.html" class="phone-screen"></iframe>
+            </div>
+            
+            <!-- 运输订单 -->
+            <div class="phone-frame">
+                <div class="text-white text-center mb-2">运输订单</div>
+                <iframe src="pages/transport-orders.html" class="phone-screen"></iframe>
+            </div>
+            
+            <!-- 服务订单 -->
+            <div class="phone-frame">
+                <div class="text-white text-center mb-2">服务订单</div>
+                <iframe src="pages/service-orders.html" class="phone-screen"></iframe>
+            </div>
+            
+            <!-- 财务订单 -->
+            <div class="phone-frame">
+                <div class="text-white text-center mb-2">财务订单</div>
+                <iframe src="pages/finance-orders.html" class="phone-screen"></iframe>
+            </div>
+            
+            <!-- 运单管理 -->
+            <div class="phone-frame">
+                <div class="text-white text-center mb-2">运单管理</div>
+                <iframe src="pages/waybill-orders.html" class="phone-screen"></iframe>
+            </div>
+            
+            <!-- 金融服务 -->
+            <div class="phone-frame">
+                <div class="text-white text-center mb-2">金融服务</div>
+                <iframe src="pages/finance.html" class="phone-screen"></iframe>
+            </div>
+            
+            <!-- 数据中心 -->
+            <div class="phone-frame">
+                <div class="text-white text-center mb-2">数据中心</div>
+                <iframe src="pages/analytics.html" class="phone-screen"></iframe>
+            </div>
+            
+            <!-- 个人中心 -->
+            <div class="phone-frame">
+                <div class="text-white text-center mb-2">个人中心</div>
+                <iframe src="pages/profile.html" class="phone-screen"></iframe>
+            </div>
+            
+            <!-- 身份验证 -->
+            <div class="phone-frame">
+                <div class="text-white text-center mb-2">身份验证</div>
+                <iframe src="pages/auth.html" class="phone-screen"></iframe>
+            </div>
+            
+            <!-- 注册表单 -->
+            <div class="phone-frame">
+                <div class="text-white text-center mb-2">用户注册</div>
+                <iframe src="pages/register.html" class="phone-screen"></iframe>
+            </div>
+        </div>
+        
+        <!-- 桌面端门户展示 -->
+        <div class="section-title mt-16">💻 桌面端专业门户</div>
+        
+        <!-- 财务门户 -->
+        <div class="text-white text-center mb-4">财务门户</div>
+        <iframe src="portals/finance.html" class="desktop-view"></iframe>
+        
+        <!-- 法务门户 -->
+        <div class="text-white text-center mb-4">法务门户</div>
+        <iframe src="portals/legal.html" class="desktop-view"></iframe>
+        
+        <!-- 业务门户 -->
+        <div class="text-white text-center mb-4">业务门户</div>
+        <iframe src="portals/business.html" class="desktop-view"></iframe>
+        
+        <!-- 管理者门户 -->
+        <div class="text-white text-center mb-4">管理者门户</div>
+        <iframe src="portals/admin.html" class="desktop-view"></iframe>
+        
+        <div class="text-center mt-16">
+            <p class="text-white text-lg">
+                <i class="fas fa-copyright mr-2"></i>
+                2025 eFlow Technology - 智慧货运平台原型展示
+            </p>
+        </div>
+    </div>
+</body>
+</html>

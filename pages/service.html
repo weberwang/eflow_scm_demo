@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>eFlow - 服务市场</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="../components/styles.css" rel="stylesheet">
+    <style>
+        body {
+            padding-bottom: 80px;
+        }
+        
+        .service-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin: 12px 16px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .service-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, #1B73E8 0%, #4285F4 100%);
+        }
+        
+        .service-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+            border-color: #1B73E8;
+        }
+        
+        .service-header {
+            display: flex;
+            items-start;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+        
+        .service-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+        }
+        
+        .service-rating {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 14px;
+            color: #FF8F00;
+        }
+        
+        .service-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #212121;
+            margin-bottom: 4px;
+        }
+        
+        .service-provider {
+            color: #757575;
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+        
+        .service-features {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        
+        .feature-tag {
+            background: #E3F2FD;
+            color: #1B73E8;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .service-stats {
+            color: #757575;
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+        
+        .service-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .category-tabs {
+            display: flex;
+            padding: 16px;
+            gap: 8px;
+            overflow-x: auto;
+            background: white;
+            border-bottom: 1px solid #E0E0E0;
+        }
+        
+        .category-tab {
+            background: #F5F5F5;
+            color: #424242;
+            padding: 8px 16px;
+            border-radius: 20px;
+            white-space: nowrap;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .category-tab.active {
+            background: #1B73E8;
+            color: white;
+        }
+        
+        .category-tab:hover {
+            border-color: #1B73E8;
+        }
+        
+        .recommended-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #FF8F00 0%, #FFB74D 100%);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .finance-card::before {
+            background: linear-gradient(135deg, #9C27B0 0%, #BA68C8 100%);
+        }
+        
+        .insurance-card::before {
+            background: linear-gradient(135deg, #34A853 0%, #66BB6A 100%);
+        }
+        
+        .logistics-card::before {
+            background: linear-gradient(135deg, #FF8F00 0%, #FFB74D 100%);
+        }
+        
+        .warehouse-card::before {
+            background: linear-gradient(135deg, #607D8B 0%, #90A4AE 100%);
+        }
+        
+        .sort-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .sort-button {
+            background: #F5F5F5;
+            border: 1px solid #E0E0E0;
+            border-radius: 8px;
+            padding: 8px 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+        
+        .promotional-banner {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            margin: 16px;
+            padding: 20px;
+            border-radius: 16px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <div class="header bg-white border-b border-gray-200">
+        <div class="flex items-center justify-between">
+            <h1 class="text-xl font-bold text-gray-800 flex items-center">
+                <i class="fas fa-cogs mr-3 text-purple-500"></i>
+                服务市场
+            </h1>
+            <div class="flex items-center space-x-3">
+                <button onclick="navigateToMyServices()" class="p-2 rounded-full bg-purple-100 text-purple-600">
+                    <i class="fas fa-list-alt"></i>
+                </button>
+                <i class="fas fa-search text-gray-600"></i>
+                <div class="sort-dropdown">
+                    <button class="sort-button">
+                        <span>按评分排序</span>
+                        <i class="fas fa-chevron-down text-xs"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Service Orders Categories -->
+    <div class="bg-white border-b border-gray-200">
+        <div class="px-4 py-3">
+            <div class="flex items-center justify-between mb-3">
+                <h3 class="text-sm font-semibold text-gray-700">服务订单管理</h3>
+                <a href="orders.html" class="text-xs text-blue-500 flex items-center">
+                    查看全部 <i class="fas fa-chevron-right ml-1"></i>
+                </a>
+            </div>
+            <div class="grid grid-cols-4 gap-3">
+                <div class="bg-green-50 rounded-lg p-3 text-center cursor-pointer hover:bg-green-100 transition-colors" onclick="filterServiceOrders('insurance')">
+                    <i class="fas fa-shield-alt text-green-600 text-lg mb-1"></i>
+                    <div class="text-xs font-medium text-green-600">保险订单</div>
+                    <div class="text-xs text-gray-500">3个有效</div>
+                </div>
+                <div class="bg-yellow-50 rounded-lg p-3 text-center cursor-pointer hover:bg-yellow-100 transition-colors" onclick="filterServiceOrders('certification')">
+                    <i class="fas fa-certificate text-yellow-600 text-lg mb-1"></i>
+                    <div class="text-xs font-medium text-yellow-600">认证服务</div>
+                    <div class="text-xs text-gray-500">1个进行中</div>
+                </div>
+                <div class="bg-purple-50 rounded-lg p-3 text-center cursor-pointer hover:bg-purple-100 transition-colors" onclick="filterServiceOrders('valueadded')">
+                    <i class="fas fa-plus-circle text-purple-600 text-lg mb-1"></i>
+                    <div class="text-xs font-medium text-purple-600">增值服务</div>
+                    <div class="text-xs text-gray-500">2个订阅</div>
+                </div>
+                <div class="bg-indigo-50 rounded-lg p-3 text-center cursor-pointer hover:bg-indigo-100 transition-colors" onclick="filterServiceOrders('technical')">
+                    <i class="fas fa-cogs text-indigo-600 text-lg mb-1"></i>
+                    <div class="text-xs font-medium text-indigo-600">技术服务</div>
+                    <div class="text-xs text-gray-500">5个接入</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Category Tabs -->
+    <div class="category-tabs">
+        <div class="category-tab active">全部</div>
+        <div class="category-tab">运输</div>
+        <div class="category-tab">金融</div>
+        <div class="category-tab">仓储</div>
+        <div class="category-tab">保险</div>
+        <div class="category-tab">增值</div>
+        <div class="category-tab">技术</div>
+    </div>
+    
+    <!-- Promotional Banner -->
+    <div class="promotional-banner">
+        <h3 class="text-lg font-bold mb-2">
+            <i class="fas fa-gift mr-2"></i>
+            新用户专享优惠
+        </h3>
+        <p class="text-sm opacity-90 mb-3">首次使用金融服务立减200元，保险服务享8折优惠</p>
+        <button class="bg-white text-purple-600 px-6 py-2 rounded-full font-medium text-sm">
+            立即领取
+        </button>
+    </div>
+    
+    <!-- Recommended Services -->
+    <div class="pb-4">
+        <h3 class="text-lg font-bold px-4 mb-3 flex items-center">
+            <i class="fas fa-fire mr-2 text-red-500"></i>
+            推荐服务
+        </h3>
+        
+        <!-- Finance Service Card -->
+        <div class="service-card finance-card">
+            <div class="recommended-badge">推荐</div>
+            <div class="service-header">
+                <div>
+                    <div class="service-icon" style="background: linear-gradient(135deg, #9C27B0 0%, #BA68C8 100%);">
+                        <i class="fas fa-credit-card"></i>
+                    </div>
+                </div>
+                <div class="service-rating">
+                    <span>★★★★★</span>
+                    <span>4.9分</span>
+                </div>
+            </div>
+            
+            <div class="service-title">运费垫付服务</div>
+            <div class="service-provider">
+                <i class="fas fa-building mr-1"></i>
+                由 招商银行 提供
+            </div>
+            
+            <div class="service-features">
+                <span class="feature-tag">最高额度50万</span>
+                <span class="feature-tag">秒级放款</span>
+                <span class="feature-tag">低利率</span>
+                <span class="feature-tag">免担保</span>
+            </div>
+            
+            <div class="service-stats">
+                <i class="fas fa-users mr-1"></i>
+                已服务 10,000+ 企业 | 累计放款 5.2亿元
+            </div>
+            
+            <div class="service-actions">
+                <button class="btn-secondary flex-1">了解详情</button>
+                <button class="btn-primary flex-1">立即申请</button>
+            </div>
+        </div>
+        
+        <!-- Insurance Service Card -->
+        <div class="service-card insurance-card">
+            <div class="service-header">
+                <div>
+                    <div class="service-icon" style="background: linear-gradient(135deg, #34A853 0%, #66BB6A 100%);">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                </div>
+                <div class="service-rating">
+                    <span>★★★★☆</span>
+                    <span>4.7分</span>
+                </div>
+            </div>
+            
+            <div class="service-title">货物运输保险</div>
+            <div class="service-provider">
+                <i class="fas fa-building mr-1"></i>
+                由 中国人保 承保
+            </div>
+            
+            <div class="service-features">
+                <span class="feature-tag">费率低至0.1%</span>
+                <span class="feature-tag">当日生效</span>
+                <span class="feature-tag">全程保障</span>
+                <span class="feature-tag">快速理赔</span>
+            </div>
+            
+            <div class="service-stats">
+                <i class="fas fa-shield-alt mr-1"></i>
+                累计理赔 5,000万元 | 理赔成功率 98.5%
+            </div>
+            
+            <div class="service-actions">
+                <button class="btn-secondary flex-1">了解详情</button>
+                <button class="btn-primary flex-1">立即投保</button>
+            </div>
+        </div>
+        
+        <!-- Logistics Service Card -->
+        <div class="service-card logistics-card">
+            <div class="service-header">
+                <div>
+                    <div class="service-icon" style="background: linear-gradient(135deg, #FF8F00 0%, #FFB74D 100%);">
+                        <i class="fas fa-route"></i>
+                    </div>
+                </div>
+                <div class="service-rating">
+                    <span>★★★★★</span>
+                    <span>4.8分</span>
+                </div>
+            </div>
+            
+            <div class="service-title">智能路线规划</div>
+            <div class="service-provider">
+                <i class="fas fa-building mr-1"></i>
+                由 高德地图 提供
+            </div>
+            
+            <div class="service-features">
+                <span class="feature-tag">AI优化</span>
+                <span class="feature-tag">实时路况</span>
+                <span class="feature-tag">节省20%油耗</span>
+                <span class="feature-tag">避堵绕行</span>
+            </div>
+            
+            <div class="service-stats">
+                <i class="fas fa-map mr-1"></i>
+                日均规划 50,000+ 路线 | 平均节省时间 35分钟
+            </div>
+            
+            <div class="service-actions">
+                <button class="btn-secondary flex-1">了解详情</button>
+                <button class="btn-primary flex-1">开始使用</button>
+            </div>
+        </div>
+        
+        <!-- Warehouse Service Card -->
+        <div class="service-card warehouse-card">
+            <div class="service-header">
+                <div>
+                    <div class="service-icon" style="background: linear-gradient(135deg, #607D8B 0%, #90A4AE 100%);">
+                        <i class="fas fa-warehouse"></i>
+                    </div>
+                </div>
+                <div class="service-rating">
+                    <span>★★★★☆</span>
+                    <span>4.6分</span>
+                </div>
+            </div>
+            
+            <div class="service-title">智能仓储管理</div>
+            <div class="service-provider">
+                <i class="fas fa-building mr-1"></i>
+                由 京东物流 提供
+            </div>
+            
+            <div class="service-features">
+                <span class="feature-tag">WMS系统</span>
+                <span class="feature-tag">自动分拣</span>
+                <span class="feature-tag">库存优化</span>
+                <span class="feature-tag">数据分析</span>
+            </div>
+            
+            <div class="service-stats">
+                <i class="fas fa-boxes mr-1"></i>
+                管理仓库 200+ 个 | 日处理包裹 100万件
+            </div>
+            
+            <div class="service-actions">
+                <button class="btn-secondary flex-1">了解详情</button>
+                <button class="btn-primary flex-1 opacity-50" disabled>即将开放</button>
+            </div>
+        </div>
+        
+        <!-- Technology Service Card -->
+        <div class="service-card">
+            <div class="service-header">
+                <div>
+                    <div class="service-icon" style="background: linear-gradient(135deg, #1B73E8 0%, #4285F4 100%);">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                </div>
+                <div class="service-rating">
+                    <span>★★★★★</span>
+                    <span>4.9分</span>
+                </div>
+            </div>
+            
+            <div class="service-title">AI智能客服</div>
+            <div class="service-provider">
+                <i class="fas fa-building mr-1"></i>
+                由 eFlow Tech 提供
+            </div>
+            
+            <div class="service-features">
+                <span class="feature-tag">24小时在线</span>
+                <span class="feature-tag">多语言支持</span>
+                <span class="feature-tag">智能问答</span>
+                <span class="feature-tag">人工转接</span>
+            </div>
+            
+            <div class="service-stats">
+                <i class="fas fa-comments mr-1"></i>
+                日均对话 20,000+ 次 | 问题解决率 95%
+            </div>
+            
+            <div class="service-actions">
+                <button class="btn-secondary flex-1">了解详情</button>
+                <button class="btn-primary flex-1">立即体验</button>
+            </div>
+        </div>
+        
+        <!-- GPS Tracking Service Card -->
+        <div class="service-card">
+            <div class="service-header">
+                <div>
+                    <div class="service-icon" style="background: linear-gradient(135deg, #E91E63 0%, #F06292 100%);">
+                        <i class="fas fa-satellite-dish"></i>
+                    </div>
+                </div>
+                <div class="service-rating">
+                    <span>★★★★☆</span>
+                    <span>4.5分</span>
+                </div>
+            </div>
+            
+            <div class="service-title">GPS车辆追踪</div>
+            <div class="service-provider">
+                <i class="fas fa-building mr-1"></i>
+                由 北斗导航 提供
+            </div>
+            
+            <div class="service-features">
+                <span class="feature-tag">实时定位</span>
+                <span class="feature-tag">轨迹回放</span>
+                <span class="feature-tag">电子围栏</span>
+                <span class="feature-tag">异常报警</span>
+            </div>
+            
+            <div class="service-stats">
+                <i class="fas fa-map-marker-alt mr-1"></i>
+                接入车辆 50万+ 辆 | 定位精度 ±3米
+            </div>
+            
+            <div class="service-actions">
+                <button class="btn-secondary flex-1">了解详情</button>
+                <button class="btn-primary flex-1">立即接入</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tab Bar -->
+    <div class="tab-bar flex">
+        <a href="home.html" class="tab-item">
+            <i class="fas fa-home"></i>
+            <span>首页</span>
+        </a>
+        <a href="transport.html" class="tab-item">
+            <i class="fas fa-truck"></i>
+            <span>货运</span>
+        </a>
+        <a href="service.html" class="tab-item active">
+            <i class="fas fa-cogs"></i>
+            <span>服务</span>
+        </a>
+        <a href="analytics.html" class="tab-item">
+            <i class="fas fa-chart-bar"></i>
+            <span>数据</span>
+        </a>
+        <a href="profile.html" class="tab-item">
+            <i class="fas fa-user"></i>
+            <span>我的</span>
+        </a>
+    </div>
+    
+    <script>
+        // 分类标签交互
+        document.querySelectorAll('.category-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                
+                // 模拟筛选效果
+                const cards = document.querySelectorAll('.service-card');
+                cards.forEach(card => {
+                    card.style.opacity = '0.5';
+                    setTimeout(() => {
+                        card.style.opacity = '1';
+                    }, 200);
+                });
+            });
+        });
+        
+        // 服务订单筛选
+        function filterServiceOrders(type) {
+            let message = '';
+            switch(type) {
+                case 'insurance':
+                    message = '保险订单管理\n\n显示内容：\n• 货物运输保险订单\n• 承运人责任险\n• 司机意外险\n• 保单详情和理赔记录\n• 续保提醒';
+                    break;
+                case 'certification':
+                    message = '认证服务订单\n\n显示内容：\n• 司机资质认证\n• 车辆检测认证\n• 企业资质认证\n• 认证进度跟踪\n• 证书下载';
+                    break;
+                case 'valueadded':
+                    message = '增值服务订单\n\n显示内容：\n• GPS定位服务\n• 路线优化服务\n• 智能客服订阅\n• 数据分析报告\n• 服务续费管理';
+                    break;
+                case 'technical':
+                    message = '技术服务订单\n\n显示内容：\n• API接入服务\n• 系统集成服务\n• 技术支持订单\n• 定制开发需求\n• 服务状态监控';
+                    break;
+            }
+            alert(message + '\n\n点击确定跳转到对应订单页面...');
+            // 实际跳转到订单页面的特定标签
+            window.location.href = 'orders.html#service-' + type;
+        }
+        
+        // 服务申请按钮点击
+        document.querySelectorAll('.btn-primary').forEach(btn => {
+            if (btn.textContent.includes('申请') || btn.textContent.includes('投保') || btn.textContent.includes('接入')) {
+                btn.addEventListener('click', function() {
+                    if (!btn.disabled) {
+                        alert('需要身份验证才能申请服务\n\n请完善企业信息：\n- 营业执照\n- 企业资质\n- 联系方式');
+                    }
+                });
+            }
+        });
+        
+        // 服务卡片点击效果
+        document.querySelectorAll('.service-card').forEach(card => {
+            card.addEventListener('click', function(e) {
+                if (!e.target.closest('button')) {
+                    this.style.transform = 'scale(0.98)';
+                    setTimeout(() => {
+                        this.style.transform = 'translateY(-4px)';
+                    }, 150);
+                }
+            });
+        });
+        
+        // 促销横幅点击
+        document.querySelector('.promotional-banner button').addEventListener('click', function() {
+            alert('优惠券已领取！\n\n请在"我的-优惠券"中查看\n有效期：30天');
+            this.textContent = '已领取';
+            this.style.background = '#4CAF50';
+        });
+        
+        // 排序下拉框（模拟）
+        document.querySelector('.sort-button').addEventListener('click', function() {
+            const options = ['按评分排序', '按价格排序', '按销量排序', '按距离排序'];
+            const current = this.querySelector('span').textContent;
+            const currentIndex = options.indexOf(current);
+            const nextIndex = (currentIndex + 1) % options.length;
+            this.querySelector('span').textContent = options[nextIndex];
+        });
+        
+        // 导航到我的服务订单
+        function navigateToMyServices() {
+            // 直接跳转到专门的服务订单页面
+            window.location.href = 'service-orders.html';
+        }
+        
+        // 模拟服务状态更新
+        setInterval(() => {
+            const statsElements = document.querySelectorAll('.service-stats');
+            statsElements.forEach(element => {
+                if (element.textContent.includes('日均')) {
+                    const numbers = element.textContent.match(/\d+,?\d*/g);
+                    if (numbers) {
+                        numbers.forEach(num => {
+                            const newNum = parseInt(num.replace(',', '')) + Math.floor(Math.random() * 10);
+                            element.textContent = element.textContent.replace(num, newNum.toLocaleString());
+                        });
+                    }
+                }
+            });
+        }, 10000);
+    </script>
+</body>
+</html>

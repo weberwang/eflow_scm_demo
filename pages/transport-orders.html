@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>运输订单管理 - eFlow</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .status-chip {
+            transition: all 0.2s ease;
+        }
+        .status-chip:hover {
+            transform: scale(1.05);
+        }
+        .order-card {
+            border-left: 4px solid #3B82F6;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 顶部导航 -->
+    <div class="gradient-bg text-white p-4">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center">
+                <button onclick="goBack()" class="mr-4">
+                    <i class="fas fa-arrow-left text-xl"></i>
+                </button>
+                <h1 class="text-xl font-bold">
+                    <i class="fas fa-truck mr-2"></i>
+                    运输订单管理
+                </h1>
+            </div>
+            <div class="flex items-center space-x-3">
+                <button onclick="showOrderTypeMenu()" class="p-2">
+                    <i class="fas fa-th-large"></i>
+                </button>
+                <button onclick="searchOrders()" class="p-2">
+                    <i class="fas fa-search"></i>
+                </button>
+                <button onclick="addOrder()" class="p-2">
+                    <i class="fas fa-plus"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 统计卡片 -->
+    <div class="p-4">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <div class="bg-white rounded-lg p-4 text-center shadow-sm">
+                <div class="text-2xl font-bold text-blue-600">28</div>
+                <div class="text-sm text-gray-600">进行中</div>
+            </div>
+            <div class="bg-white rounded-lg p-4 text-center shadow-sm">
+                <div class="text-2xl font-bold text-green-600">156</div>
+                <div class="text-sm text-gray-600">已完成</div>
+            </div>
+            <div class="bg-white rounded-lg p-4 text-center shadow-sm">
+                <div class="text-2xl font-bold text-orange-600">12</div>
+                <div class="text-sm text-gray-600">待接单</div>
+            </div>
+            <div class="bg-white rounded-lg p-4 text-center shadow-sm">
+                <div class="text-2xl font-bold text-red-600">3</div>
+                <div class="text-sm text-gray-600">异常处理</div>
+            </div>
+        </div>
+
+        <!-- 状态筛选 -->
+        <div class="flex space-x-2 mb-4 overflow-x-auto">
+            <button onclick="filterByStatus('all')" class="status-chip px-4 py-2 bg-blue-100 text-blue-800 rounded-full text-sm whitespace-nowrap">
+                全部订单
+            </button>
+            <button onclick="filterByStatus('pending')" class="status-chip px-4 py-2 bg-orange-100 text-orange-800 rounded-full text-sm whitespace-nowrap">
+                待接单
+            </button>
+            <button onclick="filterByStatus('in-progress')" class="status-chip px-4 py-2 bg-blue-100 text-blue-800 rounded-full text-sm whitespace-nowrap">
+                运输中
+            </button>
+            <button onclick="filterByStatus('completed')" class="status-chip px-4 py-2 bg-green-100 text-green-800 rounded-full text-sm whitespace-nowrap">
+                已完成
+            </button>
+            <button onclick="filterByStatus('exception')" class="status-chip px-4 py-2 bg-red-100 text-red-800 rounded-full text-sm whitespace-nowrap">
+                异常处理
+            </button>
+        </div>
+
+        <!-- 订单列表 -->
+        <div class="space-y-4">
+            <!-- 运输中订单 -->
+            <div class="order-card bg-white rounded-lg p-4 shadow-sm card-hover" data-status="in-progress">
+                <div class="flex items-start justify-between mb-3">
+                    <div>
+                        <div class="flex items-center mb-2">
+                            <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-medium">运输中</span>
+                            <span class="ml-2 text-sm font-medium">#T2025072001</span>
+                        </div>
+                        <div class="text-sm text-gray-600">
+                            <i class="fas fa-map-marker-alt mr-1"></i>
+                            上海浦东 → 北京朝阳
+                        </div>
+                    </div>
+                    <button onclick="viewOrderDetail('T2025072001')" class="text-blue-600">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+                <div class="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                        <div class="text-gray-500">货物类型</div>
+                        <div class="font-medium">电子产品</div>
+                    </div>
+                    <div>
+                        <div class="text-gray-500">重量</div>
+                        <div class="font-medium">2.5吨</div>
+                    </div>
+                    <div>
+                        <div class="text-gray-500">司机</div>
+                        <div class="font-medium">张师傅</div>
+                    </div>
+                    <div>
+                        <div class="text-gray-500">预计到达</div>
+                        <div class="font-medium">明天 14:00</div>
+                    </div>
+                </div>
+                <div class="mt-3 pt-3 border-t flex justify-between items-center">
+                    <div class="text-lg font-bold text-green-600">¥4,800</div>
+                    <div class="flex space-x-2">
+                        <button onclick="trackOrder('T2025072001')" class="bg-blue-600 text-white px-3 py-1 rounded text-sm">
+                            <i class="fas fa-route mr-1"></i>跟踪
+                        </button>
+                        <button onclick="contactDriver('T2025072001')" class="bg-green-600 text-white px-3 py-1 rounded text-sm">
+                            <i class="fas fa-phone mr-1"></i>联系
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 待接单订单 -->
+            <div class="order-card bg-white rounded-lg p-4 shadow-sm card-hover" data-status="pending">
+                <div class="flex items-start justify-between mb-3">
+                    <div>
+                        <div class="flex items-center mb-2">
+                            <span class="bg-orange-100 text-orange-800 px-2 py-1 rounded text-xs font-medium">待接单</span>
+                            <span class="ml-2 text-sm font-medium">#T2025072002</span>
+                        </div>
+                        <div class="text-sm text-gray-600">
+                            <i class="fas fa-map-marker-alt mr-1"></i>
+                            广州天河 → 深圳南山
+                        </div>
+                    </div>
+                    <button onclick="viewOrderDetail('T2025072002')" class="text-blue-600">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+                <div class="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                        <div class="text-gray-500">货物类型</div>
+                        <div class="font-medium">日用品</div>
+                    </div>
+                    <div>
+                        <div class="text-gray-500">重量</div>
+                        <div class="font-medium">1.8吨</div>
+                    </div>
+                    <div>
+                        <div class="text-gray-500">发布时间</div>
+                        <div class="font-medium">2小时前</div>
+                    </div>
+                    <div>
+                        <div class="text-gray-500">要求时间</div>
+                        <div class="font-medium">今天 18:00</div>
+                    </div>
+                </div>
+                <div class="mt-3 pt-3 border-t flex justify-between items-center">
+                    <div class="text-lg font-bold text-green-600">¥1,200</div>
+                    <div class="flex space-x-2">
+                        <button onclick="acceptOrder('T2025072002')" class="bg-green-600 text-white px-3 py-1 rounded text-sm">
+                            <i class="fas fa-check mr-1"></i>接单
+                        </button>
+                        <button onclick="bidOrder('T2025072002')" class="bg-blue-600 text-white px-3 py-1 rounded text-sm">
+                            <i class="fas fa-hand-paper mr-1"></i>竞价
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 已完成订单 -->
+            <div class="order-card bg-white rounded-lg p-4 shadow-sm card-hover" data-status="completed">
+                <div class="flex items-start justify-between mb-3">
+                    <div>
+                        <div class="flex items-center mb-2">
+                            <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-medium">已完成</span>
+                            <span class="ml-2 text-sm font-medium">#T2025071501</span>
+                        </div>
+                        <div class="text-sm text-gray-600">
+                            <i class="fas fa-map-marker-alt mr-1"></i>
+                            杭州西湖 → 南京鼓楼
+                        </div>
+                    </div>
+                    <button onclick="viewOrderDetail('T2025071501')" class="text-blue-600">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+                <div class="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                        <div class="text-gray-500">货物类型</div>
+                        <div class="font-medium">服装</div>
+                    </div>
+                    <div>
+                        <div class="text-gray-500">重量</div>
+                        <div class="font-medium">3.2吨</div>
+                    </div>
+                    <div>
+                        <div class="text-gray-500">司机</div>
+                        <div class="font-medium">李师傅</div>
+                    </div>
+                    <div>
+                        <div class="text-gray-500">完成时间</div>
+                        <div class="font-medium">昨天 16:30</div>
+                    </div>
+                </div>
+                <div class="mt-3 pt-3 border-t flex justify-between items-center">
+                    <div class="text-lg font-bold text-green-600">¥2,600</div>
+                    <div class="flex space-x-2">
+                        <button onclick="downloadReceipt('T2025071501')" class="bg-gray-600 text-white px-3 py-1 rounded text-sm">
+                            <i class="fas fa-download mr-1"></i>回单
+                        </button>
+                        <button onclick="rateOrder('T2025071501')" class="bg-yellow-600 text-white px-3 py-1 rounded text-sm">
+                            <i class="fas fa-star mr-1"></i>评价
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 异常订单 -->
+            <div class="order-card bg-white rounded-lg p-4 shadow-sm card-hover" data-status="exception">
+                <div class="flex items-start justify-between mb-3">
+                    <div>
+                        <div class="flex items-center mb-2">
+                            <span class="bg-red-100 text-red-800 px-2 py-1 rounded text-xs font-medium">异常处理</span>
+                            <span class="ml-2 text-sm font-medium">#T2025071801</span>
+                        </div>
+                        <div class="text-sm text-gray-600">
+                            <i class="fas fa-map-marker-alt mr-1"></i>
+                            成都锦江 → 重庆渝北
+                        </div>
+                    </div>
+                    <button onclick="viewOrderDetail('T2025071801')" class="text-blue-600">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+                <div class="bg-red-50 p-3 rounded mb-3">
+                    <div class="flex items-center text-red-800">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>
+                        <span class="text-sm font-medium">运输延误：因恶劣天气影响</span>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                        <div class="text-gray-500">货物类型</div>
+                        <div class="font-medium">化工原料</div>
+                    </div>
+                    <div>
+                        <div class="text-gray-500">重量</div>
+                        <div class="font-medium">5.0吨</div>
+                    </div>
+                    <div>
+                        <div class="text-gray-500">司机</div>
+                        <div class="font-medium">王师傅</div>
+                    </div>
+                    <div>
+                        <div class="text-gray-500">延误时间</div>
+                        <div class="font-medium">6小时</div>
+                    </div>
+                </div>
+                <div class="mt-3 pt-3 border-t flex justify-between items-center">
+                    <div class="text-lg font-bold text-green-600">¥6,500</div>
+                    <div class="flex space-x-2">
+                        <button onclick="handleException('T2025071801')" class="bg-red-600 text-white px-3 py-1 rounded text-sm">
+                            <i class="fas fa-tools mr-1"></i>处理
+                        </button>
+                        <button onclick="contactSupport('T2025071801')" class="bg-purple-600 text-white px-3 py-1 rounded text-sm">
+                            <i class="fas fa-headset mr-1"></i>客服
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部操作栏 -->
+    <div class="fixed bottom-0 left-0 right-0 bg-white border-t p-4">
+        <div class="flex space-x-3">
+            <button onclick="bulkOperation()" class="flex-1 bg-gray-100 text-gray-700 py-3 rounded-lg">
+                <i class="fas fa-check-square mr-2"></i>批量操作
+            </button>
+            <button onclick="exportOrders()" class="flex-1 bg-blue-600 text-white py-3 rounded-lg">
+                <i class="fas fa-file-export mr-2"></i>导出订单
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // 页面导航
+        function goBack() {
+            window.history.back();
+        }
+
+        function showOrderTypeMenu() {
+            const choice = confirm('切换到其他订单类型？\n\n确定 - 查看菜单\n取消 - 取消');
+            if (choice) {
+                const orderType = prompt('选择订单类型：\n1 - 运输订单（当前）\n2 - 服务订单\n3 - 财务订单\n4 - 运单管理\n\n请输入数字：');
+                switch(orderType) {
+                    case '2':
+                        window.location.href = 'service-orders.html';
+                        break;
+                    case '3':
+                        window.location.href = 'finance-orders.html';
+                        break;
+                    case '4':
+                        window.location.href = 'waybill-orders.html';
+                        break;
+                    case '1':
+                        alert('您当前就在运输订单页面');
+                        break;
+                    default:
+                        if (orderType) alert('无效选择');
+                }
+            }
+        }
+
+        // 状态筛选
+        function filterByStatus(status) {
+            const orders = document.querySelectorAll('.order-card');
+            const chips = document.querySelectorAll('.status-chip');
+            
+            // 重置所有筛选按钮样式
+            chips.forEach(chip => {
+                chip.className = 'status-chip px-4 py-2 bg-gray-100 text-gray-600 rounded-full text-sm whitespace-nowrap';
+            });
+            
+            // 设置当前选中按钮样式
+            event.target.className = 'status-chip px-4 py-2 bg-blue-100 text-blue-800 rounded-full text-sm whitespace-nowrap';
+            
+            // 显示/隐藏订单
+            orders.forEach(order => {
+                if (status === 'all' || order.dataset.status === status) {
+                    order.style.display = 'block';
+                } else {
+                    order.style.display = 'none';
+                }
+            });
+        }
+
+        // 订单操作
+        function viewOrderDetail(orderId) {
+            alert(`查看订单详情: ${orderId}\n\n功能包括：\n• 完整运输信息\n• 实时位置跟踪\n• 货物状态更新\n• 费用明细\n• 操作历史`);
+        }
+
+        function trackOrder(orderId) {
+            alert(`实时跟踪订单: ${orderId}\n\n显示信息：\n• 车辆当前位置\n• 预计到达时间\n• 路线规划\n• 司机信息\n• 货物状态`);
+        }
+
+        function contactDriver(orderId) {
+            alert(`联系司机 - 订单: ${orderId}\n\n联系方式：\n• 一键拨号\n• 即时聊天\n• 位置共享\n• 紧急联系\n• 留言功能`);
+        }
+
+        function acceptOrder(orderId) {
+            if (confirm(`确认接单: ${orderId}？\n\n接单后需要：\n• 安排司机和车辆\n• 确认装货时间\n• 制定运输计划`)) {
+                alert('接单成功！正在为您安排司机和车辆...');
+            }
+        }
+
+        function bidOrder(orderId) {
+            const price = prompt('请输入您的竞价金额（元）：', '1200');
+            if (price) {
+                alert(`竞价提交成功！\n\n订单: ${orderId}\n竞价: ¥${price}\n\n系统将在30分钟内通知竞价结果`);
+            }
+        }
+
+        function downloadReceipt(orderId) {
+            alert(`下载电子回单: ${orderId}\n\n回单内容：\n• 货物交接确认\n• 司机签名\n• 收货方签名\n• 时间戳记录\n• 法律效力`);
+        }
+
+        function rateOrder(orderId) {
+            alert(`订单评价: ${orderId}\n\n评价维度：\n• 司机服务态度\n• 货物完好程度\n• 时效性\n• 整体满意度\n• 文字评价`);
+        }
+
+        function handleException(orderId) {
+            alert(`处理异常订单: ${orderId}\n\n处理方案：\n• 重新安排运输\n• 联系客户协商\n• 申请费用补偿\n• 升级处理流程\n• 记录异常原因`);
+        }
+
+        function contactSupport(orderId) {
+            alert(`联系客服支持: ${orderId}\n\n支持服务：\n• 24小时在线客服\n• 专业问题解答\n• 投诉处理\n• 赔偿申请\n• 技术支持`);
+        }
+
+        function searchOrders() {
+            alert('订单搜索功能\n\n支持搜索：\n• 订单号\n• 起止地点\n• 司机姓名\n• 货物类型\n• 时间范围');
+        }
+
+        function addOrder() {
+            alert('创建新订单\n\n快速发布货运需求：\n• 起止地点选择\n• 货物信息录入\n• 运输要求设置\n• 价格方案选择\n• 时间安排');
+        }
+
+        function bulkOperation() {
+            alert('批量操作\n\n支持功能：\n• 批量确认收货\n• 批量导出数据\n• 批量状态更新\n• 批量分配司机\n• 批量打印单据');
+        }
+
+        function exportOrders() {
+            alert('导出订单数据\n\n导出格式：\n• Excel表格\n• PDF报告\n• CSV数据\n• 自定义字段\n• 按时间筛选');
+        }
+    </script>
+</body>
+</html>

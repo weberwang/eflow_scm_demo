@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>服务订单管理 - eFlow</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .status-chip {
+            transition: all 0.2s ease;
+        }
+        .status-chip:hover {
+            transform: scale(1.05);
+        }
+        .order-card {
+            border-left: 4px solid #10b981;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 顶部导航 -->
+    <div class="gradient-bg text-white p-4">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center">
+                <button onclick="goBack()" class="mr-4">
+                    <i class="fas fa-arrow-left text-xl"></i>
+                </button>
+                <h1 class="text-xl font-bold">
+                    <i class="fas fa-concierge-bell mr-2"></i>
+                    服务订单管理
+                </h1>
+            </div>
+            <div class="flex items-center space-x-3">
+                <button onclick="showOrderTypeMenu()" class="p-2">
+                    <i class="fas fa-th-large"></i>
+                </button>
+                <button onclick="searchOrders()" class="p-2">
+                    <i class="fas fa-search"></i>
+                </button>
+                <button onclick="addService()" class="p-2">
+                    <i class="fas fa-plus"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 统计卡片 -->
+    <div class="p-4">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <div class="bg-white rounded-lg p-4 text-center shadow-sm">
+                <div class="text-2xl font-bold text-blue-600">15</div>
+                <div class="text-sm text-gray-600">进行中</div>
+            </div>
+            <div class="bg-white rounded-lg p-4 text-center shadow-sm">
+                <div class="text-2xl font-bold text-green-600">89</div>
+                <div class="text-sm text-gray-600">已完成</div>
+            </div>
+            <div class="bg-white rounded-lg p-4 text-center shadow-sm">
+                <div class="text-2xl font-bold text-orange-600">8</div>
+                <div class="text-sm text-gray-600">待确认</div>
+            </div>
+            <div class="bg-white rounded-lg p-4 text-center shadow-sm">
+                <div class="text-2xl font-bold text-red-600">2</div>
+                <div class="text-sm text-gray-600">已取消</div>
+            </div>
+        </div>
+
+        <!-- 状态筛选 -->
+        <div class="flex space-x-2 mb-4 overflow-x-auto">
+            <button onclick="filterByStatus('all')" class="status-chip px-4 py-2 bg-green-100 text-green-800 rounded-full text-sm whitespace-nowrap">
+                全部服务
+            </button>
+            <button onclick="filterByStatus('pending')" class="status-chip px-4 py-2 bg-orange-100 text-orange-800 rounded-full text-sm whitespace-nowrap">
+                待确认
+            </button>
+            <button onclick="filterByStatus('in-progress')" class="status-chip px-4 py-2 bg-blue-100 text-blue-800 rounded-full text-sm whitespace-nowrap">
+                进行中
+            </button>
+            <button onclick="filterByStatus('completed')" class="status-chip px-4 py-2 bg-green-100 text-green-800 rounded-full text-sm whitespace-nowrap">
+                已完成
+            </button>
+            <button onclick="filterByStatus('cancelled')" class="status-chip px-4 py-2 bg-red-100 text-red-800 rounded-full text-sm whitespace-nowrap">
+                已取消
+            </button>
+        </div>
+
+        <!-- 订单列表 -->
+        <div class="space-y-4">
+            <!-- 进行中服务 -->
+            <div class="order-card bg-white rounded-lg p-4 shadow-sm card-hover" data-status="in-progress">
+                <div class="flex items-start justify-between mb-3">
+                    <div>
+                        <div class="flex items-center mb-2">
+                            <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-medium">进行中</span>
+                            <span class="ml-2 text-sm font-medium">#S2025072001</span>
+                        </div>
+                        <div class="text-sm text-gray-600">
+                            <i class="fas fa-tools mr-1"></i>
+                            车辆维修保养服务
+                        </div>
+                    </div>
+                    <button onclick="viewServiceDetail('S2025072001')" class="text-green-600">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+                <div class="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                        <div class="text-gray-500">服务类型</div>
+                        <div class="font-medium">车辆保养</div>
+                    </div>
+                    <div>
+                        <div class="text-gray-500">车牌号</div>
+                        <div class="font-medium">沪A12345</div>
+                    </div>
+                    <div>
+                        <div class="text-gray-500">服务商</div>
+                        <div class="font-medium">上海汽修厂</div>
+                    </div>
+                    <div>
+                        <div class="text-gray-500">预计完成</div>
+                        <div class="font-medium">今天 17:00</div>
+                    </div>
+                </div>
+                <div class="mt-3 pt-3 border-t flex justify-between items-center">
+                    <div class="text-lg font-bold text-green-600">¥800</div>
+                    <div class="flex space-x-2">
+                        <button onclick="trackService('S2025072001')" class="bg-blue-600 text-white px-3 py-1 rounded text-sm">
+                            <i class="fas fa-eye mr-1"></i>跟踪
+                        </button>
+                        <button onclick="contactProvider('S2025072001')" class="bg-green-600 text-white px-3 py-1 rounded text-sm">
+                            <i class="fas fa-phone mr-1"></i>联系
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 待确认服务 -->
+            <div class="order-card bg-white rounded-lg p-4 shadow-sm card-hover" data-status="pending">
+                <div class="flex items-start justify-between mb-3">
+                    <div>
+                        <div class="flex items-center mb-2">
+                            <span class="bg-orange-100 text-orange-800 px-2 py-1 rounded text-xs font-medium">待确认</span>
+                            <span class="ml-2 text-sm font-medium">#S2025072002</span>
+                        </div>
+                        <div class="text-sm text-gray-600">
+                            <i class="fas fa-shield-alt mr-1"></i>
+                            货物保险服务
+                        </div>
+                    </div>
+                    <button onclick="viewServiceDetail('S2025072002')" class="text-green-600">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+                <div class="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                        <div class="text-gray-500">保险类型</div>
+                        <div class="font-medium">运输险</div>
+                    </div>
+                    <div>
+                        <div class="text-gray-500">保险金额</div>
+                        <div class="font-medium">50万元</div>
+                    </div>
+                    <div>
+                        <div class="text-gray-500">保险公司</div>
+                        <div class="font-medium">太平洋保险</div>
+                    </div>
+                    <div>
+                        <div class="text-gray-500">申请时间</div>
+                        <div class="font-medium">1小时前</div>
+                    </div>
+                </div>
+                <div class="mt-3 pt-3 border-t flex justify-between items-center">
+                    <div class="text-lg font-bold text-green-600">¥1,200</div>
+                    <div class="flex space-x-2">
+                        <button onclick="confirmService('S2025072002')" class="bg-green-600 text-white px-3 py-1 rounded text-sm">
+                            <i class="fas fa-check mr-1"></i>确认
+                        </button>
+                        <button onclick="modifyService('S2025072002')" class="bg-blue-600 text-white px-3 py-1 rounded text-sm">
+                            <i class="fas fa-edit mr-1"></i>修改
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 已完成服务 -->
+            <div class="order-card bg-white rounded-lg p-4 shadow-sm card-hover" data-status="completed">
+                <div class="flex items-start justify-between mb-3">
+                    <div>
+                        <div class="flex items-center mb-2">
+                            <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-medium">已完成</span>
+                            <span class="ml-2 text-sm font-medium">#S2025071801</span>
+                        </div>
+                        <div class="text-sm text-gray-600">
+                            <i class="fas fa-file-invoice mr-1"></i>
+                            代开发票服务
+                        </div>
+                    </div>
+                    <button onclick="viewServiceDetail('S2025071801')" class="text-green-600">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+                <div class="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                        <div class="text-gray-500">发票类型</div>
+                        <div class="font-medium">增值税专票</div>
+                    </div>
+                    <div>
+                        <div class="text-gray-500">开票金额</div>
+                        <div class="font-medium">15,000元</div>
+                    </div>
+                    <div>
+                        <div class="text-gray-500">服务商</div>
+                        <div class="font-medium">财税服务中心</div>
+                    </div>
+                    <div>
+                        <div class="text-gray-500">完成时间</div>
+                        <div class="font-medium">昨天 15:30</div>
+                    </div>
+                </div>
+                <div class="mt-3 pt-3 border-t flex justify-between items-center">
+                    <div class="text-lg font-bold text-green-600">¥300</div>
+                    <div class="flex space-x-2">
+                        <button onclick="downloadInvoice('S2025071801')" class="bg-gray-600 text-white px-3 py-1 rounded text-sm">
+                            <i class="fas fa-download mr-1"></i>下载
+                        </button>
+                        <button onclick="rateService('S2025071801')" class="bg-yellow-600 text-white px-3 py-1 rounded text-sm">
+                            <i class="fas fa-star mr-1"></i>评价
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 金融服务 -->
+            <div class="order-card bg-white rounded-lg p-4 shadow-sm card-hover" data-status="in-progress">
+                <div class="flex items-start justify-between mb-3">
+                    <div>
+                        <div class="flex items-center mb-2">
+                            <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-medium">审核中</span>
+                            <span class="ml-2 text-sm font-medium">#S2025072003</span>
+                        </div>
+                        <div class="text-sm text-gray-600">
+                            <i class="fas fa-credit-card mr-1"></i>
+                            供应链金融服务
+                        </div>
+                    </div>
+                    <button onclick="viewServiceDetail('S2025072003')" class="text-green-600">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+                <div class="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                        <div class="text-gray-500">贷款类型</div>
+                        <div class="font-medium">运费垫付</div>
+                    </div>
+                    <div>
+                        <div class="text-gray-500">申请金额</div>
+                        <div class="font-medium">20万元</div>
+                    </div>
+                    <div>
+                        <div class="text-gray-500">金融机构</div>
+                        <div class="font-medium">工商银行</div>
+                    </div>
+                    <div>
+                        <div class="text-gray-500">申请时间</div>
+                        <div class="font-medium">今天 09:30</div>
+                    </div>
+                </div>
+                <div class="mt-3 pt-3 border-t flex justify-between items-center">
+                    <div class="text-lg font-bold text-blue-600">年化6.8%</div>
+                    <div class="flex space-x-2">
+                        <button onclick="checkLoanStatus('S2025072003')" class="bg-blue-600 text-white px-3 py-1 rounded text-sm">
+                            <i class="fas fa-search mr-1"></i>查询
+                        </button>
+                        <button onclick="uploadDocuments('S2025072003')" class="bg-green-600 text-white px-3 py-1 rounded text-sm">
+                            <i class="fas fa-upload mr-1"></i>补充
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 已取消服务 -->
+            <div class="order-card bg-white rounded-lg p-4 shadow-sm card-hover" data-status="cancelled">
+                <div class="flex items-start justify-between mb-3">
+                    <div>
+                        <div class="flex items-center mb-2">
+                            <span class="bg-red-100 text-red-800 px-2 py-1 rounded text-xs font-medium">已取消</span>
+                            <span class="ml-2 text-sm font-medium">#S2025071701</span>
+                        </div>
+                        <div class="text-sm text-gray-600">
+                            <i class="fas fa-user-tie mr-1"></i>
+                            司机招聘服务
+                        </div>
+                    </div>
+                    <button onclick="viewServiceDetail('S2025071701')" class="text-green-600">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+                <div class="bg-red-50 p-3 rounded mb-3">
+                    <div class="flex items-center text-red-800">
+                        <i class="fas fa-times-circle mr-2"></i>
+                        <span class="text-sm">用户主动取消，已全额退款</span>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                        <div class="text-gray-500">招聘岗位</div>
+                        <div class="font-medium">A2司机</div>
+                    </div>
+                    <div>
+                        <div class="text-gray-500">招聘数量</div>
+                        <div class="font-medium">3人</div>
+                    </div>
+                    <div>
+                        <div class="text-gray-500">取消时间</div>
+                        <div class="font-medium">3天前</div>
+                    </div>
+                    <div>
+                        <div class="text-gray-500">退款金额</div>
+                        <div class="font-medium">¥500</div>
+                    </div>
+                </div>
+                <div class="mt-3 pt-3 border-t flex justify-between items-center">
+                    <div class="text-lg font-bold text-gray-500">已退款</div>
+                    <div class="flex space-x-2">
+                        <button onclick="resubmitService('S2025071701')" class="bg-blue-600 text-white px-3 py-1 rounded text-sm">
+                            <i class="fas fa-redo mr-1"></i>重新发布
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部操作栏 -->
+    <div class="fixed bottom-0 left-0 right-0 bg-white border-t p-4">
+        <div class="flex space-x-3">
+            <button onclick="serviceCategory()" class="flex-1 bg-gray-100 text-gray-700 py-3 rounded-lg">
+                <i class="fas fa-th-large mr-2"></i>服务分类
+            </button>
+            <button onclick="exportServices()" class="flex-1 bg-green-600 text-white py-3 rounded-lg">
+                <i class="fas fa-file-export mr-2"></i>导出记录
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // 页面导航
+        function goBack() {
+            window.history.back();
+        }
+
+        function showOrderTypeMenu() {
+            const choice = confirm('切换到其他订单类型？\n\n确定 - 查看菜单\n取消 - 取消');
+            if (choice) {
+                const orderType = prompt('选择订单类型：\n1 - 运输订单\n2 - 服务订单（当前）\n3 - 财务订单\n4 - 运单管理\n\n请输入数字：');
+                switch(orderType) {
+                    case '1':
+                        window.location.href = 'transport-orders.html';
+                        break;
+                    case '3':
+                        window.location.href = 'finance-orders.html';
+                        break;
+                    case '4':
+                        window.location.href = 'waybill-orders.html';
+                        break;
+                    case '2':
+                        alert('您当前就在服务订单页面');
+                        break;
+                    default:
+                        if (orderType) alert('无效选择');
+                }
+            }
+        }
+
+        // 状态筛选
+        function filterByStatus(status) {
+            const orders = document.querySelectorAll('.order-card');
+            const chips = document.querySelectorAll('.status-chip');
+            
+            // 重置所有筛选按钮样式
+            chips.forEach(chip => {
+                chip.className = 'status-chip px-4 py-2 bg-gray-100 text-gray-600 rounded-full text-sm whitespace-nowrap';
+            });
+            
+            // 设置当前选中按钮样式
+            event.target.className = 'status-chip px-4 py-2 bg-green-100 text-green-800 rounded-full text-sm whitespace-nowrap';
+            
+            // 显示/隐藏订单
+            orders.forEach(order => {
+                if (status === 'all' || order.dataset.status === status) {
+                    order.style.display = 'block';
+                } else {
+                    order.style.display = 'none';
+                }
+            });
+        }
+
+        // 服务操作
+        function viewServiceDetail(serviceId) {
+            alert(`查看服务详情: ${serviceId}\n\n功能包括：\n• 服务进度跟踪\n• 费用明细\n• 服务商信息\n• 服务记录\n• 相关文档`);
+        }
+
+        function trackService(serviceId) {
+            alert(`跟踪服务进度: ${serviceId}\n\n显示信息：\n• 当前服务状态\n• 完成进度\n• 下一步计划\n• 预计完成时间\n• 服务日志`);
+        }
+
+        function contactProvider(serviceId) {
+            alert(`联系服务商 - 服务: ${serviceId}\n\n联系方式：\n• 直接电话\n• 在线客服\n• 工单系统\n• 邮件联系\n• 现场沟通`);
+        }
+
+        function confirmService(serviceId) {
+            if (confirm(`确认服务申请: ${serviceId}？\n\n确认后将：\n• 启动服务流程\n• 安排服务商\n• 开始计费`)) {
+                alert('服务确认成功！服务商将在30分钟内联系您');
+            }
+        }
+
+        function modifyService(serviceId) {
+            alert(`修改服务申请: ${serviceId}\n\n可修改内容：\n• 服务时间\n• 服务要求\n• 联系信息\n• 特殊需求\n• 费用预算`);
+        }
+
+        function downloadInvoice(serviceId) {
+            alert(`下载发票: ${serviceId}\n\n发票信息：\n• 电子版下载\n• 纸质版邮寄\n• 发票验证\n• 报销单据\n• 税务记录`);
+        }
+
+        function rateService(serviceId) {
+            alert(`服务评价: ${serviceId}\n\n评价维度：\n• 服务质量\n• 响应速度\n• 专业程度\n• 价格合理性\n• 整体满意度`);
+        }
+
+        function checkLoanStatus(serviceId) {
+            alert(`查询贷款状态: ${serviceId}\n\n当前状态：\n• 材料审核中\n• 预计3-5工作日\n• 可随时查询进度\n• 审批结果短信通知`);
+        }
+
+        function uploadDocuments(serviceId) {
+            alert(`补充材料: ${serviceId}\n\n需要文件：\n• 营业执照\n• 财务报表\n• 运输合同\n• 银行流水\n• 其他证明`);
+        }
+
+        function resubmitService(serviceId) {
+            alert(`重新发布服务: ${serviceId}\n\n优化建议：\n• 调整服务要求\n• 优化价格区间\n• 明确服务时间\n• 完善服务描述`);
+        }
+
+        function searchOrders() {
+            alert('服务订单搜索\n\n支持搜索：\n• 服务单号\n• 服务类型\n• 服务商名称\n• 时间范围\n• 状态筛选');
+        }
+
+        function addService() {
+            alert('申请新服务\n\n服务分类：\n• 运输相关服务\n• 金融服务\n• 保险服务\n• 代办服务\n• 技术支持');
+        }
+
+        function serviceCategory() {
+            alert('服务分类管理\n\n分类包括：\n• 车辆服务\n• 保险服务\n• 金融服务\n• 代办服务\n• 技术服务\n• 培训服务');
+        }
+
+        function exportServices() {
+            alert('导出服务记录\n\n导出内容：\n• 服务明细\n• 费用统计\n• 服务商评价\n• 时间分析\n• 自定义报表');
+        }
+    </script>
+</body>
+</html>

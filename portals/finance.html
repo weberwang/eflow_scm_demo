@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>eFlow 财务门户 - Finance Portal</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --finance-primary: #9C27B0;
+            --finance-secondary: #BA68C8;
+            --finance-accent: #E1BEE7;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+        
+        .sidebar {
+            background: linear-gradient(135deg, var(--finance-primary) 0%, var(--finance-secondary) 100%);
+            width: 280px;
+            min-height: 100vh;
+            color: white;
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .main-content {
+            margin-left: 280px;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .top-bar {
+            background: white;
+            border-radius: 16px;
+            padding: 20px 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: between;
+            align-items: center;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+        }
+        
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+        
+        .kpi-card {
+            background: linear-gradient(135deg, var(--finance-primary) 0%, var(--finance-secondary) 100%);
+            color: white;
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+        
+        .kpi-value {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        
+        .kpi-label {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 8px;
+        }
+        
+        .kpi-change {
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 16px 24px;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+        
+        .nav-item:hover, .nav-item.active {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border-left-color: white;
+        }
+        
+        .nav-icon {
+            margin-right: 12px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .transaction-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .transaction-table th {
+            background: #F8F9FA;
+            padding: 16px;
+            text-align: left;
+            font-weight: 600;
+            color: #424242;
+            border-bottom: 2px solid #E0E0E0;
+        }
+        
+        .transaction-table td {
+            padding: 16px;
+            border-bottom: 1px solid #F0F0F0;
+        }
+        
+        .transaction-table tr:hover {
+            background: #F8F9FA;
+        }
+        
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-success {
+            background: #E8F5E8;
+            color: #2E7D32;
+        }
+        
+        .status-warning {
+            background: #FFF3E0;
+            color: #F57C00;
+        }
+        
+        .status-pending {
+            background: #E3F2FD;
+            color: #1976D2;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-top: 20px;
+        }
+        
+        .filter-bar {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .filter-select {
+            padding: 8px 16px;
+            border: 1px solid #E0E0E0;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+        }
+        
+        .action-button {
+            background: var(--finance-primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .action-button:hover {
+            background: var(--finance-secondary);
+            transform: translateY(-1px);
+        }
+        
+        .logo-section {
+            padding: 24px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .logo-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+        
+        .user-info {
+            padding: 20px 24px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .user-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 24px;
+            background: rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 12px;
+        }
+        
+        .breadcrumb {
+            color: #757575;
+            margin-bottom: 8px;
+        }
+        
+        .page-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #212121;
+        }
+        
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+        
+        .grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 24px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <!-- Logo Section -->
+        <div class="logo-section">
+            <div class="logo-icon">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <h2 class="text-xl font-bold">eFlow 财务门户</h2>
+            <p class="text-sm opacity-75">Finance Portal</p>
+        </div>
+        
+        <!-- User Info -->
+        <div class="user-info">
+            <div class="user-avatar">
+                <i class="fas fa-user text-xl"></i>
+            </div>
+            <div class="font-medium">财务经理</div>
+            <div class="text-sm opacity-75">finance@company.com</div>
+        </div>
+        
+        <!-- Navigation -->
+        <nav class="py-4">
+            <a href="#" class="nav-item active">
+                <i class="fas fa-tachometer-alt nav-icon"></i>
+                财务仪表板
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-receipt nav-icon"></i>
+                收支管理
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-credit-card nav-icon"></i>
+                资金流水
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-file-invoice nav-icon"></i>
+                发票管理
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-chart-bar nav-icon"></i>
+                财务报表
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-calculator nav-icon"></i>
+                成本分析
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-university nav-icon"></i>
+                银行对账
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-shield-alt nav-icon"></i>
+                风险控制
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-cog nav-icon"></i>
+                系统设置
+            </a>
+        </nav>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div>
+                <div class="breadcrumb">首页 / 财务门户</div>
+                <h1 class="page-title">财务仪表板</h1>
+            </div>
+            <div class="flex items-center gap-4">
+                <button class="action-button">
+                    <i class="fas fa-download"></i>
+                    导出报表
+                </button>
+                <button class="action-button">
+                    <i class="fas fa-bell"></i>
+                    通知
+                    <span class="bg-red-500 text-white text-xs rounded-full px-2 py-1 ml-2">3</span>
+                </button>
+            </div>
+        </div>
+        
+        <!-- KPI Grid -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-value">¥2,458,600</div>
+                <div class="kpi-label">本月总收入</div>
+                <div class="kpi-change">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>+15.2%</span>
+                </div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">¥1,879,200</div>
+                <div class="kpi-label">本月总支出</div>
+                <div class="kpi-change">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>+8.7%</span>
+                </div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">¥579,400</div>
+                <div class="kpi-label">本月净利润</div>
+                <div class="kpi-change">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>+28.5%</span>
+                </div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">¥8,567,800</div>
+                <div class="kpi-label">账户余额</div>
+                <div class="kpi-change">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>+3.2%</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Charts Grid -->
+        <div class="grid-2">
+            <!-- Revenue Chart -->
+            <div class="card">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-bold">收支趋势分析</h3>
+                    <div class="filter-bar">
+                        <select class="filter-select">
+                            <option>最近30天</option>
+                            <option>最近3个月</option>
+                            <option>最近1年</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </div>
+            
+            <!-- Expense Distribution -->
+            <div class="card">
+                <h3 class="text-lg font-bold mb-4">支出分布</h3>
+                <div class="chart-container">
+                    <canvas id="expenseChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recent Transactions -->
+        <div class="card">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold">最近交易记录</h3>
+                <div class="filter-bar">
+                    <select class="filter-select">
+                        <option>全部类型</option>
+                        <option>收入</option>
+                        <option>支出</option>
+                    </select>
+                    <button class="action-button">
+                        <i class="fas fa-plus"></i>
+                        新增交易
+                    </button>
+                </div>
+            </div>
+            
+            <table class="transaction-table">
+                <thead>
+                    <tr>
+                        <th>交易时间</th>
+                        <th>交易类型</th>
+                        <th>交易对象</th>
+                        <th>金额</th>
+                        <th>状态</th>
+                        <th>备注</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>2025-01-18 14:30</td>
+                        <td>运费收入</td>
+                        <td>北京物流有限公司</td>
+                        <td class="text-green-600 font-medium">+¥25,800</td>
+                        <td><span class="status-badge status-success">已完成</span></td>
+                        <td>北京-上海线路运费</td>
+                        <td>
+                            <button class="text-blue-600 hover:underline">查看</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>2025-01-18 11:20</td>
+                        <td>油费支出</td>
+                        <td>中石化加油站</td>
+                        <td class="text-red-600 font-medium">-¥1,580</td>
+                        <td><span class="status-badge status-success">已完成</span></td>
+                        <td>车队加油费用</td>
+                        <td>
+                            <button class="text-blue-600 hover:underline">查看</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>2025-01-18 09:15</td>
+                        <td>保险费用</td>
+                        <td>中国人保财险</td>
+                        <td class="text-red-600 font-medium">-¥8,500</td>
+                        <td><span class="status-badge status-pending">处理中</span></td>
+                        <td>货物运输保险</td>
+                        <td>
+                            <button class="text-blue-600 hover:underline">查看</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>2025-01-17 16:45</td>
+                        <td>运费收入</td>
+                        <td>上海贸易公司</td>
+                        <td class="text-green-600 font-medium">+¥18,600</td>
+                        <td><span class="status-badge status-success">已完成</span></td>
+                        <td>上海-广州线路运费</td>
+                        <td>
+                            <button class="text-blue-600 hover:underline">查看</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>2025-01-17 13:30</td>
+                        <td>维修费用</td>
+                        <td>专业汽修厂</td>
+                        <td class="text-red-600 font-medium">-¥3,200</td>
+                        <td><span class="status-badge status-warning">待审核</span></td>
+                        <td>车辆定期保养</td>
+                        <td>
+                            <button class="text-blue-600 hover:underline">查看</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Financial Summary -->
+        <div class="grid-3">
+            <div class="card text-center">
+                <i class="fas fa-coins text-4xl text-yellow-500 mb-4"></i>
+                <h4 class="font-bold text-lg mb-2">应收账款</h4>
+                <div class="text-2xl font-bold text-orange-600">¥456,780</div>
+                <div class="text-sm text-gray-500 mt-2">较上月减少 12.3%</div>
+            </div>
+            <div class="card text-center">
+                <i class="fas fa-credit-card text-4xl text-red-500 mb-4"></i>
+                <h4 class="font-bold text-lg mb-2">应付账款</h4>
+                <div class="text-2xl font-bold text-red-600">¥289,450</div>
+                <div class="text-sm text-gray-500 mt-2">较上月增加 8.7%</div>
+            </div>
+            <div class="card text-center">
+                <i class="fas fa-percentage text-4xl text-green-500 mb-4"></i>
+                <h4 class="font-bold text-lg mb-2">利润率</h4>
+                <div class="text-2xl font-bold text-green-600">23.6%</div>
+                <div class="text-sm text-gray-500 mt-2">较上月提升 4.2%</div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 收支趋势图
+        const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+        new Chart(revenueCtx, {
+            type: 'line',
+            data: {
+                labels: ['1月', '2月', '3月', '4月', '5月', '6月'],
+                datasets: [{
+                    label: '收入',
+                    data: [1800000, 1950000, 2100000, 2250000, 2350000, 2458600],
+                    borderColor: '#9C27B0',
+                    backgroundColor: 'rgba(156, 39, 176, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }, {
+                    label: '支出',
+                    data: [1400000, 1520000, 1650000, 1750000, 1820000, 1879200],
+                    borderColor: '#F44336',
+                    backgroundColor: 'rgba(244, 67, 54, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return '¥' + (value / 10000).toFixed(0) + '万';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        
+        // 支出分布图
+        const expenseCtx = document.getElementById('expenseChart').getContext('2d');
+        new Chart(expenseCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['燃油费用', '维修保养', '保险费用', '人工成本', '其他费用'],
+                datasets: [{
+                    data: [45, 20, 15, 12, 8],
+                    backgroundColor: [
+                        '#9C27B0',
+                        '#FF9800',
+                        '#4CAF50',
+                        '#2196F3',
+                        '#9E9E9E'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+        
+        // 导航交互
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+        
+        // 实时数据更新
+        setInterval(() => {
+            // 模拟数据更新
+            const kpiValues = document.querySelectorAll('.kpi-value');
+            kpiValues.forEach(value => {
+                const currentValue = parseFloat(value.textContent.replace(/[¥,]/g, ''));
+                const change = (Math.random() - 0.5) * 1000;
+                const newValue = currentValue + change;
+                value.textContent = '¥' + newValue.toLocaleString();
+            });
+        }, 30000);
+        
+        // 按钮点击事件
+        document.querySelectorAll('.action-button').forEach(button => {
+            button.addEventListener('click', function() {
+                const buttonText = this.textContent.trim();
+                alert(`${buttonText}功能正在开发中...`);
+            });
+        });
+    </script>
+</body>
+</html>

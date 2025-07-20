@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>eFlow - 货运服务</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="../components/styles.css" rel="stylesheet">
+    <style>
+        body {
+            padding-bottom: 80px;
+        }
+        
+        .cargo-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin: 12px 16px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            border-left: 4px solid #1B73E8;
+            transition: all 0.3s ease;
+        }
+        
+        .cargo-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+        }
+        
+        .cargo-type {
+            background: linear-gradient(135deg, #FF8F00 0%, #FFB74D 100%);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            display: inline-block;
+        }
+        
+        .cargo-weight {
+            background: #E3F2FD;
+            color: #1B73E8;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            display: inline-block;
+        }
+        
+        .route-container {
+            display: flex;
+            align-items: center;
+            margin: 12px 0;
+            color: #424242;
+        }
+        
+        .route-arrow {
+            margin: 0 12px;
+            color: #1B73E8;
+        }
+        
+        .price-highlight {
+            color: #FF5722;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        
+        .shipper-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        
+        .rating-stars {
+            color: #FF8F00;
+        }
+        
+        .hot-route {
+            background: linear-gradient(135deg, #FF5722 0%, #FF7043 100%);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            margin: 4px;
+            display: inline-block;
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .hot-route:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(255, 87, 34, 0.3);
+        }
+        
+        .filter-chips {
+            display: flex;
+            gap: 8px;
+            padding: 16px;
+            overflow-x: auto;
+        }
+        
+        .filter-chip {
+            background: #F5F5F5;
+            color: #424242;
+            padding: 8px 16px;
+            border-radius: 20px;
+            white-space: nowrap;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .filter-chip.active {
+            background: #1B73E8;
+            color: white;
+        }
+        
+        .filter-chip:hover {
+            border-color: #1B73E8;
+        }
+        
+        .location-bar {
+            background: white;
+            padding: 12px 16px;
+            border-bottom: 1px solid #E0E0E0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .view-toggle {
+            display: flex;
+            background: #F5F5F5;
+            border-radius: 20px;
+            padding: 4px;
+        }
+        
+        .view-option {
+            padding: 8px 16px;
+            border-radius: 16px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .view-option.active {
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <div class="header bg-white border-b border-gray-200">
+        <div class="flex items-center justify-between">
+            <h1 class="text-xl font-bold text-gray-800 flex items-center">
+                <i class="fas fa-truck mr-3 text-blue-500"></i>
+                货运服务
+            </h1>
+            <div class="flex items-center space-x-3">
+                <i class="fas fa-search text-gray-600"></i>
+                <button class="p-2 rounded-full bg-gray-100">
+                    <i class="fas fa-filter text-gray-600"></i>
+                </button>
+                <div class="view-toggle">
+                    <button class="view-option active">
+                        <i class="fas fa-list"></i>
+                    </button>
+                    <button class="view-option">
+                        <i class="fas fa-map"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Order Categories -->
+    <div class="bg-white border-b border-gray-200">
+        <div class="px-4 py-3">
+            <div class="flex items-center justify-between mb-3">
+                <h3 class="text-sm font-semibold text-gray-700">运输订单管理</h3>
+                <a href="orders.html" class="text-xs text-blue-500 flex items-center">
+                    查看全部 <i class="fas fa-chevron-right ml-1"></i>
+                </a>
+            </div>
+            <div class="grid grid-cols-4 gap-3">
+                <div class="bg-blue-50 rounded-lg p-3 text-center cursor-pointer hover:bg-blue-100 transition-colors" onclick="filterTransportOrders('pending')">
+                    <div class="text-lg font-bold text-blue-600">5</div>
+                    <div class="text-xs text-gray-600">待接单</div>
+                </div>
+                <div class="bg-orange-50 rounded-lg p-3 text-center cursor-pointer hover:bg-orange-100 transition-colors" onclick="filterTransportOrders('loading')">
+                    <div class="text-lg font-bold text-orange-600">3</div>
+                    <div class="text-xs text-gray-600">装货中</div>
+                </div>
+                <div class="bg-green-50 rounded-lg p-3 text-center cursor-pointer hover:bg-green-100 transition-colors" onclick="filterTransportOrders('transit')">
+                    <div class="text-lg font-bold text-green-600">8</div>
+                    <div class="text-xs text-gray-600">运输中</div>
+                </div>
+                <div class="bg-purple-50 rounded-lg p-3 text-center cursor-pointer hover:bg-purple-100 transition-colors" onclick="filterTransportOrders('completed')">
+                    <div class="text-lg font-bold text-purple-600">156</div>
+                    <div class="text-xs text-gray-600">已完成</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Location Bar -->
+    <div class="location-bar">
+        <i class="fas fa-map-marker-alt text-blue-500"></i>
+        <span class="text-sm text-gray-600">当前位置：</span>
+        <span class="text-sm font-medium text-gray-800">北京市朝阳区</span>
+        <button class="ml-auto text-blue-500 text-sm">
+            <i class="fas fa-crosshairs mr-1"></i>重新定位
+        </button>
+    </div>
+    
+    <!-- Filter Chips -->
+    <div class="filter-chips">
+        <div class="filter-chip active">全部货源</div>
+        <div class="filter-chip">我的运输订单</div>
+        <div class="filter-chip">整车</div>
+        <div class="filter-chip">零担</div>
+        <div class="filter-chip">冷链</div>
+        <div class="filter-chip">危化品</div>
+        <div class="filter-chip">大件</div>
+        <div class="filter-chip">今日发车</div>
+    </div>
+    
+    <!-- Hot Routes -->
+    <div class="px-4 py-2">
+        <h3 class="text-lg font-bold mb-3 flex items-center">
+            <i class="fas fa-fire mr-2 text-red-500"></i>
+            热门线路
+        </h3>
+        <div class="flex flex-wrap">
+            <a href="#" class="hot-route">北京 → 上海</a>
+            <a href="#" class="hot-route">深圳 → 广州</a>
+            <a href="#" class="hot-route">成都 → 重庆</a>
+            <a href="#" class="hot-route">武汉 → 长沙</a>
+            <a href="#" class="hot-route">西安 → 郑州</a>
+        </div>
+    </div>
+    
+    <!-- Cargo List -->
+    <div class="pb-4">
+        <h3 class="text-lg font-bold px-4 mb-3 flex items-center">
+            <i class="fas fa-boxes mr-2 text-orange-500"></i>
+            货源信息
+            <span class="ml-auto text-sm text-gray-500 font-normal">实时更新</span>
+        </h3>
+        
+        <!-- Cargo Card 1 -->
+        <div class="cargo-card">
+            <div class="flex items-start justify-between mb-3">
+                <div class="flex gap-2">
+                    <span class="cargo-type">钢材运输</span>
+                    <span class="cargo-weight">整车 · 32吨</span>
+                </div>
+                <div class="text-right">
+                    <div class="price-highlight">¥3,200</div>
+                    <div class="text-xs text-gray-500">含税价</div>
+                </div>
+            </div>
+            
+            <div class="route-container">
+                <div class="flex items-center">
+                    <i class="fas fa-circle text-green-500 text-xs mr-2"></i>
+                    <span class="font-medium">上海浦东</span>
+                </div>
+                <i class="route-arrow fas fa-arrow-right"></i>
+                <div class="flex items-center">
+                    <i class="fas fa-circle text-red-500 text-xs mr-2"></i>
+                    <span class="font-medium">北京朝阳</span>
+                </div>
+                <div class="ml-auto text-sm text-gray-500">
+                    <i class="fas fa-clock mr-1"></i>
+                    今天15:00发车
+                </div>
+            </div>
+            
+            <div class="shipper-info">
+                <i class="fas fa-user-circle text-2xl text-blue-500"></i>
+                <div>
+                    <div class="font-medium text-sm">诚信货主</div>
+                    <div class="flex items-center text-xs text-gray-500">
+                        <span class="rating-stars">★★★★★</span>
+                        <span class="ml-1">4.8分</span>
+                        <span class="ml-2">已合作156次</span>
+                    </div>
+                </div>
+                <div class="ml-auto flex gap-2">
+                    <button class="btn-secondary text-sm px-4 py-2">详情</button>
+                    <button class="btn-primary text-sm px-4 py-2">立即报价</button>
+                </div>
+            </div>
+            
+            <div class="mt-3 pt-3 border-t border-gray-100 flex items-center text-xs text-gray-500">
+                <span>货物描述：优质钢材，包装完好，需要专业运输</span>
+                <span class="ml-auto">距离：1,213km</span>
+            </div>
+        </div>
+        
+        <!-- Cargo Card 2 -->
+        <div class="cargo-card">
+            <div class="flex items-start justify-between mb-3">
+                <div class="flex gap-2">
+                    <span class="cargo-type bg-gradient-to-r from-purple-500 to-purple-600">电子产品</span>
+                    <span class="cargo-weight">零担 · 5吨</span>
+                </div>
+                <div class="text-right">
+                    <div class="price-highlight">¥1,800</div>
+                    <div class="text-xs text-gray-500">含税价</div>
+                </div>
+            </div>
+            
+            <div class="route-container">
+                <div class="flex items-center">
+                    <i class="fas fa-circle text-green-500 text-xs mr-2"></i>
+                    <span class="font-medium">深圳南山</span>
+                </div>
+                <i class="route-arrow fas fa-arrow-right"></i>
+                <div class="flex items-center">
+                    <i class="fas fa-circle text-red-500 text-xs mr-2"></i>
+                    <span class="font-medium">杭州西湖</span>
+                </div>
+                <div class="ml-auto text-sm text-gray-500">
+                    <i class="fas fa-clock mr-1"></i>
+                    明天08:00发车
+                </div>
+            </div>
+            
+            <div class="shipper-info">
+                <i class="fas fa-user-circle text-2xl text-yellow-500"></i>
+                <div>
+                    <div class="font-medium text-sm flex items-center">
+                        金牌货主
+                        <i class="fas fa-medal text-yellow-500 ml-1"></i>
+                    </div>
+                    <div class="flex items-center text-xs text-gray-500">
+                        <span class="rating-stars">★★★★★</span>
+                        <span class="ml-1">4.9分</span>
+                        <span class="ml-2">已合作289次</span>
+                    </div>
+                </div>
+                <div class="ml-auto flex gap-2">
+                    <button class="btn-secondary text-sm px-4 py-2">详情</button>
+                    <button class="btn-primary text-sm px-4 py-2">立即报价</button>
+                </div>
+            </div>
+            
+            <div class="mt-3 pt-3 border-t border-gray-100 flex items-center text-xs text-gray-500">
+                <span>货物描述：精密电子设备，需要防震处理</span>
+                <span class="ml-auto">距离：1,456km</span>
+            </div>
+        </div>
+        
+        <!-- Cargo Card 3 -->
+        <div class="cargo-card">
+            <div class="flex items-start justify-between mb-3">
+                <div class="flex gap-2">
+                    <span class="cargo-type bg-gradient-to-r from-green-500 to-green-600">生鲜冷链</span>
+                    <span class="cargo-weight">整车 · 15吨</span>
+                    <span class="bg-red-100 text-red-600 text-xs px-2 py-1 rounded">急单</span>
+                </div>
+                <div class="text-right">
+                    <div class="price-highlight">¥2,600</div>
+                    <div class="text-xs text-gray-500">含税价</div>
+                </div>
+            </div>
+            
+            <div class="route-container">
+                <div class="flex items-center">
+                    <i class="fas fa-circle text-green-500 text-xs mr-2"></i>
+                    <span class="font-medium">广州番禺</span>
+                </div>
+                <i class="route-arrow fas fa-arrow-right"></i>
+                <div class="flex items-center">
+                    <i class="fas fa-circle text-red-500 text-xs mr-2"></i>
+                    <span class="font-medium">上海浦东</span>
+                </div>
+                <div class="ml-auto text-sm text-gray-500">
+                    <i class="fas fa-clock mr-1"></i>
+                    今天20:00发车
+                </div>
+            </div>
+            
+            <div class="shipper-info">
+                <i class="fas fa-user-circle text-2xl text-green-500"></i>
+                <div>
+                    <div class="font-medium text-sm">优质货主</div>
+                    <div class="flex items-center text-xs text-gray-500">
+                        <span class="rating-stars">★★★★☆</span>
+                        <span class="ml-1">4.6分</span>
+                        <span class="ml-2">已合作87次</span>
+                    </div>
+                </div>
+                <div class="ml-auto flex gap-2">
+                    <button class="btn-secondary text-sm px-4 py-2">详情</button>
+                    <button class="btn-primary text-sm px-4 py-2 bg-red-500 hover:bg-red-600">抢单</button>
+                </div>
+            </div>
+            
+            <div class="mt-3 pt-3 border-t border-gray-100 flex items-center text-xs text-gray-500">
+                <span>货物描述：新鲜水果，全程冷链，温度要求2-8°C</span>
+                <span class="ml-auto">距离：1,358km</span>
+            </div>
+        </div>
+        
+        <!-- Load More -->
+        <div class="text-center mt-6">
+            <button class="btn-secondary px-8 py-3">
+                <i class="fas fa-sync-alt mr-2"></i>
+                加载更多货源
+            </button>
+        </div>
+    </div>
+    
+    <!-- Tab Bar -->
+    <div class="tab-bar flex">
+        <a href="home.html" class="tab-item">
+            <i class="fas fa-home"></i>
+            <span>首页</span>
+        </a>
+        <a href="transport.html" class="tab-item active">
+            <i class="fas fa-truck"></i>
+            <span>货运</span>
+        </a>
+        <a href="service.html" class="tab-item">
+            <i class="fas fa-cogs"></i>
+            <span>服务</span>
+        </a>
+        <a href="analytics.html" class="tab-item">
+            <i class="fas fa-chart-bar"></i>
+            <span>数据</span>
+        </a>
+        <a href="profile.html" class="tab-item">
+            <i class="fas fa-user"></i>
+            <span>我的</span>
+        </a>
+    </div>
+    
+    <script>
+        // 筛选标签交互
+        document.querySelectorAll('.filter-chip').forEach(chip => {
+            chip.addEventListener('click', function() {
+                document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+        
+        // 运输订单筛选
+        function filterTransportOrders(status) {
+            // 直接跳转到专门的运输订单页面
+            window.location.href = 'transport-orders.html';
+        }
+        
+        // 视图切换
+        document.querySelectorAll('.view-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.view-option').forEach(o => o.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+        
+        // 报价按钮点击
+        document.querySelectorAll('.btn-primary').forEach(btn => {
+            if (btn.textContent.includes('报价') || btn.textContent.includes('抢单')) {
+                btn.addEventListener('click', function() {
+                    alert('需要身份验证才能进行报价操作\n\n请选择您的身份：\n- 物流公司\n- 个体司机');
+                });
+            }
+        });
+        
+        // 模拟实时更新
+        setInterval(() => {
+            const timeElements = document.querySelectorAll('.route-container .text-sm');
+            timeElements.forEach(element => {
+                if (element.textContent.includes('今天')) {
+                    const currentTime = new Date();
+                    const hours = currentTime.getHours().toString().padStart(2, '0');
+                    const minutes = currentTime.getMinutes().toString().padStart(2, '0');
+                    element.innerHTML = `<i class="fas fa-clock mr-1"></i>今天${hours}:${minutes}发车`;
+                }
+            });
+        }, 60000);
+        
+        // 货源卡片点击动画
+        document.querySelectorAll('.cargo-card').forEach(card => {
+            card.addEventListener('click', function(e) {
+                if (!e.target.closest('button')) {
+                    this.style.transform = 'scale(0.98)';
+                    setTimeout(() => {
+                        this.style.transform = 'translateY(-2px)';
+                    }, 150);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

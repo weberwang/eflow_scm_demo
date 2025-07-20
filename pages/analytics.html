@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>eFlow - 数据中心</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="../components/styles.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            padding-bottom: 80px;
+        }
+        
+        .kpi-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin: 8px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, #1B73E8 0%, #4285F4 100%);
+        }
+        
+        .kpi-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #1B73E8;
+            margin-bottom: 8px;
+        }
+        
+        .kpi-label {
+            color: #757575;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+        
+        .kpi-change {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .trend-up {
+            color: #34A853;
+        }
+        
+        .trend-down {
+            color: #D93025;
+        }
+        
+        .chart-container {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin: 16px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        }
+        
+        .chart-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #E0E0E0;
+        }
+        
+        .chart-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #212121;
+        }
+        
+        .time-selector {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .time-option {
+            padding: 6px 12px;
+            border-radius: 16px;
+            background: #F5F5F5;
+            color: #757575;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .time-option.active {
+            background: #1B73E8;
+            color: white;
+        }
+        
+        .heatmap-container {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin: 16px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        }
+        
+        .route-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #F0F0F0;
+        }
+        
+        .route-item:last-child {
+            border-bottom: none;
+        }
+        
+        .route-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .route-rank {
+            width: 24px;
+            height: 24px;
+            border-radius: 12px;
+            background: #1B73E8;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .route-path {
+            font-weight: 500;
+            color: #212121;
+        }
+        
+        .route-stats {
+            text-align: right;
+            font-size: 12px;
+            color: #757575;
+        }
+        
+        .heat-indicator {
+            width: 60px;
+            height: 8px;
+            border-radius: 4px;
+            margin-top: 4px;
+        }
+        
+        .heat-high { background: #FF5722; }
+        .heat-medium { background: #FF8F00; }
+        .heat-low { background: #34A853; }
+        
+        .data-insight {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin: 16px;
+            text-align: center;
+        }
+        
+        .insight-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.9;
+        }
+        
+        .filter-bar {
+            display: flex;
+            gap: 8px;
+            padding: 16px;
+            overflow-x: auto;
+            background: white;
+            border-bottom: 1px solid #E0E0E0;
+        }
+        
+        .filter-option {
+            background: #F5F5F5;
+            color: #424242;
+            padding: 8px 16px;
+            border-radius: 20px;
+            white-space: nowrap;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .filter-option.active {
+            background: #1B73E8;
+            color: white;
+        }
+        
+        .export-button {
+            background: #34A853;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <div class="header bg-white border-b border-gray-200">
+        <div class="flex items-center justify-between">
+            <h1 class="text-xl font-bold text-gray-800 flex items-center">
+                <i class="fas fa-chart-bar mr-3 text-blue-500"></i>
+                数据中心
+            </h1>
+            <div class="flex items-center space-x-3">
+                <div class="time-selector">
+                    <span class="time-option">今日</span>
+                    <span class="time-option active">7天</span>
+                    <span class="time-option">30天</span>
+                </div>
+                <button class="export-button">
+                    <i class="fas fa-download"></i>
+                    导出
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+        <div class="filter-option active">市场概览</div>
+        <div class="filter-option">运价分析</div>
+        <div class="filter-option">线路热度</div>
+        <div class="filter-option">车辆分布</div>
+        <div class="filter-option">货源统计</div>
+    </div>
+    
+    <!-- Market Overview KPIs -->
+    <div class="px-2 py-2">
+        <h3 class="text-lg font-bold px-4 mb-3 flex items-center">
+            <i class="fas fa-tachometer-alt mr-2 text-green-500"></i>
+            市场概览
+        </h3>
+        <div class="grid grid-cols-2 gap-2">
+            <div class="kpi-card">
+                <div class="kpi-value">1,234</div>
+                <div class="kpi-label">今日货量</div>
+                <div class="kpi-change trend-up">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>+12%</span>
+                </div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">¥3.2</div>
+                <div class="kpi-label">平均运价</div>
+                <div class="kpi-change trend-up">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>+3.5%</span>
+                </div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">8,567</div>
+                <div class="kpi-label">活跃用户</div>
+                <div class="kpi-change trend-up">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>+5.2%</span>
+                </div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">2,891</div>
+                <div class="kpi-label">在线车辆</div>
+                <div class="kpi-change trend-down">
+                    <i class="fas fa-arrow-down"></i>
+                    <span>-2.1%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Price Trend Chart -->
+    <div class="chart-container">
+        <div class="chart-header">
+            <div class="chart-title">
+                <i class="fas fa-chart-line mr-2 text-blue-500"></i>
+                运价趋势分析
+            </div>
+        </div>
+        <div style="position: relative; height: 200px;">
+            <canvas id="priceChart"></canvas>
+        </div>
+        <div class="mt-4 text-sm text-gray-600 text-center">
+            7日平均运价: ¥3.15/吨公里 | 环比上涨 2.8%
+        </div>
+    </div>
+    
+    <!-- Volume Distribution Chart -->
+    <div class="chart-container">
+        <div class="chart-header">
+            <div class="chart-title">
+                <i class="fas fa-chart-pie mr-2 text-orange-500"></i>
+                货量分布统计
+            </div>
+        </div>
+        <div style="position: relative; height: 200px;">
+            <canvas id="volumeChart"></canvas>
+        </div>
+    </div>
+    
+    <!-- Data Insight -->
+    <div class="data-insight">
+        <div class="insight-icon">
+            <i class="fas fa-lightbulb"></i>
+        </div>
+        <h3 class="text-lg font-bold mb-2">智能分析洞察</h3>
+        <p class="text-sm opacity-90 mb-4">
+            基于大数据分析，预计未来7天运价将上涨5-8%，建议承运商合理定价
+        </p>
+        <button class="bg-white bg-opacity-20 px-6 py-2 rounded-full text-sm font-medium">
+            查看详细报告
+        </button>
+    </div>
+    
+    <!-- Hot Routes Heatmap -->
+    <div class="heatmap-container">
+        <div class="chart-header">
+            <div class="chart-title">
+                <i class="fas fa-fire mr-2 text-red-500"></i>
+                热门线路排行
+            </div>
+            <div class="text-sm text-gray-500">实时更新</div>
+        </div>
+        
+        <div class="route-item">
+            <div class="route-info">
+                <div class="route-rank">1</div>
+                <div>
+                    <div class="route-path">北京 → 上海</div>
+                    <div class="heat-indicator heat-high"></div>
+                </div>
+            </div>
+            <div class="route-stats">
+                <div class="font-bold text-red-600">245单</div>
+                <div>今日货量</div>
+            </div>
+        </div>
+        
+        <div class="route-item">
+            <div class="route-info">
+                <div class="route-rank">2</div>
+                <div>
+                    <div class="route-path">深圳 → 广州</div>
+                    <div class="heat-indicator heat-high"></div>
+                </div>
+            </div>
+            <div class="route-stats">
+                <div class="font-bold text-red-600">198单</div>
+                <div>今日货量</div>
+            </div>
+        </div>
+        
+        <div class="route-item">
+            <div class="route-info">
+                <div class="route-rank">3</div>
+                <div>
+                    <div class="route-path">成都 → 重庆</div>
+                    <div class="heat-indicator heat-medium"></div>
+                </div>
+            </div>
+            <div class="route-stats">
+                <div class="font-bold text-orange-600">156单</div>
+                <div>今日货量</div>
+            </div>
+        </div>
+        
+        <div class="route-item">
+            <div class="route-info">
+                <div class="route-rank">4</div>
+                <div>
+                    <div class="route-path">杭州 → 南京</div>
+                    <div class="heat-indicator heat-medium"></div>
+                </div>
+            </div>
+            <div class="route-stats">
+                <div class="font-bold text-orange-600">134单</div>
+                <div>今日货量</div>
+            </div>
+        </div>
+        
+        <div class="route-item">
+            <div class="route-info">
+                <div class="route-rank">5</div>
+                <div>
+                    <div class="route-path">武汉 → 长沙</div>
+                    <div class="heat-indicator heat-low"></div>
+                </div>
+            </div>
+            <div class="route-stats">
+                <div class="font-bold text-green-600">89单</div>
+                <div>今日货量</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tab Bar -->
+    <div class="tab-bar flex">
+        <a href="#" class="tab-item">
+            <i class="fas fa-home"></i>
+            <span>首页</span>
+        </a>
+        <a href="#" class="tab-item">
+            <i class="fas fa-truck"></i>
+            <span>货运</span>
+        </a>
+        <a href="#" class="tab-item">
+            <i class="fas fa-cogs"></i>
+            <span>服务</span>
+        </a>
+        <a href="#" class="tab-item active">
+            <i class="fas fa-chart-bar"></i>
+            <span>数据</span>
+        </a>
+        <a href="#" class="tab-item">
+            <i class="fas fa-user"></i>
+            <span>我的</span>
+        </a>
+    </div>
+    
+    <script>
+        // 初始化价格趋势图
+        const priceCtx = document.getElementById('priceChart').getContext('2d');
+        const priceChart = new Chart(priceCtx, {
+            type: 'line',
+            data: {
+                labels: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+                datasets: [{
+                    label: '运价指数',
+                    data: [3.1, 3.2, 3.0, 3.3, 3.4, 3.2, 3.5],
+                    borderColor: '#1B73E8',
+                    backgroundColor: 'rgba(27, 115, 232, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: '#1B73E8',
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 2,
+                    pointRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        min: 2.8,
+                        max: 3.6,
+                        grid: {
+                            color: 'rgba(0,0,0,0.1)'
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return '¥' + value.toFixed(1);
+                            }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+        
+        // 初始化货量分布图
+        const volumeCtx = document.getElementById('volumeChart').getContext('2d');
+        const volumeChart = new Chart(volumeCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['整车运输', '零担运输', '冷链运输', '危化品', '大件运输'],
+                datasets: [{
+                    data: [45, 25, 15, 8, 7],
+                    backgroundColor: [
+                        '#1B73E8',
+                        '#34A853',
+                        '#FF8F00',
+                        '#D93025',
+                        '#9C27B0'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            usePointStyle: true
+                        }
+                    }
+                }
+            }
+        });
+        
+        // 筛选选项交互
+        document.querySelectorAll('.filter-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.filter-option').forEach(o => o.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+        
+        // 时间选择器交互
+        document.querySelectorAll('.time-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.time-option').forEach(o => o.classList.remove('active'));
+                this.classList.add('active');
+                
+                // 模拟数据更新
+                setTimeout(() => {
+                    updateChartData();
+                }, 300);
+            });
+        });
+        
+        // 更新图表数据
+        function updateChartData() {
+            const newPriceData = Array.from({length: 7}, () => 
+                (Math.random() * 0.8 + 2.8).toFixed(1)
+            );
+            priceChart.data.datasets[0].data = newPriceData;
+            priceChart.update();
+            
+            const newVolumeData = Array.from({length: 5}, () => 
+                Math.floor(Math.random() * 30 + 10)
+            );
+            volumeChart.data.datasets[0].data = newVolumeData;
+            volumeChart.update();
+        }
+        
+        // KPI数据实时更新
+        setInterval(() => {
+            document.querySelectorAll('.kpi-value').forEach(element => {
+                const currentText = element.textContent;
+                if (currentText.includes('¥')) {
+                    const currentValue = parseFloat(currentText.replace('¥', ''));
+                    const change = (Math.random() - 0.5) * 0.1;
+                    const newValue = Math.max(2.5, currentValue + change);
+                    element.textContent = '¥' + newValue.toFixed(1);
+                } else if (!isNaN(parseInt(currentText.replace(',', '')))) {
+                    const currentValue = parseInt(currentText.replace(',', ''));
+                    const change = Math.floor((Math.random() - 0.5) * 20);
+                    const newValue = Math.max(0, currentValue + change);
+                    element.textContent = newValue.toLocaleString();
+                }
+            });
+        }, 5000);
+        
+        // 热门线路数据更新
+        setInterval(() => {
+            document.querySelectorAll('.route-stats .font-bold').forEach(element => {
+                const currentValue = parseInt(element.textContent.replace('单', ''));
+                const change = Math.floor((Math.random() - 0.5) * 10);
+                const newValue = Math.max(50, currentValue + change);
+                element.textContent = newValue + '单';
+            });
+        }, 8000);
+        
+        // 导出功能
+        document.querySelector('.export-button').addEventListener('click', function() {
+            alert('数据导出功能\n\n包含内容：\n- 市场概览数据\n- 运价趋势分析\n- 线路热度统计\n- 货量分布报告');
+        });
+        
+        // 智能分析按钮
+        document.querySelector('.data-insight button').addEventListener('click', function() {
+            alert('智能分析报告\n\n基于AI算法分析：\n- 市场趋势预测\n- 运价波动分析\n- 最优线路推荐\n- 风险预警提醒');
+        });
+    </script>
+</body>
+</html>

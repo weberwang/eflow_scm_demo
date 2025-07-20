@@ -1,0 +1,1358 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>eFlow - 我的订单</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="../components/styles.css" rel="stylesheet">
+    <style>
+        body {
+            padding-bottom: 80px;
+        }
+        
+        .tab-container {
+            background: white;
+            border-bottom: 1px solid #E0E0E0;
+            padding: 0 16px;
+        }
+        
+        .tab-list {
+            display: flex;
+            overflow-x: auto;
+        }
+        
+        .tab-item {
+            padding: 16px 20px;
+            border-bottom: 3px solid transparent;
+            color: #666;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+        }
+        
+        .tab-item.active {
+            color: #1B73E8;
+            border-bottom-color: #1B73E8;
+            font-weight: 600;
+        }
+        
+        .order-card {
+            background: white;
+            border-radius: 16px;
+            margin: 12px 16px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .order-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+        }
+        
+        .order-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #F0F0F0;
+            display: flex;
+            justify-content: between;
+            align-items: center;
+        }
+        
+        .order-number {
+            font-size: 16px;
+            font-weight: 600;
+            color: #212121;
+        }
+        
+        .order-status {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .status-pending {
+            background: #FFF3E0;
+            color: #F57C00;
+        }
+        
+        .status-transport {
+            background: #E3F2FD;
+            color: #1976D2;
+        }
+        
+        .status-completed {
+            background: #E8F5E8;
+            color: #388E3C;
+        }
+        
+        .status-cancelled {
+            background: #FFEBEE;
+            color: #D32F2F;
+        }
+        
+        .order-content {
+            padding: 20px;
+        }
+        
+        .route-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .route-point {
+            flex: 1;
+        }
+        
+        .route-arrow {
+            margin: 0 12px;
+            color: #1B73E8;
+        }
+        
+        .location-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #212121;
+            margin-bottom: 4px;
+        }
+        
+        .location-detail {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .cargo-info {
+            background: #F8F9FA;
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+        }
+        
+        .cargo-detail {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .cargo-detail:last-child {
+            margin-bottom: 0;
+        }
+        
+        .price-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .price-amount {
+            font-size: 20px;
+            font-weight: bold;
+            color: #FF5722;
+        }
+        
+        .price-unit {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .order-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .action-btn {
+            flex: 1;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #E0E0E0;
+            background: white;
+            color: #666;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .action-btn.primary {
+            background: #1B73E8;
+            color: white;
+            border-color: #1B73E8;
+        }
+        
+        .action-btn:hover {
+            background: #F5F5F5;
+        }
+        
+        .action-btn.primary:hover {
+            background: #1565C0;
+        }
+        
+        .waybill-card {
+            background: white;
+            border-radius: 16px;
+            margin: 12px 16px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+        
+        .waybill-header {
+            background: linear-gradient(135deg, #1B73E8 0%, #4285F4 100%);
+            color: white;
+            padding: 16px 20px;
+        }
+        
+        .waybill-number {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+        
+        .waybill-type {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+        
+        .tracking-timeline {
+            padding: 20px;
+        }
+        
+        .timeline-item {
+            display: flex;
+            margin-bottom: 16px;
+            position: relative;
+        }
+        
+        .timeline-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .timeline-item:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            left: 11px;
+            top: 24px;
+            width: 2px;
+            height: calc(100% + 8px);
+            background: #E0E0E0;
+        }
+        
+        .timeline-dot {
+            width: 24px;
+            height: 24px;
+            border-radius: 12px;
+            background: #E0E0E0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+        
+        .timeline-dot.active {
+            background: #1B73E8;
+            color: white;
+        }
+        
+        .timeline-content {
+            flex: 1;
+        }
+        
+        .timeline-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #212121;
+            margin-bottom: 4px;
+        }
+        
+        .timeline-desc {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 2px;
+        }
+        
+        .timeline-time {
+            font-size: 11px;
+            color: #999;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+        
+        .empty-icon {
+            font-size: 48px;
+            color: #DDD;
+            margin-bottom: 16px;
+        }
+        
+        .filter-chips {
+            background: white;
+        }
+        
+        .filter-chip {
+            display: inline-block;
+            padding: 6px 12px;
+            background: #F5F5F5;
+            color: #666;
+            border-radius: 16px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            margin-right: 8px;
+        }
+        
+        .filter-chip.active {
+            background: #1B73E8;
+            color: white;
+        }
+        
+        .filter-chip:hover {
+            background: #E3F2FD;
+            color: #1B73E8;
+        }
+        
+        .filter-chip.active:hover {
+            background: #1565C0;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <div class="header bg-white border-b border-gray-200">
+        <div class="flex items-center">
+            <button class="p-2 mr-2" onclick="history.back()">
+                <i class="fas fa-arrow-left text-gray-600"></i>
+            </button>
+            <h1 class="text-xl font-bold text-gray-800 flex items-center">
+                <i class="fas fa-clipboard-list mr-3 text-blue-500"></i>
+                我的订单
+            </h1>
+        </div>
+    </div>
+    
+    <!-- Business Category Tabs -->
+    <div class="tab-container">
+        <div class="tab-list">
+            <div class="tab-item active" onclick="switchTab('transport')">
+                <i class="fas fa-truck mr-2"></i>货运订单
+            </div>
+            <div class="tab-item" onclick="switchTab('service')">
+                <i class="fas fa-cogs mr-2"></i>服务订单
+            </div>
+            <div class="tab-item" onclick="switchTab('finance')">
+                <i class="fas fa-coins mr-2"></i>金融订单
+            </div>
+            <div class="tab-item" onclick="switchTab('waybills')">
+                <i class="fas fa-clipboard-list mr-2"></i>运单管理
+            </div>
+        </div>
+    </div>
+    
+    <!-- Transport Orders Tab Content -->
+    <div id="transport-content" class="tab-content">
+        <!-- Status Filter Chips for Transport -->
+        <div class="filter-chips bg-white border-b border-gray-200">
+            <div class="px-4 py-3">
+                <div class="flex gap-2 overflow-x-auto">
+                    <button class="filter-chip active" onclick="filterTransportStatus('all')">全部</button>
+                    <button class="filter-chip" onclick="filterTransportStatus('pending')">待接单</button>
+                    <button class="filter-chip" onclick="filterTransportStatus('loading')">装货中</button>
+                    <button class="filter-chip" onclick="filterTransportStatus('transit')">运输中</button>
+                    <button class="filter-chip" onclick="filterTransportStatus('completed')">已完成</button>
+                    <button class="filter-chip" onclick="filterTransportStatus('cancelled')">已取消</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Transport Order Cards -->
+        <div class="transport-orders">
+            <!-- Pending Transport Order -->
+            <div class="order-card transport-order" data-status="pending">
+                <div class="order-header">
+                    <div>
+                        <div class="order-number">货运订单：TR2025071901</div>
+                        <div class="text-xs text-gray-500 mt-1">整车运输 • 钢材货物</div>
+                    </div>
+                    <div class="order-status status-pending">待接单</div>
+                </div>
+                <div class="order-content">
+                    <div class="route-info">
+                        <div class="route-point">
+                            <div class="location-name">北京市朝阳区</div>
+                            <div class="location-detail">三元桥物流园区A座</div>
+                        </div>
+                        <i class="fas fa-arrow-right route-arrow"></i>
+                        <div class="route-point">
+                            <div class="location-name">上海市浦东新区</div>
+                            <div class="location-detail">外高桥保税区B12</div>
+                        </div>
+                    </div>
+                    
+                    <div class="cargo-info">
+                        <div class="cargo-detail">
+                            <span class="text-gray-600">货物类型：</span>
+                            <span class="font-medium">优质钢材</span>
+                        </div>
+                        <div class="cargo-detail">
+                            <span class="text-gray-600">货物重量：</span>
+                            <span class="font-medium">32吨</span>
+                        </div>
+                        <div class="cargo-detail">
+                            <span class="text-gray-600">车型要求：</span>
+                            <span class="font-medium">17.5米厢式货车</span>
+                        </div>
+                        <div class="cargo-detail">
+                            <span class="text-gray-600">发货时间：</span>
+                            <span class="font-medium">2025-07-20 15:00</span>
+                        </div>
+                    </div>
+                    
+                    <div class="price-info">
+                        <div>
+                            <span class="price-amount">¥3,200</span>
+                            <span class="price-unit">/单</span>
+                        </div>
+                        <div class="text-sm text-gray-600">运费含税</div>
+                    </div>
+                    
+                    <div class="order-actions">
+                        <button class="action-btn">修改订单</button>
+                        <button class="action-btn">查看报价</button>
+                        <button class="action-btn primary">取消发布</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- In Transit Transport Order -->
+            <div class="order-card transport-order" data-status="transit">
+                <div class="order-header">
+                    <div>
+                        <div class="order-number">货运订单：TR2025071802</div>
+                        <div class="text-xs text-gray-500 mt-1">零担运输 • 电子产品</div>
+                    </div>
+                    <div class="order-status status-transport">运输中</div>
+                </div>
+                <div class="order-content">
+                    <div class="route-info">
+                        <div class="route-point">
+                            <div class="location-name">深圳市南山区</div>
+                            <div class="location-detail">科技园物流中心</div>
+                        </div>
+                        <i class="fas fa-arrow-right route-arrow"></i>
+                        <div class="route-point">
+                            <div class="location-name">杭州市西湖区</div>
+                            <div class="location-detail">西湖智慧园配送点</div>
+                        </div>
+                    </div>
+                    
+                    <div class="cargo-info">
+                        <div class="cargo-detail">
+                            <span class="text-gray-600">货物类型：</span>
+                            <span class="font-medium">精密电子设备</span>
+                        </div>
+                        <div class="cargo-detail">
+                            <span class="text-gray-600">货物重量：</span>
+                            <span class="font-medium">5吨</span>
+                        </div>
+                        <div class="cargo-detail">
+                            <span class="text-gray-600">承运方：</span>
+                            <span class="font-medium">顺丰物流 • 李师傅</span>
+                        </div>
+                        <div class="cargo-detail">
+                            <span class="text-gray-600">预计到达：</span>
+                            <span class="font-medium text-green-600">今天 18:30</span>
+                        </div>
+                    </div>
+                    
+                    <div class="price-info">
+                        <div>
+                            <span class="price-amount">¥1,800</span>
+                            <span class="price-unit">/单</span>
+                        </div>
+                        <div class="text-sm text-green-600">✓ 已支付</div>
+                    </div>
+                    
+                    <div class="order-actions">
+                        <button class="action-btn">联系司机</button>
+                        <button class="action-btn">实时跟踪</button>
+                        <button class="action-btn primary">确认收货</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Completed Transport Order -->
+            <div class="order-card transport-order" data-status="completed">
+                <div class="order-header">
+                    <div>
+                        <div class="order-number">货运订单：TR2025071703</div>
+                        <div class="text-xs text-gray-500 mt-1">冷链运输 • 生鲜货物</div>
+                    </div>
+                    <div class="order-status status-completed">已完成</div>
+                </div>
+                <div class="order-content">
+                    <div class="route-info">
+                        <div class="route-point">
+                            <div class="location-name">广州市番禺区</div>
+                            <div class="location-detail">新鲜市场集散中心</div>
+                        </div>
+                        <i class="fas fa-arrow-right route-arrow"></i>
+                        <div class="route-point">
+                            <div class="location-name">上海市浦东新区</div>
+                            <div class="location-detail">浦东农贸配送中心</div>
+                        </div>
+                    </div>
+                    
+                    <div class="cargo-info">
+                        <div class="cargo-detail">
+                            <span class="text-gray-600">完成时间：</span>
+                            <span class="font-medium">2025-07-17 09:30</span>
+                        </div>
+                        <div class="cargo-detail">
+                            <span class="text-gray-600">运输时长：</span>
+                            <span class="font-medium">18小时</span>
+                        </div>
+                        <div class="cargo-detail">
+                            <span class="text-gray-600">服务评价：</span>
+                            <span class="font-medium text-yellow-500">⭐⭐⭐⭐⭐ 5.0分</span>
+                        </div>
+                    </div>
+                    
+                    <div class="price-info">
+                        <div>
+                            <span class="price-amount">¥2,600</span>
+                            <span class="price-unit">/单</span>
+                        </div>
+                        <div class="text-sm text-green-600">✓ 已结算</div>
+                    </div>
+                    
+                    <div class="order-actions">
+                        <button class="action-btn">查看详情</button>
+                        <button class="action-btn">下载回单</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Service Orders Tab Content -->
+    <div id="service-content" class="tab-content" style="display: none;">
+        <!-- Status Filter Chips for Service -->
+        <div class="filter-chips bg-white border-b border-gray-200">
+            <div class="px-4 py-3">
+                <div class="flex gap-2 overflow-x-auto">
+                    <button class="filter-chip active" onclick="filterServiceStatus('all')">全部</button>
+                    <button class="filter-chip" onclick="filterServiceStatus('processing')">处理中</button>
+                    <button class="filter-chip" onclick="filterServiceStatus('active')">服务中</button>
+                    <button class="filter-chip" onclick="filterServiceStatus('completed')">已完成</button>
+                    <button class="filter-chip" onclick="filterServiceStatus('cancelled')">已取消</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Service Order Cards -->
+        <div class="service-orders">
+            <!-- Insurance Service Order -->
+            <div class="order-card service-order" data-status="active">
+                <div class="order-header">
+                    <div>
+                        <div class="order-number">保险订单：IN2025071901</div>
+                        <div class="text-xs text-gray-500 mt-1">货运保险 • 综合保障</div>
+                    </div>
+                    <div class="order-status status-transport">保障中</div>
+                </div>
+                <div class="order-content">
+                    <div class="cargo-info">
+                        <div class="cargo-detail">
+                            <span class="text-gray-600">保险类型：</span>
+                            <span class="font-medium">货物运输综合险</span>
+                        </div>
+                        <div class="cargo-detail">
+                            <span class="text-gray-600">保险金额：</span>
+                            <span class="font-medium">¥500,000</span>
+                        </div>
+                        <div class="cargo-detail">
+                            <span class="text-gray-600">保险期限：</span>
+                            <span class="font-medium">2025-07-20 至 2025-08-20</span>
+                        </div>
+                        <div class="cargo-detail">
+                            <span class="text-gray-600">承保公司：</span>
+                            <span class="font-medium">中国平安财产保险</span>
+                        </div>
+                    </div>
+                    
+                    <div class="price-info">
+                        <div>
+                            <span class="price-amount">¥1,200</span>
+                            <span class="price-unit">/年</span>
+                        </div>
+                        <div class="text-sm text-green-600">✓ 已生效</div>
+                    </div>
+                    
+                    <div class="order-actions">
+                        <button class="action-btn">查看保单</button>
+                        <button class="action-btn">理赔申请</button>
+                        <button class="action-btn primary">续保</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Certification Service Order -->
+            <div class="order-card service-order" data-status="processing">
+                <div class="order-header">
+                    <div>
+                        <div class="order-number">认证订单：CR2025071902</div>
+                        <div class="text-xs text-gray-500 mt-1">资质认证 • 危化品运输</div>
+                    </div>
+                    <div class="order-status status-pending">审核中</div>
+                </div>
+                <div class="order-content">
+                    <div class="cargo-info">
+                        <div class="cargo-detail">
+                            <span class="text-gray-600">认证类型：</span>
+                            <span class="font-medium">危化品运输资质</span>
+                        </div>
+                        <div class="cargo-detail">
+                            <span class="text-gray-600">申请时间：</span>
+                            <span class="font-medium">2025-07-18 14:30</span>
+                        </div>
+                        <div class="cargo-detail">
+                            <span class="text-gray-600">预计完成：</span>
+                            <span class="font-medium">2025-07-25</span>
+                        </div>
+                        <div class="cargo-detail">
+                            <span class="text-gray-600">办理机构：</span>
+                            <span class="font-medium">国家交通运输部</span>
+                        </div>
+                    </div>
+                    
+                    <div class="price-info">
+                        <div>
+                            <span class="price-amount">¥3,500</span>
+                            <span class="price-unit">/次</span>
+                        </div>
+                        <div class="text-sm text-orange-600">审核中</div>
+                    </div>
+                    
+                    <div class="order-actions">
+                        <button class="action-btn">查看进度</button>
+                        <button class="action-btn">补充资料</button>
+                        <button class="action-btn primary">联系客服</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Value-added Service Order -->
+            <div class="order-card service-order" data-status="completed">
+                <div class="order-header">
+                    <div>
+                        <div class="order-number">增值订单：VS2025071903</div>
+                        <div class="text-xs text-gray-500 mt-1">装卸服务 • 专业搬运</div>
+                    </div>
+                    <div class="order-status status-completed">已完成</div>
+                </div>
+                <div class="order-content">
+                    <div class="cargo-info">
+                        <div class="cargo-detail">
+                            <span class="text-gray-600">服务类型：</span>
+                            <span class="font-medium">精密设备装卸</span>
+                        </div>
+                        <div class="cargo-detail">
+                            <span class="text-gray-600">服务地点：</span>
+                            <span class="font-medium">北京市朝阳区三元桥</span>
+                        </div>
+                        <div class="cargo-detail">
+                            <span class="text-gray-600">完成时间：</span>
+                            <span class="font-medium">2025-07-19 16:00</span>
+                        </div>
+                        <div class="cargo-detail">
+                            <span class="text-gray-600">服务评价：</span>
+                            <span class="font-medium text-yellow-500">⭐⭐⭐⭐⭐ 5.0分</span>
+                        </div>
+                    </div>
+                    
+                    <div class="price-info">
+                        <div>
+                            <span class="price-amount">¥800</span>
+                            <span class="price-unit">/次</span>
+                        </div>
+                        <div class="text-sm text-green-600">✓ 已结算</div>
+                    </div>
+                    
+                    <div class="order-actions">
+                        <button class="action-btn">查看详情</button>
+                        <button class="action-btn">服务评价</button>
+                        <button class="action-btn primary">再次预订</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Finance Orders Tab Content -->
+    <div id="finance-content" class="tab-content" style="display: none;">
+        <!-- Status Filter Chips for Finance -->
+        <div class="filter-chips bg-white border-b border-gray-200">
+            <div class="px-4 py-3">
+                <div class="flex gap-2 overflow-x-auto">
+                    <button class="filter-chip active" onclick="filterFinanceStatus('all')">全部</button>
+                    <button class="filter-chip" onclick="filterFinanceStatus('pending')">待审核</button>
+                    <button class="filter-chip" onclick="filterFinanceStatus('approved')">已放款</button>
+                    <button class="filter-chip" onclick="filterFinanceStatus('repaying')">还款中</button>
+                    <button class="filter-chip" onclick="filterFinanceStatus('completed')">已完成</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Finance Order Cards -->
+        <div class="finance-orders">
+            <!-- Credit Loan Order -->
+            <div class="order-card finance-order" data-status="approved">
+                <div class="order-header">
+                    <div>
+                        <div class="order-number">贷款订单：LN2025071901</div>
+                        <div class="text-xs text-gray-500 mt-1">运营资金贷 • 信用放款</div>
+                    </div>
+                    <div class="order-status status-transport">还款中</div>
+                </div>
+                <div class="order-content">
+                    <div class="cargo-info">
+                        <div class="cargo-detail">
+                            <span class="text-gray-600">贷款金额：</span>
+                            <span class="font-medium">¥500,000</span>
+                        </div>
+                        <div class="cargo-detail">
+                            <span class="text-gray-600">年化利率：</span>
+                            <span class="font-medium">6.8%</span>
+                        </div>
+                        <div class="cargo-detail">
+                            <span class="text-gray-600">贷款期限：</span>
+                            <span class="font-medium">12个月</span>
+                        </div>
+                        <div class="cargo-detail">
+                            <span class="text-gray-600">下次还款：</span>
+                            <span class="font-medium text-orange-600">2025-08-15</span>
+                        </div>
+                    </div>
+                    
+                    <div class="price-info">
+                        <div>
+                            <span class="price-amount">¥45,200</span>
+                            <span class="price-unit">/月还</span>
+                        </div>
+                        <div class="text-sm text-green-600">正常还款</div>
+                    </div>
+                    
+                    <div class="order-actions">
+                        <button class="action-btn">还款计划</button>
+                        <button class="action-btn">提前还款</button>
+                        <button class="action-btn primary">立即还款</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Freight Advance Order -->
+            <div class="order-card finance-order" data-status="pending">
+                <div class="order-header">
+                    <div>
+                        <div class="order-number">垫付订单：AD2025071902</div>
+                        <div class="text-xs text-gray-500 mt-1">运费垫付 • 快速到账</div>
+                    </div>
+                    <div class="order-status status-pending">审核中</div>
+                </div>
+                <div class="order-content">
+                    <div class="cargo-info">
+                        <div class="cargo-detail">
+                            <span class="text-gray-600">垫付金额：</span>
+                            <span class="font-medium">¥28,000</span>
+                        </div>
+                        <div class="cargo-detail">
+                            <span class="text-gray-600">关联运单：</span>
+                            <span class="font-medium">TR2025071802</span>
+                        </div>
+                        <div class="cargo-detail">
+                            <span class="text-gray-600">申请时间：</span>
+                            <span class="font-medium">2025-07-20 10:30</span>
+                        </div>
+                        <div class="cargo-detail">
+                            <span class="text-gray-600">预计到账：</span>
+                            <span class="font-medium">审核通过后2小时</span>
+                        </div>
+                    </div>
+                    
+                    <div class="price-info">
+                        <div>
+                            <span class="price-amount">¥280</span>
+                            <span class="price-unit">手续费</span>
+                        </div>
+                        <div class="text-sm text-orange-600">审核中</div>
+                    </div>
+                    
+                    <div class="order-actions">
+                        <button class="action-btn">查看进度</button>
+                        <button class="action-btn">补充材料</button>
+                        <button class="action-btn primary">联系客服</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Factoring Service Order -->
+            <div class="order-card finance-order" data-status="completed">
+                <div class="order-header">
+                    <div>
+                        <div class="order-number">保理订单：FC2025071903</div>
+                        <div class="text-xs text-gray-500 mt-1">应收账款保理 • 已结清</div>
+                    </div>
+                    <div class="order-status status-completed">已完成</div>
+                </div>
+                <div class="order-content">
+                    <div class="cargo-info">
+                        <div class="cargo-detail">
+                            <span class="text-gray-600">保理金额：</span>
+                            <span class="font-medium">¥150,000</span>
+                        </div>
+                        <div class="cargo-detail">
+                            <span class="text-gray-600">保理费率：</span>
+                            <span class="font-medium">0.8%/月</span>
+                        </div>
+                        <div class="cargo-detail">
+                            <span class="text-gray-600">完成时间：</span>
+                            <span class="font-medium">2025-07-15 14:20</span>
+                        </div>
+                        <div class="cargo-detail">
+                            <span class="text-gray-600">资金方：</span>
+                            <span class="font-medium">招商银行</span>
+                        </div>
+                    </div>
+                    
+                    <div class="price-info">
+                        <div>
+                            <span class="price-amount">¥3,600</span>
+                            <span class="price-unit">总费用</span>
+                        </div>
+                        <div class="text-sm text-green-600">✓ 已结清</div>
+                    </div>
+                    
+                    <div class="order-actions">
+                        <button class="action-btn">查看详情</button>
+                        <button class="action-btn">下载合同</button>
+                        <button class="action-btn primary">再次申请</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+        <!-- Pending Order -->
+        <div class="order-card">
+            <div class="order-header">
+                <div class="order-number">订单号：eF2025071901</div>
+                <div class="order-status status-pending">待接单</div>
+            </div>
+            <div class="order-content">
+                <div class="route-info">
+                    <div class="route-point">
+                        <div class="location-name">北京市朝阳区</div>
+                        <div class="location-detail">三元桥物流园区A座</div>
+                    </div>
+                    <i class="fas fa-arrow-right route-arrow"></i>
+                    <div class="route-point">
+                        <div class="location-name">上海市浦东新区</div>
+                        <div class="location-detail">外高桥保税区B12</div>
+                    </div>
+                </div>
+                
+                <div class="cargo-info">
+                    <div class="cargo-detail">
+                        <span class="text-gray-600">货物类型：</span>
+                        <span class="font-medium">电子设备</span>
+                    </div>
+                    <div class="cargo-detail">
+                        <span class="text-gray-600">货物重量：</span>
+                        <span class="font-medium">15.5吨</span>
+                    </div>
+                    <div class="cargo-detail">
+                        <span class="text-gray-600">车型要求：</span>
+                        <span class="font-medium">17.5米厢式货车</span>
+                    </div>
+                    <div class="cargo-detail">
+                        <span class="text-gray-600">发货时间：</span>
+                        <span class="font-medium">2025-07-20 08:00</span>
+                    </div>
+                </div>
+                
+                <div class="price-info">
+                    <div>
+                        <span class="price-amount">¥4,200</span>
+                        <span class="price-unit">/单</span>
+                    </div>
+                    <div class="text-sm text-gray-600">运费含税</div>
+                </div>
+                
+                <div class="order-actions">
+                    <button class="action-btn">联系客服</button>
+                    <button class="action-btn">修改订单</button>
+                    <button class="action-btn primary">取消订单</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- In Transit Order -->
+        <div class="order-card">
+            <div class="order-header">
+                <div class="order-number">订单号：eF2025071802</div>
+                <div class="order-status status-transport">运输中</div>
+            </div>
+            <div class="order-content">
+                <div class="route-info">
+                    <div class="route-point">
+                        <div class="location-name">深圳市南山区</div>
+                        <div class="location-detail">科技园物流中心</div>
+                    </div>
+                    <i class="fas fa-arrow-right route-arrow"></i>
+                    <div class="route-point">
+                        <div class="location-name">广州市天河区</div>
+                        <div class="location-detail">天河智慧城配送点</div>
+                    </div>
+                </div>
+                
+                <div class="cargo-info">
+                    <div class="cargo-detail">
+                        <span class="text-gray-600">货物类型：</span>
+                        <span class="font-medium">服装纺织</span>
+                    </div>
+                    <div class="cargo-detail">
+                        <span class="text-gray-600">货物重量：</span>
+                        <span class="font-medium">8.2吨</span>
+                    </div>
+                    <div class="cargo-detail">
+                        <span class="text-gray-600">司机：</span>
+                        <span class="font-medium">李师傅 188****8888</span>
+                    </div>
+                    <div class="cargo-detail">
+                        <span class="text-gray-600">预计到达：</span>
+                        <span class="font-medium">今天 16:30</span>
+                    </div>
+                </div>
+                
+                <div class="price-info">
+                    <div>
+                        <span class="price-amount">¥1,800</span>
+                        <span class="price-unit">/单</span>
+                    </div>
+                    <div class="text-sm text-gray-600">已支付运费</div>
+                </div>
+                
+                <div class="order-actions">
+                    <button class="action-btn">联系司机</button>
+                    <button class="action-btn">实时跟踪</button>
+                    <button class="action-btn primary">确认收货</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Another Pending Order -->
+        <div class="order-card">
+            <div class="order-header">
+                <div class="order-number">订单号：eF2025071703</div>
+                <div class="order-status status-pending">待确认</div>
+            </div>
+            <div class="order-content">
+                <div class="route-info">
+                    <div class="route-point">
+                        <div class="location-name">武汉市洪山区</div>
+                        <div class="location-detail">光谷物流园</div>
+                    </div>
+                    <i class="fas fa-arrow-right route-arrow"></i>
+                    <div class="route-point">
+                        <div class="location-name">成都市双流区</div>
+                        <div class="location-detail">双流国际机场货运区</div>
+                    </div>
+                </div>
+                
+                <div class="cargo-info">
+                    <div class="cargo-detail">
+                        <span class="text-gray-600">货物类型：</span>
+                        <span class="font-medium">机械设备</span>
+                    </div>
+                    <div class="cargo-detail">
+                        <span class="text-gray-600">货物重量：</span>
+                        <span class="font-medium">25.8吨</span>
+                    </div>
+                    <div class="cargo-detail">
+                        <span class="text-gray-600">车型要求：</span>
+                        <span class="font-medium">13米平板车</span>
+                    </div>
+                    <div class="cargo-detail">
+                        <span class="text-gray-600">报价司机：</span>
+                        <span class="font-medium">王师傅 (3报价)</span>
+                    </div>
+                </div>
+                
+                <div class="price-info">
+                    <div>
+                        <span class="price-amount">¥6,500</span>
+                        <span class="price-unit">/单</span>
+                    </div>
+                    <div class="text-sm text-gray-600">市场参考价</div>
+                </div>
+                
+                <div class="order-actions">
+                    <button class="action-btn">查看报价</button>
+                    <button class="action-btn primary">选择司机</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Waybills Tab Content -->
+    <div id="waybills-content" class="tab-content" style="display: none;">
+        <!-- Active Waybill -->
+        <div class="waybill-card">
+            <div class="waybill-header">
+                <div class="waybill-number">运单号：WB2025071801</div>
+                <div class="waybill-type">整车运输 • 急送</div>
+            </div>
+            <div class="tracking-timeline">
+                <div class="timeline-item">
+                    <div class="timeline-dot active">
+                        <i class="fas fa-check" style="font-size: 10px;"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">货物已装车</div>
+                        <div class="timeline-desc">司机：李师傅 车牌：京A88888</div>
+                        <div class="timeline-time">2025-07-19 14:30</div>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot active">
+                        <i class="fas fa-truck" style="font-size: 10px;"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">运输途中</div>
+                        <div class="timeline-desc">当前位置：河北保定服务区</div>
+                        <div class="timeline-time">2025-07-19 16:45</div>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot">
+                        <i class="fas fa-map-marker-alt" style="font-size: 10px;"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">预计到达</div>
+                        <div class="timeline-desc">上海市浦东新区外高桥</div>
+                        <div class="timeline-time">预计 2025-07-20 09:00</div>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot">
+                        <i class="fas fa-clipboard-check" style="font-size: 10px;"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">确认收货</div>
+                        <div class="timeline-desc">等待收货人确认</div>
+                        <div class="timeline-time">--</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Completed Waybill -->
+        <div class="waybill-card">
+            <div class="waybill-header">
+                <div class="waybill-number">运单号：WB2025071702</div>
+                <div class="waybill-type">零担快运 • 已完成</div>
+            </div>
+            <div class="tracking-timeline">
+                <div class="timeline-item">
+                    <div class="timeline-dot active">
+                        <i class="fas fa-check" style="font-size: 10px;"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">货物已取件</div>
+                        <div class="timeline-desc">取件地址：深圳市南山区科技园</div>
+                        <div class="timeline-time">2025-07-17 10:20</div>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot active">
+                        <i class="fas fa-shipping-fast" style="font-size: 10px;"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">运输中转</div>
+                        <div class="timeline-desc">深圳转运中心 → 广州转运中心</div>
+                        <div class="timeline-time">2025-07-17 18:00</div>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot active">
+                        <i class="fas fa-clipboard-check" style="font-size: 10px;"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">已签收</div>
+                        <div class="timeline-desc">签收人：张先生</div>
+                        <div class="timeline-time">2025-07-18 14:30</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Completed Tab Content -->
+    <div id="completed-content" class="tab-content" style="display: none;">
+        <div class="order-card">
+            <div class="order-header">
+                <div class="order-number">订单号：eF2025071501</div>
+                <div class="order-status status-completed">已完成</div>
+            </div>
+            <div class="order-content">
+                <div class="route-info">
+                    <div class="route-point">
+                        <div class="location-name">杭州市西湖区</div>
+                        <div class="location-detail">阿里巴巴总部大楼</div>
+                    </div>
+                    <i class="fas fa-arrow-right route-arrow"></i>
+                    <div class="route-point">
+                        <div class="location-name">苏州市工业园区</div>
+                        <div class="location-detail">苏州工业园区物流园</div>
+                    </div>
+                </div>
+                
+                <div class="cargo-info">
+                    <div class="cargo-detail">
+                        <span class="text-gray-600">完成时间：</span>
+                        <span class="font-medium">2025-07-15 16:30</span>
+                    </div>
+                    <div class="cargo-detail">
+                        <span class="text-gray-600">运输时长：</span>
+                        <span class="font-medium">1天2小时</span>
+                    </div>
+                    <div class="cargo-detail">
+                        <span class="text-gray-600">司机评价：</span>
+                        <span class="font-medium">⭐⭐⭐⭐⭐ 5.0分</span>
+                    </div>
+                </div>
+                
+                <div class="price-info">
+                    <div>
+                        <span class="price-amount">¥2,800</span>
+                        <span class="price-unit">/单</span>
+                    </div>
+                    <div class="text-sm text-green-600">✓ 已结算</div>
+                </div>
+                
+                <div class="order-actions">
+                    <button class="action-btn">查看详情</button>
+                    <button class="action-btn">下载回单</button>
+                    <button class="action-btn primary">再次下单</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Cancelled Tab Content -->
+    <div id="cancelled-content" class="tab-content" style="display: none;">
+        <div class="empty-state">
+            <div class="empty-icon">
+                <i class="fas fa-inbox"></i>
+            </div>
+            <div class="text-lg font-medium mb-2">暂无取消的订单</div>
+            <div class="text-sm text-gray-500">您的所有订单都在正常进行中</div>
+        </div>
+    </div>
+    
+    <!-- Tab Bar -->
+    <div class="tab-bar flex">
+        <a href="home.html" class="tab-item">
+            <i class="fas fa-home"></i>
+            <span>首页</span>
+        </a>
+        <a href="transport.html" class="tab-item">
+            <i class="fas fa-truck"></i>
+            <span>货运</span>
+        </a>
+        <a href="service.html" class="tab-item">
+            <i class="fas fa-cogs"></i>
+            <span>服务</span>
+        </a>
+        <a href="analytics.html" class="tab-item">
+            <i class="fas fa-chart-bar"></i>
+            <span>数据</span>
+        </a>
+        <a href="profile.html" class="tab-item">
+            <i class="fas fa-user"></i>
+            <span>我的</span>
+        </a>
+    </div>
+
+    <script>
+        function switchTab(tabName) {
+            // 移除所有活动状态
+            document.querySelectorAll('.tab-item').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.style.display = 'none';
+            });
+            
+            // 激活选中的标签 - 通过事件源或者直接指定
+            if (typeof event !== 'undefined' && event.target) {
+                event.target.classList.add('active');
+            } else {
+                // 通过tabName查找对应的标签
+                const targetTab = document.querySelector(`[onclick="switchTab('${tabName}')"]`);
+                if (targetTab) {
+                    targetTab.classList.add('active');
+                }
+            }
+            
+            document.getElementById(tabName + '-content').style.display = 'block';
+        }
+        
+        // 货运订单状态筛选
+        function filterTransportStatus(status) {
+            const chips = document.querySelectorAll('#transport-content .filter-chip');
+            const orders = document.querySelectorAll('.transport-order');
+            
+            // 更新筛选芯片状态
+            chips.forEach(chip => chip.classList.remove('active'));
+            if (typeof event !== 'undefined' && event.target) {
+                event.target.classList.add('active');
+            } else {
+                // 程序调用时，根据status查找对应chip
+                const targetChip = Array.from(chips).find(chip => 
+                    chip.getAttribute('onclick').includes(`'${status}'`)
+                );
+                if (targetChip) {
+                    targetChip.classList.add('active');
+                }
+            }
+            
+            // 筛选订单
+            orders.forEach(order => {
+                if (status === 'all' || order.dataset.status === status) {
+                    order.style.display = 'block';
+                } else {
+                    order.style.display = 'none';
+                }
+            });
+        }
+        
+        // 服务订单状态筛选
+        function filterServiceStatus(status) {
+            const chips = document.querySelectorAll('#service-content .filter-chip');
+            const orders = document.querySelectorAll('.service-order');
+            
+            // 更新筛选芯片状态
+            chips.forEach(chip => chip.classList.remove('active'));
+            if (typeof event !== 'undefined' && event.target) {
+                event.target.classList.add('active');
+            } else {
+                // 程序调用时，根据status查找对应chip
+                const targetChip = Array.from(chips).find(chip => 
+                    chip.getAttribute('onclick').includes(`'${status}'`)
+                );
+                if (targetChip) {
+                    targetChip.classList.add('active');
+                }
+            }
+            
+            // 筛选订单
+            orders.forEach(order => {
+                if (status === 'all' || order.dataset.status === status) {
+                    order.style.display = 'block';
+                } else {
+                    order.style.display = 'none';
+                }
+            });
+        }
+        
+        // 金融订单状态筛选
+        function filterFinanceStatus(status) {
+            const chips = document.querySelectorAll('#finance-content .filter-chip');
+            const orders = document.querySelectorAll('.finance-order');
+            
+            // 更新筛选芯片状态
+            chips.forEach(chip => chip.classList.remove('active'));
+            if (typeof event !== 'undefined' && event.target) {
+                event.target.classList.add('active');
+            } else {
+                // 程序调用时，根据status查找对应chip
+                const targetChip = Array.from(chips).find(chip => 
+                    chip.getAttribute('onclick').includes(`'${status}'`)
+                );
+                if (targetChip) {
+                    targetChip.classList.add('active');
+                }
+            }
+            
+            // 筛选订单
+            orders.forEach(order => {
+                if (status === 'all' || order.dataset.status === status) {
+                    order.style.display = 'block';
+                } else {
+                    order.style.display = 'none';
+                }
+            });
+        }
+        
+        // 处理URL hash路由
+        function handleHashRouting() {
+            const hash = window.location.hash.substring(1);
+            
+            if (hash.startsWith('transport-')) {
+                // 货运订单路由
+                const status = hash.split('-')[1];
+                switchTab('transport');
+                setTimeout(() => filterTransportStatus(status), 100);
+            } else if (hash.startsWith('service-')) {
+                // 服务订单路由
+                const status = hash.split('-')[1];
+                switchTab('service');
+                setTimeout(() => filterServiceStatus(status), 100);
+            } else if (hash.startsWith('finance-')) {
+                // 金融订单路由
+                const status = hash.split('-')[1];
+                switchTab('finance');
+                setTimeout(() => filterFinanceStatus(status), 100);
+            }
+        }
+        
+        // 模拟实时数据更新
+        function updateTrackingData() {
+            const trackingItems = document.querySelectorAll('.timeline-item');
+            // 这里可以添加实时数据更新逻辑
+        }
+        
+        // 页面加载完成后的初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 处理页面加载时的hash
+            handleHashRouting();
+            
+            // 监听hash变化
+            window.addEventListener('hashchange', handleHashRouting);
+            
+            // 模拟数据刷新
+            setInterval(updateTrackingData, 30000); // 每30秒更新一次
+            
+            // 订单操作事件处理
+            document.addEventListener('click', function(e) {
+                if (e.target.textContent.includes('联系司机')) {
+                    alert('正在为您接通司机电话...\n\n司机：李师傅\n电话：188****8888\n车牌：京A88888');
+                } else if (e.target.textContent.includes('实时跟踪')) {
+                    alert('跳转到实时跟踪页面...\n\n当前位置：河北保定服务区\nGPS坐标：39.1542°N, 115.2142°E\n预计到达：2小时30分钟');
+                } else if (e.target.textContent.includes('理赔申请')) {
+                    alert('跳转到保险理赔申请页面...\n\n请准备以下材料：\n• 事故证明\n• 货物损失照片\n• 运输合同\n• 保险单号');
+                } else if (e.target.textContent.includes('立即还款')) {
+                    alert('跳转到还款页面...\n\n下次还款金额：¥45,200\n还款日期：2025-08-15\n\n支持支付方式：\n• 银行转账\n• 支付宝\n• 微信支付');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

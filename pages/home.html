@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>eFlow - 首页</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="../components/styles.css" rel="stylesheet">
+    <style>
+        body {
+            padding-bottom: 80px;
+        }
+        
+        .header-gradient {
+            background: linear-gradient(135deg, #1B73E8 0%, #4285F4 100%);
+        }
+        
+        .search-input {
+            padding-left: 48px;
+        }
+        
+        .service-entry {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .service-entry:hover {
+            transform: translateY(-2px);
+        }
+        
+        .service-entry-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .service-entry:hover .service-entry-icon {
+            transform: scale(1.1);
+        }
+        
+        .service-entry-text {
+            font-size: 12px;
+            color: #666;
+            text-align: center;
+            font-weight: 500;
+        }
+        
+        .business-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .business-card:hover {
+            border-color: #1B73E8;
+            transform: translateY(-2px);
+        }
+        
+        .search-container {
+            position: relative;
+            margin: 16px;
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #757575;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <div class="header-gradient text-white p-4 flex items-center justify-between sticky top-0 z-50">
+        <div class="flex items-center">
+            <i class="fas fa-globe text-2xl mr-3"></i>
+            <h1 class="text-xl font-bold">eFlow</h1>
+        </div>
+        <div class="flex items-center space-x-4">
+            <i class="fas fa-bell text-xl relative">
+                <span class="absolute -top-1 -right-1 bg-red-500 text-xs rounded-full w-4 h-4 flex items-center justify-center">3</span>
+            </i>
+            <button class="bg-white bg-opacity-20 px-4 py-2 rounded-full text-sm font-medium">
+                <i class="fas fa-user mr-2"></i>登录
+            </button>
+        </div>
+    </div>
+    
+    <!-- Search Bar -->
+    <div class="search-container">
+        <div class="relative">
+            <i class="search-icon fas fa-search"></i>
+            <input type="text" class="search-box search-input" placeholder="搜索货源、车源、服务...">
+        </div>
+    </div>
+    
+    <!-- Main Business Entrance -->
+    <div class="px-4 pt-4 pb-2">
+        <div class="grid grid-cols-2 gap-3 mb-6">
+            <!-- 货主入口 -->
+            <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-6 text-white relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-16 h-16 bg-white bg-opacity-10 rounded-full -mr-8 -mt-8"></div>
+                <i class="fas fa-shipping-fast text-4xl mb-3 block"></i>
+                <h3 class="text-lg font-bold mb-1">我要发货</h3>
+                <p class="text-sm opacity-90 mb-4">快速下单找车</p>
+                <button class="bg-white text-blue-600 px-4 py-2 rounded-full text-sm font-medium hover:bg-blue-50 transition-colors" onclick="navigateToShipping()">
+                    立即下单
+                </button>
+            </div>
+            
+            <!-- 车主入口 -->
+            <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-2xl p-6 text-white relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-16 h-16 bg-white bg-opacity-10 rounded-full -mr-8 -mt-8"></div>
+                <i class="fas fa-truck text-4xl mb-3 block"></i>
+                <h3 class="text-lg font-bold mb-1">我要接单</h3>
+                <p class="text-sm opacity-90 mb-4">寻找货源信息</p>
+                <button class="bg-white text-green-600 px-4 py-2 rounded-full text-sm font-medium hover:bg-green-50 transition-colors" onclick="navigateToOrders()">
+                    找货源
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Services -->
+    <div class="px-4 py-2">
+        <h3 class="text-lg font-bold mb-4 flex items-center">
+            <i class="fas fa-tools mr-2 text-blue-500"></i>
+            货运工具
+        </h3>
+        
+        <!-- Primary Services Row -->
+        <div class="grid grid-cols-4 gap-3 mb-4">
+            <div class="service-entry" onclick="navigateToQuote()">
+                <div class="service-entry-icon bg-orange-100">
+                    <i class="fas fa-calculator text-orange-500"></i>
+                </div>
+                <span class="service-entry-text">运费计算</span>
+            </div>
+            
+            <div class="service-entry" onclick="navigateToTracking()">
+                <div class="service-entry-icon bg-purple-100">
+                    <i class="fas fa-route text-purple-500"></i>
+                </div>
+                <span class="service-entry-text">货物跟踪</span>
+            </div>
+            
+            <div class="service-entry" onclick="navigateToDistance()">
+                <div class="service-entry-icon bg-green-100">
+                    <i class="fas fa-map-marked-alt text-green-500"></i>
+                </div>
+                <span class="service-entry-text">距离查询</span>
+            </div>
+            
+            <div class="service-entry" onclick="navigateToPrice()">
+                <div class="service-entry-icon bg-indigo-100">
+                    <i class="fas fa-chart-line text-indigo-500"></i>
+                </div>
+                <span class="service-entry-text">市场行情</span>
+            </div>
+        </div>
+        
+        <!-- Secondary Services Row -->
+        <div class="grid grid-cols-4 gap-3 mb-6">
+            <div class="service-entry" onclick="navigateToDemo()">
+                <div class="service-entry-icon bg-blue-100">
+                    <i class="fas fa-project-diagram text-blue-500"></i>
+                </div>
+                <span class="service-entry-text">订单分类</span>
+            </div>
+            
+            <div class="service-entry" onclick="navigateToInsurance()">
+                <div class="service-entry-icon bg-red-100">
+                    <i class="fas fa-shield-alt text-red-500"></i>
+                </div>
+                <span class="service-entry-text">货运保险</span>
+            </div>
+            
+            <div class="service-entry" onclick="navigateToDriver()">
+                <div class="service-entry-icon bg-yellow-100">
+                    <i class="fas fa-id-card text-yellow-600"></i>
+                </div>
+                <span class="service-entry-text">司机认证</span>
+            </div>
+            
+            <div class="service-entry" onclick="navigateToVehicle()">
+                <div class="service-entry-icon bg-cyan-100">
+                    <i class="fas fa-truck text-cyan-500"></i>
+                </div>
+                <span class="service-entry-text">车辆管理</span>
+            </div>
+        </div>
+        
+        <!-- Third Services Row -->
+        <div class="grid grid-cols-4 gap-3 mb-6">
+            <div class="service-entry" onclick="navigateToContract()">
+                <div class="service-entry-icon bg-pink-100">
+                    <i class="fas fa-file-contract text-pink-500"></i>
+                </div>
+                <span class="service-entry-text">电子合同</span>
+            </div>
+        </div>
+        
+        <!-- Financial Services -->
+        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-4 mb-6 border border-blue-100">
+            <h4 class="text-base font-bold text-gray-800 mb-3 flex items-center">
+                <i class="fas fa-coins text-blue-500 mr-2"></i>
+                金融服务
+            </h4>
+            <div class="grid grid-cols-3 gap-3">
+                <div class="bg-white rounded-xl p-3 shadow-sm border border-blue-100 cursor-pointer hover:shadow-md transition-all" onclick="navigateToFinance()">
+                    <div class="text-center">
+                        <i class="fas fa-credit-card text-blue-500 text-xl mb-2"></i>
+                        <div class="text-sm font-medium text-gray-800">运费垫付</div>
+                        <div class="text-xs text-gray-500">快速放款</div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-xl p-3 shadow-sm border border-blue-100 cursor-pointer hover:shadow-md transition-all" onclick="navigateToLoan()">
+                    <div class="text-center">
+                        <i class="fas fa-hand-holding-usd text-green-500 text-xl mb-2"></i>
+                        <div class="text-sm font-medium text-gray-800">车贷服务</div>
+                        <div class="text-xs text-gray-500">低息贷款</div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-xl p-3 shadow-sm border border-blue-100 cursor-pointer hover:shadow-md transition-all" onclick="navigateToReceipt()">
+                    <div class="text-center">
+                        <i class="fas fa-receipt text-purple-500 text-xl mb-2"></i>
+                        <div class="text-sm font-medium text-gray-800">电子回单</div>
+                        <div class="text-xs text-gray-500">无纸化</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Business Recommendations -->
+    
+    <!-- Tab Bar -->
+    <div class="tab-bar flex">
+        <a href="#" class="tab-item active">
+            <i class="fas fa-home"></i>
+            <span>首页</span>
+        </a>
+        <a href="#" class="tab-item">
+            <i class="fas fa-truck"></i>
+            <span>货运</span>
+        </a>
+        <a href="#" class="tab-item">
+            <i class="fas fa-cogs"></i>
+            <span>服务</span>
+        </a>
+        <a href="#" class="tab-item">
+            <i class="fas fa-chart-bar"></i>
+            <span>数据</span>
+        </a>
+        <a href="#" class="tab-item">
+            <i class="fas fa-user"></i>
+            <span>我的</span>
+        </a>
+    </div>
+    
+    <script>
+        // 业务功能导航
+        function navigateToShipping() {
+            // 跳转到货运服务页面的发货功能
+            window.location.href = 'transport.html';
+        }
+        
+        function navigateToOrders() {
+            // 显示不同业务的订单入口选择
+            const choice = confirm('请选择要查看的订单类型：\n\n确定 - 运输订单\n取消 - 查看所有选项');
+            if (choice) {
+                window.location.href = 'transport-orders.html';
+            } else {
+                const orderType = prompt('选择订单类型：\n1 - 运输订单\n2 - 服务订单\n3 - 财务订单\n4 - 运单管理\n\n请输入数字：');
+                switch(orderType) {
+                    case '1':
+                        window.location.href = 'transport-orders.html';
+                        break;
+                    case '2':
+                        window.location.href = 'service-orders.html';
+                        break;
+                    case '3':
+                        window.location.href = 'finance-orders.html';
+                        break;
+                    case '4':
+                        window.location.href = 'waybill-orders.html';
+                        break;
+                    default:
+                        alert('无效选择，默认打开运输订单');
+                        window.location.href = 'transport-orders.html';
+                }
+            }
+        }
+        
+        // 常用服务导航
+        function navigateToQuote() {
+            alert('运费计算器\n\n功能特色：\n• 智能路径规划\n• 多种车型选择\n• 实时运价参考\n• 保险费用计算\n• 一键生成报价单');
+        }
+        
+        function navigateToTracking() {
+            alert('货物跟踪\n\n实时追踪功能：\n• GPS实时定位\n• 运输轨迹回放\n• 预计到达时间\n• 异常状态预警\n• 电子围栏监控');
+        }
+        
+        function navigateToDistance() {
+            alert('距离查询\n\n路线规划工具：\n• 精确距离测算\n• 最优路径推荐\n• 过路费计算\n• 油耗估算\n• 时效预测');
+        }
+        
+        function navigateToPrice() {
+            alert('市场行情\n\n数据分析服务：\n• 实时运价指数\n• 历史价格趋势\n• 区域价格对比\n• 旺季淡季分析\n• 竞价参考建议');
+        }
+        
+        function navigateToInsurance() {
+            alert('货运保险\n\n保障服务：\n• 货物运输险\n• 司机意外险\n• 车辆损失险\n• 第三方责任险\n• 一站式理赔服务');
+        }
+        
+        function navigateToDriver() {
+            alert('司机认证\n\n身份验证服务：\n• 实名认证\n• 驾驶证验证\n• 从业资格认证\n• 信用评级\n• 安全培训');
+        }
+        
+        function navigateToVehicle() {
+            alert('车辆管理\n\n车队管理工具：\n• 车辆档案管理\n• 维保记录\n• 年检提醒\n• 油耗统计\n• 路线优化');
+        }
+        
+        function navigateToContract() {
+            alert('电子合同\n\n数字化合同服务：\n• 合同模板库\n• 在线签署\n• 法律效力保障\n• 自动存档\n• 履约监督');
+        }
+        
+        function navigateToFinance() {
+            alert('运费垫付\n\n资金周转服务：\n• 秒级审批\n• 当日放款\n• 低息服务\n• 灵活还款\n• 信用额度提升');
+        }
+        
+        function navigateToLoan() {
+            alert('车贷服务\n\n购车金融方案：\n• 新车贷款\n• 二手车贷款\n• 零首付方案\n• 低息优惠\n• 快速审批');
+        }
+        
+        function navigateToReceipt() {
+            alert('电子回单\n\n无纸化操作：\n• 电子签名\n• 自动生成回单\n• 云端存储\n• 法律效力\n• 一键下载');
+        }
+        
+        // 金融服务导航
+        function navigateToFinance() {
+            window.location.href = 'finance.html';
+        }
+        
+        function navigateToLoan() {
+            window.location.href = 'finance.html';
+        }
+        
+        function navigateToDemo() {
+            window.open('demo.html', '_blank');
+        }
+        
+        // 推荐货源联系
+        function contactShipper(route) {
+            alert(`联系货主 - ${route}\n\n正在为您连接货主...\n\n功能包括：\n• 在线聊天\n• 电话联系\n• 查看详细需求\n• 在线报价`);
+        }
+        
+        // 热门路线导航
+        function navigateToRoute(routeName) {
+            alert(`查看${routeName}详情\n\n• 实时货源信息\n• 历史价格走势\n• 路况信息\n• 服务网点分布`);
+        }
+        
+        function viewAllRoutes() {
+            alert('查看全部路线\n\n包含全国主要城市间路线：\n• 一线城市连接线\n• 区域环线\n• 专线路线\n• 自定义路线规划');
+        }
+        
+        // 搜索框交互
+        document.querySelector('.search-input').addEventListener('focus', function() {
+            this.parentElement.style.transform = 'scale(1.02)';
+            this.parentElement.style.boxShadow = '0 4px 20px rgba(23, 115, 232, 0.2)';
+        });
+        
+        document.querySelector('.search-input').addEventListener('blur', function() {
+            this.parentElement.style.transform = 'scale(1)';
+            this.parentElement.style.boxShadow = 'none';
+        });
+        
+        // 搜索功能
+        document.querySelector('.search-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const searchTerm = this.value.trim();
+                if (searchTerm) {
+                    alert(`搜索: "${searchTerm}"\n\n搜索结果包括：\n• 相关货源信息\n• 匹配车辆信息\n• 服务推荐`);
+                }
+            }
+        });
+        
+        // 服务卡片点击交互
+        document.querySelectorAll('.service-card').forEach(card => {
+            card.addEventListener('click', function() {
+                if (!this.classList.contains('opacity-75')) {
+                    this.style.background = 'linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%)';
+                    setTimeout(() => {
+                        this.style.background = 'white';
+                    }, 200);
+                }
+            });
+        });
+        
+        // 添加登录按钮交互
+        document.querySelector('.header-gradient button').addEventListener('click', function() {
+            alert('跳转到登录页面\n\n支持多种登录方式：\n• 手机号登录\n• 微信登录\n• 身份认证登录');
+        });
+        
+        // 通知铃铛点击事件
+        document.querySelector('.fa-bell').addEventListener('click', function() {
+            alert('系统通知\n\n• 新货源推荐 (2条)\n• 系统消息 (1条)\n• 订单状态更新');
+        });
+        
+        // Tab栏交互
+        document.querySelectorAll('.tab-item').forEach(tab => {
+            tab.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // 移除所有活跃状态
+                document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+                
+                // 添加当前活跃状态
+                this.classList.add('active');
+                
+                // 模拟页面跳转
+                const tabName = this.querySelector('span').textContent;
+                if (tabName !== '首页') {
+                    setTimeout(() => {
+                        alert(`跳转到${tabName}页面`);
+                    }, 200);
+                }
+            });
+        });
+        
+        // 页面加载完成后的初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('eFlow 首页加载完成');
+            
+            // 添加页面滚动效果
+            let isScrolling = false;
+            window.addEventListener('scroll', function() {
+                if (!isScrolling) {
+                    window.requestAnimationFrame(function() {
+                        const scrolled = window.pageYOffset;
+                        const header = document.querySelector('.header-gradient');
+                        
+                        if (scrolled > 50) {
+                            header.style.boxShadow = '0 2px 20px rgba(0,0,0,0.1)';
+                        } else {
+                            header.style.boxShadow = 'none';
+                        }
+                        
+                        isScrolling = false;
+                    });
+                    isScrolling = true;
+                }
+            });
+        });
+    </script>
+</body>
+</html>

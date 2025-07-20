@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>eFlow 管理者门户 - Admin Portal</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --admin-primary: #6A1B9A;
+            --admin-secondary: #8E24AA;
+            --admin-accent: #E1BEE7;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+        
+        .sidebar {
+            background: linear-gradient(135deg, var(--admin-primary) 0%, var(--admin-secondary) 100%);
+            width: 280px;
+            min-height: 100vh;
+            color: white;
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .main-content {
+            margin-left: 280px;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .top-bar {
+            background: white;
+            border-radius: 16px;
+            padding: 20px 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: between;
+            align-items: center;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+        }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 16px 24px;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+        
+        .nav-item:hover, .nav-item.active {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border-left-color: white;
+        }
+        
+        .nav-icon {
+            margin-right: 12px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .logo-section {
+            padding: 24px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .logo-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+        
+        .user-info {
+            padding: 20px 24px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .user-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 24px;
+            background: rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 12px;
+        }
+        
+        .breadcrumb {
+            color: #757575;
+            margin-bottom: 8px;
+        }
+        
+        .page-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #212121;
+        }
+        
+        .action-button {
+            background: var(--admin-primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .action-button:hover {
+            background: var(--admin-secondary);
+            transform: translateY(-1px);
+        }
+        
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+        
+        .grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 24px;
+        }
+        
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+        }
+        
+        .dashboard-card {
+            text-align: center;
+            padding: 32px 24px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .dashboard-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--admin-primary);
+        }
+        
+        .dashboard-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+        
+        .dashboard-value {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        
+        .dashboard-label {
+            color: #757575;
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+        
+        .dashboard-change {
+            font-size: 12px;
+            padding: 4px 12px;
+            border-radius: 12px;
+        }
+        
+        .change-positive {
+            background: #E8F5E8;
+            color: #2E7D32;
+        }
+        
+        .change-negative {
+            background: #FFEBEE;
+            color: #C62828;
+        }
+        
+        .change-neutral {
+            background: #F5F5F5;
+            color: #757575;
+        }
+        
+        .system-metric {
+            display: flex;
+            align-items: center;
+            justify-content: between;
+            padding: 16px;
+            border: 1px solid #E0E0E0;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            transition: all 0.3s ease;
+        }
+        
+        .system-metric:hover {
+            border-color: var(--admin-primary);
+            background: #FAFAFA;
+        }
+        
+        .metric-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .metric-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+        
+        .metric-details {
+            flex: 1;
+        }
+        
+        .metric-name {
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+        
+        .metric-desc {
+            font-size: 14px;
+            color: #757575;
+        }
+        
+        .metric-value {
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 6px;
+            margin-left: 8px;
+        }
+        
+        .status-good {
+            background: #4CAF50;
+        }
+        
+        .status-warning {
+            background: #FF9800;
+        }
+        
+        .status-error {
+            background: #F44336;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-top: 16px;
+        }
+        
+        .user-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .user-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid #F0F0F0;
+            transition: all 0.3s ease;
+        }
+        
+        .user-item:hover {
+            background: #FAFAFA;
+        }
+        
+        .user-item:last-child {
+            border-bottom: none;
+        }
+        
+        .user-avatar-list {
+            width: 40px;
+            height: 40px;
+            border-radius: 20px;
+            background: var(--admin-accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+        }
+        
+        .user-info-list {
+            flex: 1;
+        }
+        
+        .user-name {
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+        
+        .user-role {
+            font-size: 12px;
+            color: #757575;
+        }
+        
+        .user-status {
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 12px;
+        }
+        
+        .status-online {
+            background: #E8F5E8;
+            color: #2E7D32;
+        }
+        
+        .status-offline {
+            background: #F5F5F5;
+            color: #757575;
+        }
+        
+        .activity-item {
+            display: flex;
+            align-items: start;
+            padding: 12px;
+            border-bottom: 1px solid #F0F0F0;
+        }
+        
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+        
+        .activity-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-size: 14px;
+        }
+        
+        .activity-content {
+            flex: 1;
+        }
+        
+        .activity-title {
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+        
+        .activity-desc {
+            font-size: 14px;
+            color: #757575;
+            margin-bottom: 4px;
+        }
+        
+        .activity-time {
+            font-size: 12px;
+            color: #BDBDBD;
+        }
+        
+        .settings-section {
+            margin-bottom: 32px;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 16px;
+            color: #212121;
+        }
+        
+        .setting-item {
+            display: flex;
+            align-items: center;
+            justify-content: between;
+            padding: 16px;
+            border: 1px solid #E0E0E0;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+        
+        .setting-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .setting-label {
+            font-weight: 500;
+        }
+        
+        .setting-desc {
+            font-size: 14px;
+            color: #757575;
+            margin-top: 4px;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            width: 48px;
+            height: 24px;
+            background: #E0E0E0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .toggle-switch.active {
+            background: var(--admin-primary);
+        }
+        
+        .toggle-handle {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .toggle-switch.active .toggle-handle {
+            left: 26px;
+        }
+        
+        .performance-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-top: 16px;
+        }
+        
+        .performance-item {
+            text-align: center;
+            padding: 20px;
+            background: #F8F9FA;
+            border-radius: 12px;
+        }
+        
+        .performance-value {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        
+        .performance-label {
+            font-size: 12px;
+            color: #757575;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <!-- Logo Section -->
+        <div class="logo-section">
+            <div class="logo-icon">
+                <i class="fas fa-crown"></i>
+            </div>
+            <h2 class="text-xl font-bold">eFlow 管理者门户</h2>
+            <p class="text-sm opacity-75">Admin Portal</p>
+        </div>
+        
+        <!-- User Info -->
+        <div class="user-info">
+            <div class="user-avatar">
+                <i class="fas fa-user-shield text-xl"></i>
+            </div>
+            <div class="font-medium">系统管理员</div>
+            <div class="text-sm opacity-75">admin@company.com</div>
+        </div>
+        
+        <!-- Navigation -->
+        <nav class="py-4">
+            <a href="#" class="nav-item active">
+                <i class="fas fa-tachometer-alt nav-icon"></i>
+                系统仪表板
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-users-cog nav-icon"></i>
+                用户管理
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-shield-alt nav-icon"></i>
+                权限管理
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-server nav-icon"></i>
+                系统监控
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-database nav-icon"></i>
+                数据管理
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-chart-line nav-icon"></i>
+                运营分析
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-bell nav-icon"></i>
+                系统通知
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-tools nav-icon"></i>
+                系统配置
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-history nav-icon"></i>
+                操作日志
+            </a>
+        </nav>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div>
+                <div class="breadcrumb">首页 / 管理者门户</div>
+                <h1 class="page-title">系统仪表板</h1>
+            </div>
+            <div class="flex items-center gap-4">
+                <button class="action-button">
+                    <i class="fas fa-plus"></i>
+                    创建用户
+                </button>
+                <button class="action-button">
+                    <i class="fas fa-cog"></i>
+                    系统设置
+                </button>
+            </div>
+        </div>
+        
+        <!-- Dashboard Overview -->
+        <div class="grid-4">
+            <div class="card dashboard-card">
+                <i class="fas fa-users dashboard-icon text-blue-500"></i>
+                <div class="dashboard-value text-blue-600">2,847</div>
+                <div class="dashboard-label">总用户数</div>
+                <div class="dashboard-change change-positive">
+                    <i class="fas fa-arrow-up"></i> +5.2%
+                </div>
+            </div>
+            <div class="card dashboard-card">
+                <i class="fas fa-eye dashboard-icon text-green-500"></i>
+                <div class="dashboard-value text-green-600">1,256</div>
+                <div class="dashboard-label">在线用户</div>
+                <div class="dashboard-change change-positive">
+                    <i class="fas fa-arrow-up"></i> +12.8%
+                </div>
+            </div>
+            <div class="card dashboard-card">
+                <i class="fas fa-server dashboard-icon text-purple-500"></i>
+                <div class="dashboard-value text-purple-600">99.8%</div>
+                <div class="dashboard-label">系统可用性</div>
+                <div class="dashboard-change change-neutral">
+                    <i class="fas fa-minus"></i> 稳定
+                </div>
+            </div>
+            <div class="card dashboard-card">
+                <i class="fas fa-database dashboard-icon text-orange-500"></i>
+                <div class="dashboard-value text-orange-600">2.1TB</div>
+                <div class="dashboard-label">数据存储</div>
+                <div class="dashboard-change change-positive">
+                    <i class="fas fa-arrow-up"></i> +8.5%
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Grid -->
+        <div class="grid-2">
+            <!-- System Performance -->
+            <div class="card">
+                <h3 class="text-lg font-bold mb-4">系统性能监控</h3>
+                <div class="space-y-3">
+                    <div class="system-metric">
+                        <div class="metric-info">
+                            <div class="metric-icon" style="background: #E3F2FD; color: #1976D2;">
+                                <i class="fas fa-microchip"></i>
+                            </div>
+                            <div class="metric-details">
+                                <div class="metric-name">CPU 使用率</div>
+                                <div class="metric-desc">应用服务器平均负载</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="metric-value text-blue-600">45%</div>
+                            <div class="status-indicator status-good"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="system-metric">
+                        <div class="metric-info">
+                            <div class="metric-icon" style="background: #E8F5E8; color: #2E7D32;">
+                                <i class="fas fa-memory"></i>
+                            </div>
+                            <div class="metric-details">
+                                <div class="metric-name">内存使用率</div>
+                                <div class="metric-desc">系统内存占用情况</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="metric-value text-green-600">68%</div>
+                            <div class="status-indicator status-good"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="system-metric">
+                        <div class="metric-info">
+                            <div class="metric-icon" style="background: #FFF3E0; color: #F57C00;">
+                                <i class="fas fa-hdd"></i>
+                            </div>
+                            <div class="metric-details">
+                                <div class="metric-name">磁盘使用率</div>
+                                <div class="metric-desc">数据存储空间占用</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="metric-value text-orange-600">82%</div>
+                            <div class="status-indicator status-warning"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="system-metric">
+                        <div class="metric-info">
+                            <div class="metric-icon" style="background: #F3E5F5; color: #7B1FA2;">
+                                <i class="fas fa-network-wired"></i>
+                            </div>
+                            <div class="metric-details">
+                                <div class="metric-name">网络带宽</div>
+                                <div class="metric-desc">当前网络传输负载</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="metric-value text-purple-600">35%</div>
+                            <div class="status-indicator status-good"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="performance-grid">
+                    <div class="performance-item">
+                        <div class="performance-value text-blue-600">128ms</div>
+                        <div class="performance-label">平均响应时间</div>
+                    </div>
+                    <div class="performance-item">
+                        <div class="performance-value text-green-600">1,845</div>
+                        <div class="performance-label">每秒请求数</div>
+                    </div>
+                    <div class="performance-item">
+                        <div class="performance-value text-purple-600">99.95%</div>
+                        <div class="performance-label">服务可用性</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- User Activity -->
+            <div class="card">
+                <h3 class="text-lg font-bold mb-4">用户活动统计</h3>
+                <div class="chart-container">
+                    <canvas id="userActivityChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Additional Content -->
+        <div class="grid-2">
+            <!-- Recent Users -->
+            <div class="card">
+                <h3 class="text-lg font-bold mb-4">最新用户</h3>
+                <div class="user-list">
+                    <div class="user-item">
+                        <div class="user-avatar-list">
+                            <i class="fas fa-user" style="color: var(--admin-primary)"></i>
+                        </div>
+                        <div class="user-info-list">
+                            <div class="user-name">张经理</div>
+                            <div class="user-role">业务经理 | 北京分公司</div>
+                        </div>
+                        <div class="user-status status-online">在线</div>
+                    </div>
+                    
+                    <div class="user-item">
+                        <div class="user-avatar-list">
+                            <i class="fas fa-user-tie" style="color: var(--admin-primary)"></i>
+                        </div>
+                        <div class="user-info-list">
+                            <div class="user-name">李财务</div>
+                            <div class="user-role">财务专员 | 财务部</div>
+                        </div>
+                        <div class="user-status status-online">在线</div>
+                    </div>
+                    
+                    <div class="user-item">
+                        <div class="user-avatar-list">
+                            <i class="fas fa-balance-scale" style="color: var(--admin-primary)"></i>
+                        </div>
+                        <div class="user-info-list">
+                            <div class="user-name">王律师</div>
+                            <div class="user-role">法务专员 | 法务部</div>
+                        </div>
+                        <div class="user-status status-offline">离线</div>
+                    </div>
+                    
+                    <div class="user-item">
+                        <div class="user-avatar-list">
+                            <i class="fas fa-truck" style="color: var(--admin-primary)"></i>
+                        </div>
+                        <div class="user-info-list">
+                            <div class="user-name">赵司机</div>
+                            <div class="user-role">运输司机 | 运输部</div>
+                        </div>
+                        <div class="user-status status-online">在线</div>
+                    </div>
+                    
+                    <div class="user-item">
+                        <div class="user-avatar-list">
+                            <i class="fas fa-headset" style="color: var(--admin-primary)"></i>
+                        </div>
+                        <div class="user-info-list">
+                            <div class="user-name">陈客服</div>
+                            <div class="user-role">客服专员 | 客服部</div>
+                        </div>
+                        <div class="user-status status-online">在线</div>
+                    </div>
+                    
+                    <div class="user-item">
+                        <div class="user-avatar-list">
+                            <i class="fas fa-warehouse" style="color: var(--admin-primary)"></i>
+                        </div>
+                        <div class="user-info-list">
+                            <div class="user-name">刘仓管</div>
+                            <div class="user-role">仓库管理员 | 仓储部</div>
+                        </div>
+                        <div class="user-status status-offline">离线</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- System Activities -->
+            <div class="card">
+                <h3 class="text-lg font-bold mb-4">系统活动</h3>
+                <div class="space-y-0">
+                    <div class="activity-item">
+                        <div class="activity-icon" style="background: #E8F5E8; color: #2E7D32;">
+                            <i class="fas fa-user-plus"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-title">新用户注册</div>
+                            <div class="activity-desc">张经理完成账户注册，已分配业务经理权限</div>
+                            <div class="activity-time">3分钟前</div>
+                        </div>
+                    </div>
+                    
+                    <div class="activity-item">
+                        <div class="activity-icon" style="background: #E3F2FD; color: #1976D2;">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-title">权限变更</div>
+                            <div class="activity-desc">李财务的系统权限已更新，新增报表查看权限</div>
+                            <div class="activity-time">15分钟前</div>
+                        </div>
+                    </div>
+                    
+                    <div class="activity-item">
+                        <div class="activity-icon" style="background: #FFF3E0; color: #F57C00;">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-title">系统警告</div>
+                            <div class="activity-desc">磁盘使用率超过80%，建议清理历史数据</div>
+                            <div class="activity-time">1小时前</div>
+                        </div>
+                    </div>
+                    
+                    <div class="activity-item">
+                        <div class="activity-icon" style="background: #F3E5F5; color: #7B1FA2;">
+                            <i class="fas fa-database"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-title">数据备份</div>
+                            <div class="activity-desc">每日数据备份已完成，备份文件大小：2.1GB</div>
+                            <div class="activity-time">2小时前</div>
+                        </div>
+                    </div>
+                    
+                    <div class="activity-item">
+                        <div class="activity-icon" style="background: #FFEBEE; color: #C62828;">
+                            <i class="fas fa-ban"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-title">账户停用</div>
+                            <div class="activity-desc">临时员工账户已按期停用，相关权限已回收</div>
+                            <div class="activity-time">3小时前</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- System Settings -->
+        <div class="card">
+            <h3 class="text-lg font-bold mb-6">系统配置</h3>
+            
+            <div class="grid-2">
+                <div class="settings-section">
+                    <div class="section-title">安全设置</div>
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <div>
+                                <div class="setting-label">强制双因子认证</div>
+                                <div class="setting-desc">要求所有用户启用双因子认证</div>
+                            </div>
+                        </div>
+                        <div class="toggle-switch active" onclick="toggleSwitch(this)">
+                            <div class="toggle-handle"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <div>
+                                <div class="setting-label">自动锁定账户</div>
+                                <div class="setting-desc">连续登录失败后自动锁定</div>
+                            </div>
+                        </div>
+                        <div class="toggle-switch active" onclick="toggleSwitch(this)">
+                            <div class="toggle-handle"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <div>
+                                <div class="setting-label">密码复杂度检查</div>
+                                <div class="setting-desc">强制使用复杂密码策略</div>
+                            </div>
+                        </div>
+                        <div class="toggle-switch active" onclick="toggleSwitch(this)">
+                            <div class="toggle-handle"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="settings-section">
+                    <div class="section-title">系统维护</div>
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <div>
+                                <div class="setting-label">自动数据备份</div>
+                                <div class="setting-desc">每日凌晨自动备份数据</div>
+                            </div>
+                        </div>
+                        <div class="toggle-switch active" onclick="toggleSwitch(this)">
+                            <div class="toggle-handle"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <div>
+                                <div class="setting-label">系统监控告警</div>
+                                <div class="setting-desc">性能异常时发送告警通知</div>
+                            </div>
+                        </div>
+                        <div class="toggle-switch active" onclick="toggleSwitch(this)">
+                            <div class="toggle-handle"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <div>
+                                <div class="setting-label">日志自动清理</div>
+                                <div class="setting-desc">定期清理30天前的日志</div>
+                            </div>
+                        </div>
+                        <div class="toggle-switch" onclick="toggleSwitch(this)">
+                            <div class="toggle-handle"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 导航交互
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+        
+        // 初始化用户活动图表
+        const ctx = document.getElementById('userActivityChart').getContext('2d');
+        const userActivityChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['业务用户', '管理用户', '系统用户', '访客用户'],
+                datasets: [{
+                    data: [45, 20, 15, 20],
+                    backgroundColor: [
+                        '#6A1B9A',
+                        '#8E24AA',
+                        '#AB47BC',
+                        '#CE93D8'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            usePointStyle: true
+                        }
+                    }
+                }
+            }
+        });
+        
+        // 切换开关函数
+        function toggleSwitch(element) {
+            element.classList.toggle('active');
+            const label = element.parentElement.querySelector('.setting-label').textContent;
+            const status = element.classList.contains('active') ? '启用' : '禁用';
+            console.log(`${label}: ${status}`);
+        }
+        
+        // 顶部操作按钮
+        document.querySelectorAll('.action-button').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const action = this.textContent.trim();
+                if (action.includes('创建用户')) {
+                    alert('跳转到用户创建页面...');
+                } else if (action.includes('系统设置')) {
+                    alert('跳转到系统设置页面...');
+                }
+            });
+        });
+        
+        // 用户项点击事件
+        document.querySelectorAll('.user-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const userName = this.querySelector('.user-name').textContent;
+                alert(`查看用户详情：${userName}`);
+            });
+        });
+        
+        // 系统指标点击事件
+        document.querySelectorAll('.system-metric').forEach(metric => {
+            metric.addEventListener('click', function() {
+                const metricName = this.querySelector('.metric-name').textContent;
+                alert(`查看${metricName}详细监控数据`);
+            });
+        });
+        
+        // 实时数据更新
+        setInterval(() => {
+            // 更新系统性能数据
+            const metricValues = document.querySelectorAll('.metric-value');
+            metricValues.forEach(value => {
+                const currentValue = parseInt(value.textContent);
+                const change = Math.floor((Math.random() - 0.5) * 6);
+                const newValue = Math.max(0, Math.min(100, currentValue + change));
+                value.textContent = `${newValue}%`;
+                
+                // 更新状态指示器
+                const indicator = value.parentElement.querySelector('.status-indicator');
+                if (newValue < 70) {
+                    indicator.className = 'status-indicator status-good';
+                } else if (newValue < 85) {
+                    indicator.className = 'status-indicator status-warning';
+                } else {
+                    indicator.className = 'status-indicator status-error';
+                }
+            });
+            
+            // 更新仪表板数值
+            const dashboardValues = document.querySelectorAll('.dashboard-value');
+            dashboardValues.forEach(value => {
+                if (value.textContent.includes('%')) {
+                    const currentValue = parseFloat(value.textContent);
+                    const change = (Math.random() - 0.5) * 0.2;
+                    const newValue = Math.max(0, Math.min(100, currentValue + change));
+                    value.textContent = `${newValue.toFixed(1)}%`;
+                } else if (value.textContent.includes('TB')) {
+                    const currentValue = parseFloat(value.textContent);
+                    const change = (Math.random() - 0.5) * 0.1;
+                    const newValue = Math.max(0, currentValue + change);
+                    value.textContent = `${newValue.toFixed(1)}TB`;
+                } else if (!isNaN(parseInt(value.textContent.replace(',', '')))) {
+                    const currentValue = parseInt(value.textContent.replace(',', ''));
+                    const change = Math.floor((Math.random() - 0.5) * 20);
+                    const newValue = Math.max(0, currentValue + change);
+                    value.textContent = newValue.toLocaleString();
+                }
+            });
+        }, 10000);
+        
+        // 性能项悬停效果
+        document.querySelectorAll('.performance-item').forEach(item => {
+            item.addEventListener('mouseenter', function() {
+                this.style.transform = 'scale(1.05)';
+                this.style.boxShadow = '0 4px 16px rgba(0,0,0,0.1)';
+            });
+            
+            item.addEventListener('mouseleave', function() {
+                this.style.transform = 'scale(1)';
+                this.style.boxShadow = 'none';
+            });
+        });
+        
+        // 活动项点击事件
+        document.querySelectorAll('.activity-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const title = this.querySelector('.activity-title').textContent;
+                alert(`查看活动详情：${title}`);
+            });
+        });
+        
+        // 初始化完成通知
+        console.log('eFlow 管理者门户初始化完成');
+    </script>
+</body>
+</html>

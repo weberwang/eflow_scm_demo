@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>eFlow - 用户注册</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="../components/styles.css" rel="stylesheet">
+    <style>
+        .register-container {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px 0;
+        }
+        
+        .register-card {
+            background: white;
+            border-radius: 24px;
+            padding: 32px 24px;
+            margin: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        
+        .register-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        
+        .register-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #212121;
+            margin-bottom: 8px;
+        }
+        
+        .register-subtitle {
+            color: #757575;
+            font-size: 16px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            font-weight: 500;
+            color: #212121;
+            margin-bottom: 8px;
+        }
+        
+        .form-label i {
+            margin-right: 8px;
+            color: #1B73E8;
+            width: 16px;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #E0E0E0;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+        
+        .form-input:focus {
+            border-color: #1B73E8;
+            box-shadow: 0 0 0 3px rgba(27, 115, 232, 0.1);
+        }
+        
+        .form-input.error {
+            border-color: #D93025;
+            box-shadow: 0 0 0 3px rgba(217, 48, 37, 0.1);
+        }
+        
+        .phone-input {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .country-code {
+            flex-shrink: 0;
+            width: 80px;
+            background: #F5F5F5;
+            border: 2px solid #E0E0E0;
+            border-radius: 12px;
+            padding: 12px 8px;
+            text-align: center;
+            font-weight: 500;
+        }
+        
+        .verification-group {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .verification-input {
+            flex: 1;
+        }
+        
+        .send-code-btn {
+            flex-shrink: 0;
+            background: #1B73E8;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        
+        .send-code-btn:hover {
+            background: #1557b0;
+        }
+        
+        .send-code-btn:disabled {
+            background: #BDBDBD;
+            cursor: not-allowed;
+        }
+        
+        .error-message {
+            color: #D93025;
+            font-size: 12px;
+            margin-top: 4px;
+            display: none;
+        }
+        
+        .success-message {
+            color: #34A853;
+            font-size: 12px;
+            margin-top: 4px;
+            display: none;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+        
+        .checkbox-input {
+            margin-top: 2px;
+        }
+        
+        .checkbox-label {
+            font-size: 14px;
+            color: #424242;
+            line-height: 1.4;
+        }
+        
+        .checkbox-label a {
+            color: #1B73E8;
+            text-decoration: none;
+        }
+        
+        .checkbox-label a:hover {
+            text-decoration: underline;
+        }
+        
+        .register-buttons {
+            margin-top: 32px;
+            display: flex;
+            gap: 12px;
+        }
+        
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .steps-indicator {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 24px;
+            gap: 8px;
+        }
+        
+        .step-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 4px;
+            background: #E0E0E0;
+            transition: all 0.3s ease;
+        }
+        
+        .step-dot.active {
+            background: #1B73E8;
+            width: 24px;
+        }
+        
+        .role-badge {
+            display: inline-flex;
+            align-items: center;
+            background: linear-gradient(135deg, #1B73E8 0%, #4285F4 100%);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 16px;
+        }
+        
+        .form-helper {
+            font-size: 12px;
+            color: #757575;
+            margin-top: 4px;
+        }
+        
+        .strength-indicator {
+            height: 4px;
+            background: #E0E0E0;
+            border-radius: 2px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+        
+        .strength-bar {
+            height: 100%;
+            transition: all 0.3s ease;
+            border-radius: 2px;
+        }
+        
+        .strength-weak { width: 33%; background: #D93025; }
+        .strength-medium { width: 66%; background: #FF8F00; }
+        .strength-strong { width: 100%; background: #34A853; }
+    </style>
+</head>
+<body>
+    <div class="register-container">
+        <button class="back-btn">
+            <i class="fas fa-arrow-left text-xl"></i>
+        </button>
+        
+        <div class="register-card">
+            <!-- Steps Indicator -->
+            <div class="steps-indicator">
+                <div class="step-dot"></div>
+                <div class="step-dot active"></div>
+                <div class="step-dot"></div>
+            </div>
+            
+            <!-- Header -->
+            <div class="register-header">
+                <div class="register-title">
+                    <i class="fas fa-user-plus text-blue-500 mr-2"></i>
+                    用户注册
+                </div>
+                <div class="role-badge">
+                    <i class="fas fa-building mr-1"></i>
+                    货主企业
+                </div>
+                <div class="register-subtitle">请填写您的注册信息</div>
+            </div>
+            
+            <!-- Registration Form -->
+            <form id="registerForm">
+                <!-- 手机号码 -->
+                <div class="form-group">
+                    <div class="form-label">
+                        <i class="fas fa-mobile-alt"></i>
+                        手机号码
+                    </div>
+                    <div class="phone-input">
+                        <div class="country-code">+86</div>
+                        <input type="tel" 
+                               class="form-input flex-1" 
+                               id="phoneNumber"
+                               placeholder="请输入手机号码"
+                               maxlength="11"
+                               required>
+                    </div>
+                    <div class="error-message" id="phoneError">请输入正确的手机号码</div>
+                    <div class="form-helper">用于接收验证码和重要通知</div>
+                </div>
+                
+                <!-- 验证码 -->
+                <div class="form-group">
+                    <div class="form-label">
+                        <i class="fas fa-shield-alt"></i>
+                        短信验证码
+                    </div>
+                    <div class="verification-group">
+                        <input type="text" 
+                               class="form-input verification-input" 
+                               id="verificationCode"
+                               placeholder="请输入验证码"
+                               maxlength="6"
+                               required>
+                        <button type="button" 
+                                class="send-code-btn" 
+                                id="sendCodeBtn">获取验证码</button>
+                    </div>
+                    <div class="error-message" id="codeError">请输入正确的验证码</div>
+                    <div class="success-message" id="codeSuccess">验证码发送成功</div>
+                </div>
+                
+                <!-- 企业名称 -->
+                <div class="form-group">
+                    <div class="form-label">
+                        <i class="fas fa-building"></i>
+                        企业名称
+                    </div>
+                    <input type="text" 
+                           class="form-input" 
+                           id="companyName"
+                           placeholder="请输入企业全称"
+                           required>
+                    <div class="error-message" id="companyError">请输入企业名称</div>
+                    <div class="form-helper">请填写营业执照上的企业全称</div>
+                </div>
+                
+                <!-- 统一社会信用代码 -->
+                <div class="form-group">
+                    <div class="form-label">
+                        <i class="fas fa-id-card"></i>
+                        统一社会信用代码
+                    </div>
+                    <input type="text" 
+                           class="form-input" 
+                           id="creditCode"
+                           placeholder="请输入18位信用代码"
+                           maxlength="18"
+                           required>
+                    <div class="error-message" id="creditError">请输入正确的统一社会信用代码</div>
+                    <div class="form-helper">用于企业身份验证</div>
+                </div>
+                
+                <!-- 设置密码 -->
+                <div class="form-group">
+                    <div class="form-label">
+                        <i class="fas fa-lock"></i>
+                        设置密码
+                    </div>
+                    <input type="password" 
+                           class="form-input" 
+                           id="password"
+                           placeholder="请设置登录密码"
+                           required>
+                    <div class="strength-indicator">
+                        <div class="strength-bar" id="strengthBar"></div>
+                    </div>
+                    <div class="error-message" id="passwordError">密码强度不足</div>
+                    <div class="form-helper">密码长度8-20位，包含字母和数字</div>
+                </div>
+                
+                <!-- 确认密码 -->
+                <div class="form-group">
+                    <div class="form-label">
+                        <i class="fas fa-lock"></i>
+                        确认密码
+                    </div>
+                    <input type="password" 
+                           class="form-input" 
+                           id="confirmPassword"
+                           placeholder="请再次输入密码"
+                           required>
+                    <div class="error-message" id="confirmError">两次密码输入不一致</div>
+                </div>
+                
+                <!-- 联系人信息 -->
+                <div class="form-group">
+                    <div class="form-label">
+                        <i class="fas fa-user"></i>
+                        联系人姓名
+                    </div>
+                    <input type="text" 
+                           class="form-input" 
+                           id="contactName"
+                           placeholder="请输入联系人姓名"
+                           required>
+                    <div class="error-message" id="contactError">请输入联系人姓名</div>
+                </div>
+                
+                <!-- 协议同意 -->
+                <div class="checkbox-group">
+                    <input type="checkbox" 
+                           id="agreement" 
+                           class="checkbox-input"
+                           required>
+                    <label for="agreement" class="checkbox-label">
+                        我已阅读并同意 
+                        <a href="#" onclick="showAgreement('user')">《用户协议》</a> 
+                        和 
+                        <a href="#" onclick="showAgreement('privacy')">《隐私政策》</a>
+                        ，同意接收平台相关信息推送
+                    </label>
+                </div>
+                
+                <!-- 提交按钮 -->
+                <div class="register-buttons">
+                    <button type="button" class="btn-secondary flex-1" id="cancelBtn">取消</button>
+                    <button type="submit" class="btn-primary flex-1" id="submitBtn">立即注册</button>
+                </div>
+            </form>
+            
+            <!-- Additional Info -->
+            <div class="mt-6 text-center text-sm text-gray-500">
+                <p>注册后将进行企业资质审核</p>
+                <p class="mt-1">审核通过后即可正常使用所有功能</p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let countdown = 0;
+        let countdownTimer = null;
+        
+        // 手机号码验证
+        document.getElementById('phoneNumber').addEventListener('input', function() {
+            const phone = this.value;
+            const phoneRegex = /^1[3-9]\d{9}$/;
+            const errorElement = document.getElementById('phoneError');
+            
+            if (phone && !phoneRegex.test(phone)) {
+                this.classList.add('error');
+                errorElement.style.display = 'block';
+            } else {
+                this.classList.remove('error');
+                errorElement.style.display = 'none';
+            }
+        });
+        
+        // 发送验证码
+        document.getElementById('sendCodeBtn').addEventListener('click', function() {
+            const phoneInput = document.getElementById('phoneNumber');
+            const phone = phoneInput.value;
+            const phoneRegex = /^1[3-9]\d{9}$/;
+            
+            if (!phoneRegex.test(phone)) {
+                phoneInput.classList.add('error');
+                document.getElementById('phoneError').style.display = 'block';
+                return;
+            }
+            
+            // 模拟发送验证码
+            this.disabled = true;
+            countdown = 60;
+            
+            document.getElementById('codeSuccess').style.display = 'block';
+            setTimeout(() => {
+                document.getElementById('codeSuccess').style.display = 'none';
+            }, 3000);
+            
+            countdownTimer = setInterval(() => {
+                countdown--;
+                this.textContent = `重新发送(${countdown})`;
+                
+                if (countdown <= 0) {
+                    clearInterval(countdownTimer);
+                    this.disabled = false;
+                    this.textContent = '获取验证码';
+                }
+            }, 1000);
+        });
+        
+        // 统一社会信用代码验证
+        document.getElementById('creditCode').addEventListener('input', function() {
+            const code = this.value;
+            const codeRegex = /^[0-9A-HJ-NPQRTUWXY]{2}\d{6}[0-9A-HJ-NPQRTUWXY]{10}$/;
+            const errorElement = document.getElementById('creditError');
+            
+            if (code && !codeRegex.test(code)) {
+                this.classList.add('error');
+                errorElement.style.display = 'block';
+            } else {
+                this.classList.remove('error');
+                errorElement.style.display = 'none';
+            }
+        });
+        
+        // 密码强度检测
+        document.getElementById('password').addEventListener('input', function() {
+            const password = this.value;
+            const strengthBar = document.getElementById('strengthBar');
+            const errorElement = document.getElementById('passwordError');
+            
+            let strength = 0;
+            
+            // 长度检查
+            if (password.length >= 8) strength++;
+            if (password.length >= 12) strength++;
+            
+            // 复杂度检查
+            if (/[a-z]/.test(password)) strength++;
+            if (/[A-Z]/.test(password)) strength++;
+            if (/\d/.test(password)) strength++;
+            if (/[!@#$%^&*]/.test(password)) strength++;
+            
+            // 更新强度显示
+            strengthBar.className = 'strength-bar';
+            if (strength <= 2) {
+                strengthBar.classList.add('strength-weak');
+                this.classList.add('error');
+                errorElement.style.display = 'block';
+            } else if (strength <= 4) {
+                strengthBar.classList.add('strength-medium');
+                this.classList.remove('error');
+                errorElement.style.display = 'none';
+            } else {
+                strengthBar.classList.add('strength-strong');
+                this.classList.remove('error');
+                errorElement.style.display = 'none';
+            }
+        });
+        
+        // 确认密码验证
+        document.getElementById('confirmPassword').addEventListener('input', function() {
+            const password = document.getElementById('password').value;
+            const confirmPassword = this.value;
+            const errorElement = document.getElementById('confirmError');
+            
+            if (confirmPassword && password !== confirmPassword) {
+                this.classList.add('error');
+                errorElement.style.display = 'block';
+            } else {
+                this.classList.remove('error');
+                errorElement.style.display = 'none';
+            }
+        });
+        
+        // 表单提交
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // 验证所有必填字段
+            const requiredFields = [
+                'phoneNumber', 'verificationCode', 'companyName', 
+                'creditCode', 'password', 'confirmPassword', 'contactName'
+            ];
+            
+            let isValid = true;
+            
+            requiredFields.forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                if (!field.value.trim()) {
+                    field.classList.add('error');
+                    isValid = false;
+                } else {
+                    field.classList.remove('error');
+                }
+            });
+            
+            // 检查协议同意
+            const agreement = document.getElementById('agreement');
+            if (!agreement.checked) {
+                alert('请先阅读并同意用户协议和隐私政策');
+                isValid = false;
+            }
+            
+            if (isValid) {
+                // 模拟注册
+                document.getElementById('submitBtn').disabled = true;
+                document.getElementById('submitBtn').innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>注册中...';
+                
+                setTimeout(() => {
+                    alert('注册成功！\n\n企业信息已提交，我们将在1-3个工作日内完成审核。\n\n您可以先使用基础功能，审核通过后将开放全部功能。');
+                    
+                    // 重置按钮
+                    document.getElementById('submitBtn').disabled = false;
+                    document.getElementById('submitBtn').innerHTML = '立即注册';
+                }, 2000);
+            }
+        });
+        
+        // 取消注册
+        document.getElementById('cancelBtn').addEventListener('click', function() {
+            if (confirm('确定要取消注册吗？已填写的信息将丢失。')) {
+                window.history.back();
+            }
+        });
+        
+        // 返回按钮
+        document.querySelector('.back-btn').addEventListener('click', function() {
+            window.history.back();
+        });
+        
+        // 显示协议内容
+        function showAgreement(type) {
+            const content = type === 'user' 
+                ? '用户协议\n\n1. 服务条款\n2. 用户权利和义务\n3. 平台责任\n4. 争议解决\n...'
+                : '隐私政策\n\n1. 信息收集\n2. 信息使用\n3. 信息保护\n4. 第三方共享\n...';
+            
+            alert(content);
+        }
+        
+        // 输入框焦点效果
+        document.querySelectorAll('.form-input').forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.style.transform = 'scale(1.02)';
+            });
+            
+            input.addEventListener('blur', function() {
+                this.parentElement.style.transform = 'scale(1)';
+            });
+        });
+        
+        // 自动填充示例数据（仅用于演示）
+        setTimeout(() => {
+            if (confirm('是否填充示例数据进行演示？')) {
+                document.getElementById('phoneNumber').value = '13888888888';
+                document.getElementById('companyName').value = '北京物流科技有限公司';
+                document.getElementById('creditCode').value = '91110000123456789X';
+                document.getElementById('contactName').value = '张经理';
+                document.getElementById('password').value = 'eFlow123456';
+                document.getElementById('confirmPassword').value = 'eFlow123456';
+                
+                // 触发密码强度检测
+                document.getElementById('password').dispatchEvent(new Event('input'));
+            }
+        }, 1000);
+    </script>
+</body>
+</html>

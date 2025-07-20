@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>eFlow - 业务订单分类演示</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="../components/styles.css" rel="stylesheet">
+    <style>
+        body {
+            padding-bottom: 80px;
+        }
+        
+        .demo-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin: 12px 16px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            border-left: 4px solid #1B73E8;
+        }
+        
+        .demo-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+        }
+        
+        .module-header {
+            display: flex;
+            align-items: center;
+            justify-content: between;
+            margin-bottom: 16px;
+        }
+        
+        .module-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            margin-right: 16px;
+        }
+        
+        .transport-module { background: linear-gradient(135deg, #1B73E8 0%, #4285F4 100%); }
+        .service-module { background: linear-gradient(135deg, #FF5722 0%, #FF7043 100%); }
+        .finance-module { background: linear-gradient(135deg, #10B981 0%, #059669 100%); }
+        
+        .order-category {
+            background: #F8F9FA;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 8px 0;
+            border-left: 3px solid #1B73E8;
+        }
+        
+        .category-name {
+            font-weight: 600;
+            color: #212121;
+            margin-bottom: 4px;
+        }
+        
+        .category-desc {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        
+        .status-chips {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+        
+        .status-chip {
+            background: #E3F2FD;
+            color: #1B73E8;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+        
+        .demo-section {
+            margin-bottom: 24px;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #212121;
+            margin-bottom: 16px;
+            padding: 0 16px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <div class="header bg-white border-b border-gray-200">
+        <div class="flex items-center justify-between">
+            <h1 class="text-xl font-bold text-gray-800 flex items-center">
+                <i class="fas fa-project-diagram mr-3 text-blue-500"></i>
+                业务订单分类演示
+            </h1>
+            <a href="orders.html" class="text-blue-500 text-sm">
+                <i class="fas fa-arrow-right mr-1"></i>查看订单中心
+            </a>
+        </div>
+    </div>
+    
+    <!-- Overview Section -->
+    <div class="demo-section">
+        <div class="section-title">📊 系统概览</div>
+        <div class="demo-card">
+            <div class="text-center">
+                <h3 class="text-lg font-bold mb-4">eFlow 供应链管理系统</h3>
+                <p class="text-gray-600 mb-6">按业务流程分类的订单管理架构</p>
+                
+                <div class="grid grid-cols-3 gap-4">
+                    <div class="text-center">
+                        <div class="transport-module module-icon mx-auto mb-2">
+                            <i class="fas fa-truck"></i>
+                        </div>
+                        <div class="font-medium">货运业务</div>
+                        <div class="text-xs text-gray-500">运输订单管理</div>
+                    </div>
+                    
+                    <div class="text-center">
+                        <div class="service-module module-icon mx-auto mb-2">
+                            <i class="fas fa-cogs"></i>
+                        </div>
+                        <div class="font-medium">服务业务</div>
+                        <div class="text-xs text-gray-500">服务订单管理</div>
+                    </div>
+                    
+                    <div class="text-center">
+                        <div class="finance-module module-icon mx-auto mb-2">
+                            <i class="fas fa-coins"></i>
+                        </div>
+                        <div class="font-medium">金融业务</div>
+                        <div class="text-xs text-gray-500">金融订单管理</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Transport Orders Section -->
+    <div class="demo-section">
+        <div class="section-title">🚛 货运订单分类</div>
+        <div class="demo-card">
+            <div class="module-header">
+                <div class="transport-module module-icon">
+                    <i class="fas fa-truck"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-lg">货运业务订单</h3>
+                    <p class="text-gray-600 text-sm">管理运输需求、承运管理、运输跟踪</p>
+                </div>
+                <a href="orders.html#transport-all" class="ml-auto text-blue-500 text-sm">
+                    查看详情 <i class="fas fa-chevron-right ml-1"></i>
+                </a>
+            </div>
+            
+            <div class="order-category">
+                <div class="category-name">待接单订单</div>
+                <div class="category-desc">货主发布的运输需求，等待承运商接单</div>
+                <div class="status-chips">
+                    <span class="status-chip">待报价</span>
+                    <span class="status-chip">议价中</span>
+                    <span class="status-chip">待确认</span>
+                </div>
+            </div>
+            
+            <div class="order-category">
+                <div class="category-name">执行中订单</div>
+                <div class="category-desc">已接单正在执行的运输任务</div>
+                <div class="status-chips">
+                    <span class="status-chip">装货中</span>
+                    <span class="status-chip">运输中</span>
+                    <span class="status-chip">到达待卸</span>
+                </div>
+            </div>
+            
+            <div class="order-category">
+                <div class="category-name">完成订单</div>
+                <div class="category-desc">已完成的运输订单，包含评价和结算</div>
+                <div class="status-chips">
+                    <span class="status-chip">已完成</span>
+                    <span class="status-chip">已结算</span>
+                    <span class="status-chip">已评价</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Service Orders Section -->
+    <div class="demo-section">
+        <div class="section-title">🔧 服务订单分类</div>
+        <div class="demo-card">
+            <div class="module-header">
+                <div class="service-module module-icon">
+                    <i class="fas fa-cogs"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-lg">服务业务订单</h3>
+                    <p class="text-gray-600 text-sm">管理保险、认证、增值服务等订单</p>
+                </div>
+                <a href="orders.html#service-all" class="ml-auto text-blue-500 text-sm">
+                    查看详情 <i class="fas fa-chevron-right ml-1"></i>
+                </a>
+            </div>
+            
+            <div class="order-category">
+                <div class="category-name">保险订单</div>
+                <div class="category-desc">货运保险、车辆保险等保障服务</div>
+                <div class="status-chips">
+                    <span class="status-chip">待生效</span>
+                    <span class="status-chip">保障中</span>
+                    <span class="status-chip">理赔中</span>
+                    <span class="status-chip">已到期</span>
+                </div>
+            </div>
+            
+            <div class="order-category">
+                <div class="category-name">认证订单</div>
+                <div class="category-desc">资质认证、证件办理等服务</div>
+                <div class="status-chips">
+                    <span class="status-chip">申请中</span>
+                    <span class="status-chip">审核中</span>
+                    <span class="status-chip">已通过</span>
+                    <span class="status-chip">已拒绝</span>
+                </div>
+            </div>
+            
+            <div class="order-category">
+                <div class="category-name">增值订单</div>
+                <div class="category-desc">装卸、仓储、包装等增值服务</div>
+                <div class="status-chips">
+                    <span class="status-chip">预约中</span>
+                    <span class="status-chip">服务中</span>
+                    <span class="status-chip">已完成</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Finance Orders Section -->
+    <div class="demo-section">
+        <div class="section-title">💰 金融订单分类</div>
+        <div class="demo-card">
+            <div class="module-header">
+                <div class="finance-module module-icon">
+                    <i class="fas fa-coins"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-lg">金融业务订单</h3>
+                    <p class="text-gray-600 text-sm">管理贷款、垫付、保理等金融服务</p>
+                </div>
+                <a href="orders.html#finance-all" class="ml-auto text-blue-500 text-sm">
+                    查看详情 <i class="fas fa-chevron-right ml-1"></i>
+                </a>
+            </div>
+            
+            <div class="order-category">
+                <div class="category-name">贷款订单</div>
+                <div class="category-desc">运营资金贷、车辆抵押贷等</div>
+                <div class="status-chips">
+                    <span class="status-chip">申请中</span>
+                    <span class="status-chip">审核中</span>
+                    <span class="status-chip">已放款</span>
+                    <span class="status-chip">还款中</span>
+                    <span class="status-chip">已结清</span>
+                </div>
+            </div>
+            
+            <div class="order-category">
+                <div class="category-name">垫付订单</div>
+                <div class="category-desc">运费垫付、油费垫付等资金垫付</div>
+                <div class="status-chips">
+                    <span class="status-chip">申请中</span>
+                    <span class="status-chip">已到账</span>
+                    <span class="status-chip">待回收</span>
+                    <span class="status-chip">已回收</span>
+                </div>
+            </div>
+            
+            <div class="order-category">
+                <div class="category-name">保理订单</div>
+                <div class="category-desc">应收账款保理、供应链金融</div>
+                <div class="status-chips">
+                    <span class="status-chip">申请中</span>
+                    <span class="status-chip">尽调中</span>
+                    <span class="status-chip">已承保</span>
+                    <span class="status-chip">已到期</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Features Section -->
+    <div class="demo-section">
+        <div class="section-title">✨ 系统特性</div>
+        <div class="demo-card">
+            <div class="grid grid-cols-2 gap-4">
+                <div class="text-center p-4 bg-blue-50 rounded-lg">
+                    <i class="fas fa-filter text-2xl text-blue-500 mb-2"></i>
+                    <div class="font-medium mb-1">智能筛选</div>
+                    <div class="text-xs text-gray-600">按状态、类型、时间筛选订单</div>
+                </div>
+                
+                <div class="text-center p-4 bg-green-50 rounded-lg">
+                    <i class="fas fa-sync-alt text-2xl text-green-500 mb-2"></i>
+                    <div class="font-medium mb-1">实时同步</div>
+                    <div class="text-xs text-gray-600">订单状态实时更新推送</div>
+                </div>
+                
+                <div class="text-center p-4 bg-orange-50 rounded-lg">
+                    <i class="fas fa-route text-2xl text-orange-500 mb-2"></i>
+                    <div class="font-medium mb-1">流程跟踪</div>
+                    <div class="text-xs text-gray-600">完整的业务流程可视化</div>
+                </div>
+                
+                <div class="text-center p-4 bg-purple-50 rounded-lg">
+                    <i class="fas fa-chart-line text-2xl text-purple-500 mb-2"></i>
+                    <div class="font-medium mb-1">数据分析</div>
+                    <div class="text-xs text-gray-600">订单数据统计分析</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Navigation Buttons -->
+    <div class="demo-section">
+        <div class="demo-card">
+            <div class="text-center">
+                <h3 class="font-bold mb-4">快速导航</h3>
+                <div class="flex justify-center gap-4">
+                    <a href="orders.html" class="btn-primary px-6 py-3">
+                        <i class="fas fa-clipboard-list mr-2"></i>
+                        订单中心
+                    </a>
+                    <a href="transport.html" class="btn-secondary px-6 py-3">
+                        <i class="fas fa-truck mr-2"></i>
+                        货运服务
+                    </a>
+                    <a href="service.html" class="btn-secondary px-6 py-3">
+                        <i class="fas fa-cogs mr-2"></i>
+                        服务市场
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tab Bar -->
+    <div class="tab-bar flex">
+        <a href="home.html" class="tab-item">
+            <i class="fas fa-home"></i>
+            <span>首页</span>
+        </a>
+        <a href="transport.html" class="tab-item">
+            <i class="fas fa-truck"></i>
+            <span>货运</span>
+        </a>
+        <a href="service.html" class="tab-item">
+            <i class="fas fa-cogs"></i>
+            <span>服务</span>
+        </a>
+        <a href="analytics.html" class="tab-item">
+            <i class="fas fa-chart-bar"></i>
+            <span>数据</span>
+        </a>
+        <a href="profile.html" class="tab-item">
+            <i class="fas fa-user"></i>
+            <span>我的</span>
+        </a>
+    </div>
+    
+    <script>
+        // 卡片点击动画
+        document.querySelectorAll('.demo-card').forEach(card => {
+            card.addEventListener('click', function(e) {
+                if (!e.target.closest('a')) {
+                    this.style.transform = 'scale(0.98)';
+                    setTimeout(() => {
+                        this.style.transform = 'translateY(-2px)';
+                    }, 150);
+                }
+            });
+        });
+        
+        // 状态芯片点击演示
+        document.querySelectorAll('.status-chip').forEach(chip => {
+            chip.addEventListener('click', function() {
+                const categoryName = this.closest('.order-category').querySelector('.category-name').textContent;
+                const statusName = this.textContent;
+                alert(`演示功能\n\n分类：${categoryName}\n状态：${statusName}\n\n在实际系统中，这里会跳转到对应的订单列表页面，并自动筛选出该状态的订单。`);
+            });
+        });
+        
+        // 模块链接点击处理
+        document.querySelectorAll('a[href*="#"]').forEach(link => {
+            link.addEventListener('click', function(e) {
+                const href = this.getAttribute('href');
+                if (href.includes('#')) {
+                    e.preventDefault();
+                    alert(`导航演示\n\n即将跳转到：${href}\n\n这会打开订单中心页面，并自动切换到对应的业务标签页。`);
+                    setTimeout(() => {
+                        window.location.href = href;
+                    }, 1000);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
