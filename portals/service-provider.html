@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>eFlow 服务商门户 - Service Provider Portal</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --service-primary: #607D8B;
+            --service-secondary: #78909C;
+            --service-accent: #B0BEC5;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #eceff1 0%, #cfd8dc 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+        
+        .sidebar {
+            background: linear-gradient(135deg, var(--service-primary) 0%, var(--service-secondary) 100%);
+            width: 280px;
+            min-height: 100vh;
+            color: white;
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .main-content {
+            margin-left: 280px;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .top-bar {
+            background: white;
+            border-radius: 16px;
+            padding: 20px 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+        }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 16px 24px;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+        
+        .nav-item:hover, .nav-item.active {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border-left-color: white;
+        }
+        
+        .nav-icon {
+            margin-right: 12px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .logo-section {
+            padding: 24px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .logo-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+        
+        .user-info {
+            padding: 20px 24px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .stat-card-service {
+            background: linear-gradient(135deg, var(--service-primary), var(--service-secondary));
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            color: white;
+        }
+        
+        .stat-number {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        
+        .service-order {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            border-left: 4px solid var(--service-primary);
+            transition: all 0.3s ease;
+        }
+        
+        .service-order:hover {
+            transform: translateX(8px);
+            box-shadow: 0 4px 20px rgba(96, 125, 139, 0.2);
+        }
+        
+        .btn-service {
+            background: var(--service-primary);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-service:hover {
+            background: #546E7A;
+            transform: translateY(-2px);
+        }
+        
+        .service-status {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-pending { background: #FFF3E0; color: #F57C00; }
+        .status-processing { background: #E3F2FD; color: #1976D2; }
+        .status-completed { background: #E8F5E8; color: #2E7D32; }
+        .status-cancelled { background: #FFEBEE; color: #D32F2F; }
+        
+        .service-category {
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            background: white;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .service-category:hover {
+            border-color: var(--service-primary);
+            transform: translateY(-2px);
+        }
+        
+        .category-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--service-accent);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 16px;
+            color: var(--service-primary);
+            font-size: 20px;
+        }
+        
+        .chart-container {
+            height: 300px;
+            margin: 20px 0;
+        }
+        
+        .rating-stars {
+            color: #FFD700;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo-section">
+            <div class="logo-icon">
+                <i class="fas fa-concierge-bell" style="color: white;"></i>
+            </div>
+            <h2 style="color: white; font-size: 20px; font-weight: bold;">服务商门户</h2>
+            <p style="color: rgba(255,255,255,0.7); font-size: 14px;">Service Provider Portal</p>
+        </div>
+        
+        <div class="user-info">
+            <div style="display: flex; align-items: center; margin-bottom: 12px;">
+                <i class="fas fa-store" style="font-size: 48px; margin-right: 16px;"></i>
+                <div>
+                    <div style="font-weight: bold; font-size: 16px;">华安保险</div>
+                    <div style="opacity: 0.8; font-size: 14px;">保险服务商</div>
+                </div>
+            </div>
+            <div style="background: rgba(255,255,255,0.1); padding: 8px 12px; border-radius: 12px; font-size: 14px;">
+                <i class="fas fa-star" style="margin-right: 4px; color: #FFD700;"></i>
+                认证服务商 • 4.8分
+            </div>
+        </div>
+        
+        <nav style="padding: 20px 0;">
+            <a href="#dashboard" class="nav-item active" onclick="showSection('dashboard')">
+                <i class="nav-icon fas fa-tachometer-alt"></i>
+                服务总览
+            </a>
+            <a href="#orders" class="nav-item" onclick="showSection('orders')">
+                <i class="nav-icon fas fa-clipboard-list"></i>
+                订单管理
+            </a>
+            <a href="#services" class="nav-item" onclick="showSection('services')">
+                <i class="nav-icon fas fa-tags"></i>
+                服务管理
+            </a>
+            <a href="#customers" class="nav-item" onclick="showSection('customers')">
+                <i class="nav-icon fas fa-users"></i>
+                客户管理
+            </a>
+            <a href="#finance" class="nav-item" onclick="showSection('finance')">
+                <i class="nav-icon fas fa-chart-pie"></i>
+                财务统计
+            </a>
+            <a href="#marketing" class="nav-item" onclick="showSection('marketing')">
+                <i class="nav-icon fas fa-bullhorn"></i>
+                营销推广
+            </a>
+            <a href="#quality" class="nav-item" onclick="showSection('quality')">
+                <i class="nav-icon fas fa-medal"></i>
+                质量管理
+            </a>
+            <a href="#settings" class="nav-item" onclick="showSection('settings')">
+                <i class="nav-icon fas fa-cog"></i>
+                设置
+            </a>
+        </nav>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div>
+                <h1 style="font-size: 24px; font-weight: bold; color: #333; margin: 0;">服务商业务中心</h1>
+                <p style="color: #666; margin: 4px 0 0 0;">专业增值服务管理平台</p>
+            </div>
+            <div style="display: flex; align-items: center; gap: 16px;">
+                <button class="btn-service" onclick="addNewService()">
+                    <i class="fas fa-plus mr-2"></i>发布新服务
+                </button>
+                <div style="position: relative;">
+                    <i class="fas fa-bell" style="font-size: 20px; color: #666; cursor: pointer;"></i>
+                    <span style="position: absolute; top: -4px; right: -4px; background: #FF5722; color: white; border-radius: 50%; width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; font-size: 10px;">8</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Dashboard Section -->
+        <div id="dashboard" class="section">
+            <!-- Statistics Cards -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 24px; margin-bottom: 24px;">
+                <div class="stat-card-service">
+                    <div class="stat-number">¥85.6万</div>
+                    <div style="opacity: 0.9;">月度营收</div>
+                </div>
+                <div class="stat-card-service" style="background: linear-gradient(135deg, #4CAF50, #66BB6A);">
+                    <div class="stat-number">286</div>
+                    <div style="opacity: 0.9;">服务订单</div>
+                </div>
+                <div class="stat-card-service" style="background: linear-gradient(135deg, #FF9800, #FFB74D);">
+                    <div class="stat-number">4.8</div>
+                    <div style="opacity: 0.9;">服务评分</div>
+                </div>
+                <div class="stat-card-service" style="background: linear-gradient(135deg, #9C27B0, #BA68C8);">
+                    <div class="stat-number">95.2%</div>
+                    <div style="opacity: 0.9;">客户满意度</div>
+                </div>
+            </div>
+            
+            <!-- Service Performance Chart -->
+            <div class="card">
+                <h3 style="font-size: 18px; font-weight: bold; margin-bottom: 20px; color: #333;">
+                    <i class="fas fa-chart-line" style="color: var(--service-primary); margin-right: 8px;"></i>
+                    服务业绩趋势
+                </h3>
+                <div class="chart-container">
+                    <canvas id="performanceChart"></canvas>
+                </div>
+            </div>
+            
+            <!-- Recent Service Orders -->
+            <div class="card">
+                <h3 style="font-size: 18px; font-weight: bold; margin-bottom: 20px; color: #333;">
+                    <i class="fas fa-clock" style="color: var(--service-primary); margin-right: 8px;"></i>
+                    最新服务订单
+                </h3>
+                
+                <div class="service-order">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+                        <div>
+                            <div style="font-weight: bold; color: #333; margin-bottom: 4px;">
+                                订单编号: #SV2025072101
+                                <span class="service-status status-processing">处理中</span>
+                            </div>
+                            <div style="color: #666; font-size: 14px;">
+                                <i class="fas fa-shield-alt" style="margin-right: 4px;"></i>
+                                货物运输保险
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-size: 20px; font-weight: bold; color: var(--service-primary);">¥2,400</div>
+                            <div style="font-size: 12px; color: #666;">服务费用</div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; margin-bottom: 16px;">
+                        <div>
+                            <div style="font-size: 12px; color: #666;">客户</div>
+                            <div style="font-weight: 500;">顺丰物流</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #666;">保险金额</div>
+                            <div style="font-weight: 500;">50万元</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #666;">保险期限</div>
+                            <div style="font-weight: 500;">30天</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #666;">下单时间</div>
+                            <div style="font-weight: 500;">今天 15:30</div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 12px;">
+                        <button class="btn-service" style="flex: 1;" onclick="processOrder('SV2025072101')">
+                            <i class="fas fa-cogs mr-2"></i>处理订单
+                        </button>
+                        <button class="btn-service" style="flex: 1; background: #2196F3;" onclick="contactCustomer('SV2025072101')">
+                            <i class="fas fa-phone mr-2"></i>联系客户
+                        </button>
+                        <button class="btn-service" style="flex: 1; background: #4CAF50;" onclick="completeOrder('SV2025072101')">
+                            <i class="fas fa-check mr-2"></i>完成服务
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="service-order">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+                        <div>
+                            <div style="font-weight: bold; color: #333; margin-bottom: 4px;">
+                                订单编号: #SV2025072102
+                                <span class="service-status status-pending">待处理</span>
+                            </div>
+                            <div style="color: #666; font-size: 14px;">
+                                <i class="fas fa-tools" style="margin-right: 4px;"></i>
+                                车辆维修保养
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-size: 20px; font-weight: bold; color: var(--service-primary);">¥1,200</div>
+                            <div style="font-size: 12px; color: #666;">服务费用</div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; margin-bottom: 16px;">
+                        <div>
+                            <div style="font-size: 12px; color: #666;">客户</div>
+                            <div style="font-weight: 500;">李师傅</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #666;">车型</div>
+                            <div style="font-weight: 500;">重型货车</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #666;">车牌号</div>
+                            <div style="font-weight: 500;">京A88888</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #666;">预约时间</div>
+                            <div style="font-weight: 500;">明天 09:00</div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 12px;">
+                        <button class="btn-service" style="flex: 1;" onclick="processOrder('SV2025072102')">
+                            <i class="fas fa-cogs mr-2"></i>处理订单
+                        </button>
+                        <button class="btn-service" style="flex: 1; background: #2196F3;" onclick="contactCustomer('SV2025072102')">
+                            <i class="fas fa-phone mr-2"></i>联系客户
+                        </button>
+                        <button class="btn-service" style="flex: 1; background: #4CAF50;" onclick="completeOrder('SV2025072102')">
+                            <i class="fas fa-check mr-2"></i>完成服务
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Service Categories Section -->
+        <div id="services" class="section" style="display: none;">
+            <div class="card">
+                <h3 style="font-size: 18px; font-weight: bold; margin-bottom: 20px; color: #333;">
+                    <i class="fas fa-tags" style="color: var(--service-primary); margin-right: 8px;"></i>
+                    服务类别管理
+                </h3>
+                
+                <div class="service-category" onclick="manageServiceCategory('insurance')">
+                    <div class="category-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600; color: #333; margin-bottom: 4px;">保险服务</div>
+                        <div style="font-size: 14px; color: #666;">提供货物运输保险、车辆保险等保险服务</div>
+                        <div style="font-size: 12px; color: #999; margin-top: 4px;">平均评分：4.9分 | 月订单：156个</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 16px; font-weight: bold; color: var(--service-primary);">活跃</div>
+                        <div style="font-size: 12px; color: #666;">¥45.2万</div>
+                    </div>
+                </div>
+                
+                <div class="service-category" onclick="manageServiceCategory('maintenance')">
+                    <div class="category-icon">
+                        <i class="fas fa-tools"></i>
+                    </div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600; color: #333; margin-bottom: 4px;">维修保养</div>
+                        <div style="font-size: 14px; color: #666;">提供车辆维修、保养、年检等技术服务</div>
+                        <div style="font-size: 12px; color: #999; margin-top: 4px;">平均评分：4.7分 | 月订单：89个</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 16px; font-weight: bold; color: var(--service-primary);">活跃</div>
+                        <div style="font-size: 12px; color: #666;">¥28.5万</div>
+                    </div>
+                </div>
+                
+                <div class="service-category" onclick="manageServiceCategory('training')">
+                    <div class="category-icon">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600; color: #333; margin-bottom: 4px;">培训服务</div>
+                        <div style="font-size: 14px; color: #666;">提供司机培训、安全教育等培训服务</div>
+                        <div style="font-size: 12px; color: #999; margin-top: 4px;">平均评分：4.6分 | 月订单：42个</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 16px; font-weight: bold; color: var(--service-primary);">活跃</div>
+                        <div style="font-size: 12px; color: #666;">¥12.8万</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Other sections would be similar but hidden initially -->
+        <div id="orders" class="section" style="display: none;">
+            <div class="card">
+                <h3 style="font-size: 18px; font-weight: bold; margin-bottom: 20px; color: #333;">订单管理</h3>
+                <p>订单管理功能开发中...</p>
+            </div>
+        </div>
+        
+        <div id="customers" class="section" style="display: none;">
+            <div class="card">
+                <h3 style="font-size: 18px; font-weight: bold; margin-bottom: 20px; color: #333;">客户管理</h3>
+                <p>客户管理功能开发中...</p>
+            </div>
+        </div>
+        
+        <div id="finance" class="section" style="display: none;">
+            <div class="card">
+                <h3 style="font-size: 18px; font-weight: bold; margin-bottom: 20px; color: #333;">财务统计</h3>
+                <p>财务统计功能开发中...</p>
+            </div>
+        </div>
+        
+        <div id="marketing" class="section" style="display: none;">
+            <div class="card">
+                <h3 style="font-size: 18px; font-weight: bold; margin-bottom: 20px; color: #333;">营销推广</h3>
+                <p>营销推广功能开发中...</p>
+            </div>
+        </div>
+        
+        <div id="quality" class="section" style="display: none;">
+            <div class="card">
+                <h3 style="font-size: 18px; font-weight: bold; margin-bottom: 20px; color: #333;">质量管理</h3>
+                <p>质量管理功能开发中...</p>
+            </div>
+        </div>
+        
+        <div id="settings" class="section" style="display: none;">
+            <div class="card">
+                <h3 style="font-size: 18px; font-weight: bold; margin-bottom: 20px; color: #333;">设置</h3>
+                <p>设置功能开发中...</p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 导航功能
+        function showSection(sectionId) {
+            // 隐藏所有section
+            document.querySelectorAll('.section').forEach(section => {
+                section.style.display = 'none';
+            });
+            
+            // 移除所有nav-item的active状态
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // 显示选中的section
+            document.getElementById(sectionId).style.display = 'block';
+            
+            // 添加active状态到对应的nav-item
+            document.querySelector(`[href="#${sectionId}"]`).classList.add('active');
+        }
+        
+        // 发布新服务
+        function addNewService() {
+            alert('发布新服务\n\n服务发布流程：\n• 选择服务类别\n• 填写服务详情\n• 设置价格策略\n• 上传资质证明\n• 提交审核');
+        }
+        
+        // 订单操作功能
+        function processOrder(orderId) {
+            alert(`处理订单: ${orderId}\n\n处理内容：\n• 确认服务需求\n• 安排服务人员\n• 制定服务计划\n• 开始服务执行\n• 跟踪服务进度`);
+        }
+        
+        function contactCustomer(orderId) {
+            alert(`联系客户 - 订单: ${orderId}\n\n联系方式：\n• 一键拨号\n• 在线客服\n• 微信联系\n• 邮件沟通\n• 现场访问`);
+        }
+        
+        function completeOrder(orderId) {
+            if (confirm(`确认完成订单: ${orderId}？\n\n完成后将：\n• 结算服务费用\n• 请求客户评价\n• 归档服务记录\n• 触发后续服务`)) {
+                alert('服务已完成！\n\n系统将自动发送服务完成通知并请求客户评价');
+            }
+        }
+        
+        // 服务类别管理
+        function manageServiceCategory(category) {
+            alert(`管理服务类别: ${category}\n\n管理功能：\n• 服务项目配置\n• 价格策略调整\n• 服务标准设定\n• 质量控制规则\n• 推广策略制定`);
+        }
+        
+        // 初始化图表
+        document.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.getElementById('performanceChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['1月', '2月', '3月', '4月', '5月', '6月', '7月'],
+                    datasets: [{
+                        label: '服务订单数',
+                        data: [180, 240, 320, 280, 350, 420, 286],
+                        backgroundColor: 'rgba(96, 125, 139, 0.8)',
+                        borderColor: '#607D8B',
+                        borderWidth: 1
+                    }, {
+                        label: '客户满意度(%)',
+                        data: [92, 94, 96, 93, 95, 97, 95],
+                        type: 'line',
+                        borderColor: '#4CAF50',
+                        backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                        yAxisID: 'y1',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            position: 'left',
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            min: 80,
+                            max: 100,
+                            grid: {
+                                drawOnChartArea: false,
+                            },
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

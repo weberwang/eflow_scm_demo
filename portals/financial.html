@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>eFlow 金融机构门户 - Financial Institution Portal</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --financial-primary: #1976D2;
+            --financial-secondary: #42A5F5;
+            --financial-accent: #BBDEFB;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+        
+        .sidebar {
+            background: linear-gradient(135deg, var(--financial-primary) 0%, var(--financial-secondary) 100%);
+            width: 280px;
+            min-height: 100vh;
+            color: white;
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .main-content {
+            margin-left: 280px;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .top-bar {
+            background: white;
+            border-radius: 16px;
+            padding: 20px 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+        }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 16px 24px;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+        
+        .nav-item:hover, .nav-item.active {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border-left-color: white;
+        }
+        
+        .nav-icon {
+            margin-right: 12px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .logo-section {
+            padding: 24px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .logo-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+        
+        .user-info {
+            padding: 20px 24px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .stat-card-financial {
+            background: linear-gradient(135deg, var(--financial-primary), var(--financial-secondary));
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            color: white;
+        }
+        
+        .stat-number {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        
+        .loan-application {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            border-left: 4px solid var(--financial-primary);
+            transition: all 0.3s ease;
+        }
+        
+        .loan-application:hover {
+            transform: translateX(8px);
+            box-shadow: 0 4px 20px rgba(25, 118, 210, 0.2);
+        }
+        
+        .btn-financial {
+            background: var(--financial-primary);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-financial:hover {
+            background: #1565C0;
+            transform: translateY(-2px);
+        }
+        
+        .risk-indicator {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .risk-low { background: #E8F5E8; color: #2E7D32; }
+        .risk-medium { background: #FFF3E0; color: #F57C00; }
+        .risk-high { background: #FFEBEE; color: #D32F2F; }
+        
+        .financial-product {
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            background: white;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .financial-product:hover {
+            border-color: var(--financial-primary);
+            transform: translateY(-2px);
+        }
+        
+        .product-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--financial-accent);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 16px;
+            color: var(--financial-primary);
+            font-size: 20px;
+        }
+        
+        .chart-container {
+            height: 300px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo-section">
+            <div class="logo-icon">
+                <i class="fas fa-university" style="color: white;"></i>
+            </div>
+            <h2 style="color: white; font-size: 20px; font-weight: bold;">金融机构门户</h2>
+            <p style="color: rgba(255,255,255,0.7); font-size: 14px;">Financial Portal</p>
+        </div>
+        
+        <div class="user-info">
+            <div style="display: flex; align-items: center; margin-bottom: 12px;">
+                <i class="fas fa-building" style="font-size: 48px; margin-right: 16px;"></i>
+                <div>
+                    <div style="font-weight: bold; font-size: 16px;">中国银行</div>
+                    <div style="opacity: 0.8; font-size: 14px;">供应链金融部</div>
+                </div>
+            </div>
+            <div style="background: rgba(255,255,255,0.1); padding: 8px 12px; border-radius: 12px; font-size: 14px;">
+                <i class="fas fa-shield-alt" style="margin-right: 4px;"></i>
+                AAA级金融机构
+            </div>
+        </div>
+        
+        <nav style="padding: 20px 0;">
+            <a href="#dashboard" class="nav-item active" onclick="showSection('dashboard')">
+                <i class="nav-icon fas fa-tachometer-alt"></i>
+                业务总览
+            </a>
+            <a href="#loan-management" class="nav-item" onclick="showSection('loan-management')">
+                <i class="nav-icon fas fa-hand-holding-usd"></i>
+                放贷管理
+            </a>
+            <a href="#risk-control" class="nav-item" onclick="showSection('risk-control')">
+                <i class="nav-icon fas fa-shield-alt"></i>
+                风险控制
+            </a>
+            <a href="#credit-assessment" class="nav-item" onclick="showSection('credit-assessment')">
+                <i class="nav-icon fas fa-chart-bar"></i>
+                信用评估
+            </a>
+            <a href="#products" class="nav-item" onclick="showSection('products')">
+                <i class="nav-icon fas fa-tags"></i>
+                金融产品
+            </a>
+            <a href="#reports" class="nav-item" onclick="showSection('reports')">
+                <i class="nav-icon fas fa-file-chart"></i>
+                报表分析
+            </a>
+            <a href="#compliance" class="nav-item" onclick="showSection('compliance')">
+                <i class="nav-icon fas fa-balance-scale"></i>
+                合规管理
+            </a>
+            <a href="#settings" class="nav-item" onclick="showSection('settings')">
+                <i class="nav-icon fas fa-cog"></i>
+                系统设置
+            </a>
+        </nav>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div>
+                <h1 style="font-size: 24px; font-weight: bold; color: #333; margin: 0;">金融机构业务中心</h1>
+                <p style="color: #666; margin: 4px 0 0 0;">供应链金融服务管理平台</p>
+            </div>
+            <div style="display: flex; align-items: center; gap: 16px;">
+                <button class="btn-financial" onclick="newLoanApplication()">
+                    <i class="fas fa-plus mr-2"></i>新增放贷申请
+                </button>
+                <div style="position: relative;">
+                    <i class="fas fa-bell" style="font-size: 20px; color: #666; cursor: pointer;"></i>
+                    <span style="position: absolute; top: -4px; right: -4px; background: #FF5722; color: white; border-radius: 50%; width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; font-size: 10px;">12</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Dashboard Section -->
+        <div id="dashboard" class="section">
+            <!-- Statistics Cards -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 24px; margin-bottom: 24px;">
+                <div class="stat-card-financial">
+                    <div class="stat-number">¥2.8亿</div>
+                    <div style="opacity: 0.9;">放贷总额</div>
+                </div>
+                <div class="stat-card-financial" style="background: linear-gradient(135deg, #4CAF50, #66BB6A);">
+                    <div class="stat-number">156</div>
+                    <div style="opacity: 0.9;">活跃客户</div>
+                </div>
+                <div class="stat-card-financial" style="background: linear-gradient(135deg, #FF9800, #FFB74D);">
+                    <div class="stat-number">2.3%</div>
+                    <div style="opacity: 0.9;">不良率</div>
+                </div>
+                <div class="stat-card-financial" style="background: linear-gradient(135deg, #9C27B0, #BA68C8);">
+                    <div class="stat-number">¥1,250万</div>
+                    <div style="opacity: 0.9;">月度净利润</div>
+                </div>
+            </div>
+            
+            <!-- Business Overview Chart -->
+            <div class="card">
+                <h3 style="font-size: 18px; font-weight: bold; margin-bottom: 20px; color: #333;">
+                    <i class="fas fa-chart-line" style="color: var(--financial-primary); margin-right: 8px;"></i>
+                    业务趋势分析
+                </h3>
+                <div class="chart-container">
+                    <canvas id="businessChart"></canvas>
+                </div>
+            </div>
+            
+            <!-- Recent Loan Applications -->
+            <div class="card">
+                <h3 style="font-size: 18px; font-weight: bold; margin-bottom: 20px; color: #333;">
+                    <i class="fas fa-file-alt" style="color: var(--financial-primary); margin-right: 8px;"></i>
+                    最新放贷申请
+                </h3>
+                
+                <div class="loan-application">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+                        <div>
+                            <div style="font-weight: bold; color: #333; margin-bottom: 4px;">
+                                申请编号: #FL2025072101
+                                <span class="risk-indicator risk-low">低风险</span>
+                            </div>
+                            <div style="color: #666; font-size: 14px;">
+                                申请人：顺丰物流股份有限公司
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-size: 20px; font-weight: bold; color: var(--financial-primary);">¥500万</div>
+                            <div style="font-size: 12px; color: #666;">申请金额</div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; margin-bottom: 16px;">
+                        <div>
+                            <div style="font-size: 12px; color: #666;">贷款类型</div>
+                            <div style="font-weight: 500;">运费垫付</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #666;">贷款期限</div>
+                            <div style="font-weight: 500;">30天</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #666;">信用评级</div>
+                            <div style="font-weight: 500;">AAA</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #666;">申请时间</div>
+                            <div style="font-weight: 500;">今天 14:30</div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 12px;">
+                        <button class="btn-financial" style="flex: 1;" onclick="reviewApplication('FL2025072101')">
+                            <i class="fas fa-search mr-2"></i>审核评估
+                        </button>
+                        <button class="btn-financial" style="flex: 1; background: #4CAF50;" onclick="approveApplication('FL2025072101')">
+                            <i class="fas fa-check mr-2"></i>快速批准
+                        </button>
+                        <button class="btn-financial" style="flex: 1; background: #F44336;" onclick="rejectApplication('FL2025072101')">
+                            <i class="fas fa-times mr-2"></i>拒绝申请
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="loan-application">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+                        <div>
+                            <div style="font-weight: bold; color: #333; margin-bottom: 4px;">
+                                申请编号: #FL2025072102
+                                <span class="risk-indicator risk-medium">中风险</span>
+                            </div>
+                            <div style="color: #666; font-size: 14px;">
+                                申请人：德邦物流科技股份有限公司
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-size: 20px; font-weight: bold; color: var(--financial-primary);">¥200万</div>
+                            <div style="font-size: 12px; color: #666;">申请金额</div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; margin-bottom: 16px;">
+                        <div>
+                            <div style="font-size: 12px; color: #666;">贷款类型</div>
+                            <div style="font-weight: 500;">车辆贷款</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #666;">贷款期限</div>
+                            <div style="font-weight: 500;">36个月</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #666;">信用评级</div>
+                            <div style="font-weight: 500;">AA</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #666;">申请时间</div>
+                            <div style="font-weight: 500;">今天 10:15</div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 12px;">
+                        <button class="btn-financial" style="flex: 1;" onclick="reviewApplication('FL2025072102')">
+                            <i class="fas fa-search mr-2"></i>审核评估
+                        </button>
+                        <button class="btn-financial" style="flex: 1; background: #4CAF50;" onclick="approveApplication('FL2025072102')">
+                            <i class="fas fa-check mr-2"></i>快速批准
+                        </button>
+                        <button class="btn-financial" style="flex: 1; background: #F44336;" onclick="rejectApplication('FL2025072102')">
+                            <i class="fas fa-times mr-2"></i>拒绝申请
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Other sections would be similar but hidden initially -->
+        <div id="loan-management" class="section" style="display: none;">
+            <div class="card">
+                <h3 style="font-size: 18px; font-weight: bold; margin-bottom: 20px; color: #333;">放贷管理</h3>
+                <p>放贷管理功能开发中...</p>
+            </div>
+        </div>
+        
+        <div id="risk-control" class="section" style="display: none;">
+            <div class="card">
+                <h3 style="font-size: 18px; font-weight: bold; margin-bottom: 20px; color: #333;">风险控制</h3>
+                <p>风险控制功能开发中...</p>
+            </div>
+        </div>
+        
+        <div id="credit-assessment" class="section" style="display: none;">
+            <div class="card">
+                <h3 style="font-size: 18px; font-weight: bold; margin-bottom: 20px; color: #333;">信用评估</h3>
+                <p>信用评估功能开发中...</p>
+            </div>
+        </div>
+        
+        <div id="products" class="section" style="display: none;">
+            <div class="card">
+                <h3 style="font-size: 18px; font-weight: bold; margin-bottom: 20px; color: #333;">
+                    <i class="fas fa-tags" style="color: var(--financial-primary); margin-right: 8px;"></i>
+                    金融产品管理
+                </h3>
+                
+                <div class="financial-product" onclick="manageProduct('freight-financing')">
+                    <div class="product-icon">
+                        <i class="fas fa-credit-card"></i>
+                    </div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600; color: #333; margin-bottom: 4px;">运费垫付</div>
+                        <div style="font-size: 14px; color: #666;">为运输企业提供运费垫付服务，解决资金周转问题</div>
+                        <div style="font-size: 12px; color: #999; margin-top: 4px;">利率：年化3.8% | 期限：7-90天</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 16px; font-weight: bold; color: var(--financial-primary);">活跃</div>
+                        <div style="font-size: 12px; color: #666;">85个客户</div>
+                    </div>
+                </div>
+                
+                <div class="financial-product" onclick="manageProduct('vehicle-loan')">
+                    <div class="product-icon">
+                        <i class="fas fa-truck"></i>
+                    </div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600; color: #333; margin-bottom: 4px;">车辆贷款</div>
+                        <div style="font-size: 14px; color: #666;">为司机和物流公司提供新车、二手车购买贷款</div>
+                        <div style="font-size: 12px; color: #999; margin-top: 4px;">利率：年化5.2% | 期限：12-60个月</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 16px; font-weight: bold; color: var(--financial-primary);">活跃</div>
+                        <div style="font-size: 12px; color: #666;">142个客户</div>
+                    </div>
+                </div>
+                
+                <div class="financial-product" onclick="manageProduct('supply-chain')">
+                    <div class="product-icon">
+                        <i class="fas fa-link"></i>
+                    </div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600; color: #333; margin-bottom: 4px;">供应链金融</div>
+                        <div style="font-size: 14px; color: #666;">基于真实贸易背景的应收账款融资服务</div>
+                        <div style="font-size: 12px; color: #999; margin-top: 4px;">利率：年化4.5% | 期限：30-180天</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 16px; font-weight: bold; color: var(--financial-primary);">活跃</div>
+                        <div style="font-size: 12px; color: #666;">63个客户</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="reports" class="section" style="display: none;">
+            <div class="card">
+                <h3 style="font-size: 18px; font-weight: bold; margin-bottom: 20px; color: #333;">报表分析</h3>
+                <p>报表分析功能开发中...</p>
+            </div>
+        </div>
+        
+        <div id="compliance" class="section" style="display: none;">
+            <div class="card">
+                <h3 style="font-size: 18px; font-weight: bold; margin-bottom: 20px; color: #333;">合规管理</h3>
+                <p>合规管理功能开发中...</p>
+            </div>
+        </div>
+        
+        <div id="settings" class="section" style="display: none;">
+            <div class="card">
+                <h3 style="font-size: 18px; font-weight: bold; margin-bottom: 20px; color: #333;">系统设置</h3>
+                <p>系统设置功能开发中...</p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 导航功能
+        function showSection(sectionId) {
+            // 隐藏所有section
+            document.querySelectorAll('.section').forEach(section => {
+                section.style.display = 'none';
+            });
+            
+            // 移除所有nav-item的active状态
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // 显示选中的section
+            document.getElementById(sectionId).style.display = 'block';
+            
+            // 添加active状态到对应的nav-item
+            document.querySelector(`[href="#${sectionId}"]`).classList.add('active');
+        }
+        
+        // 新增放贷申请
+        function newLoanApplication() {
+            alert('新增放贷申请\n\n申请流程：\n• 客户基本信息\n• 贷款需求详情\n• 风险评估\n• 审批流程\n• 合同签署');
+        }
+        
+        // 放贷申请操作
+        function reviewApplication(applicationId) {
+            alert(`审核评估申请: ${applicationId}\n\n评估内容：\n• 企业资质审查\n• 财务状况分析\n• 信用记录查询\n• 风险评级\n• 担保措施评估`);
+        }
+        
+        function approveApplication(applicationId) {
+            if (confirm(`确认批准申请: ${applicationId}？\n\n批准后将：\n• 生成放贷合同\n• 设置放款计划\n• 建立监控账户\n• 启动风险监控`)) {
+                alert('申请已批准！\n\n系统将自动生成放贷合同并安排放款');
+            }
+        }
+        
+        function rejectApplication(applicationId) {
+            const reason = prompt(`拒绝申请: ${applicationId}\n\n请输入拒绝原因：`, '风险评级不符合要求');
+            if (reason) {
+                alert(`申请已拒绝\n\n拒绝原因：${reason}\n系统已自动通知申请人`);
+            }
+        }
+        
+        // 金融产品管理
+        function manageProduct(productId) {
+            alert(`管理金融产品: ${productId}\n\n管理功能：\n• 产品参数设置\n• 利率调整\n• 风控规则\n• 客户准入标准\n• 产品推广策略`);
+        }
+        
+        // 初始化图表
+        document.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.getElementById('businessChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['1月', '2月', '3月', '4月', '5月', '6月', '7月'],
+                    datasets: [{
+                        label: '放贷金额(万元)',
+                        data: [1200, 1900, 3000, 2500, 2200, 3200, 2800],
+                        borderColor: '#1976D2',
+                        backgroundColor: 'rgba(25, 118, 210, 0.1)',
+                        tension: 0.4
+                    }, {
+                        label: '收回金额(万元)',
+                        data: [1000, 1600, 2800, 2300, 2000, 3000, 2600],
+                        borderColor: '#4CAF50',
+                        backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -162,6 +162,26 @@
             padding: 16px;
             text-align: center;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+        }
+        
+        .stat-card:first-child {
+            background: linear-gradient(135deg, #4CAF50 0%, #66BB6A 100%);
+            color: white;
+        }
+        
+        .stat-card:first-child .stat-value {
+            color: white;
+        }
+        
+        .stat-card:first-child .stat-label {
+            color: rgba(255, 255, 255, 0.9);
         }
         
         .stat-value {
@@ -254,13 +274,13 @@
         
         <!-- Quick Stats -->
         <div class="stats-grid">
+            <div class="stat-card" onclick="openWallet()">
+                <div class="stat-value">¥8,520</div>
+                <div class="stat-label">钱包余额</div>
+            </div>
             <div class="stat-card">
                 <div class="stat-value">12</div>
                 <div class="stat-label">进行中订单</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value">3</div>
-                <div class="stat-label">待发布货源</div>
             </div>
             <div class="stat-card">
                 <div class="stat-value">¥2.3万</div>
@@ -270,17 +290,17 @@
         
         <!-- Quick Actions -->
         <div class="quick-actions">
+            <a href="#" class="quick-action" onclick="openWallet(event)">
+                <i class="fas fa-wallet text-green-500"></i>
+                <span>我的钱包</span>
+            </a>
             <a href="#" class="quick-action">
                 <i class="fas fa-plus text-blue-500"></i>
                 <span>发布货源</span>
             </a>
             <a href="#" class="quick-action">
-                <i class="fas fa-search text-green-500"></i>
+                <i class="fas fa-search text-orange-500"></i>
                 <span>找车源</span>
-            </a>
-            <a href="#" class="quick-action">
-                <i class="fas fa-file-alt text-orange-500"></i>
-                <span>合同管理</span>
             </a>
             <a href="#" class="quick-action">
                 <i class="fas fa-headset text-purple-500"></i>
@@ -316,13 +336,24 @@
                 <span class="menu-badge">12</span>
                 <i class="fas fa-chevron-right menu-arrow"></i>
             </a>
-            <a href="#" class="menu-item">
+            <a href="waybill-orders.html" class="menu-item" onclick="navigateToWaybill(event)">
+                <div class="menu-icon">
+                    <i class="fas fa-file-invoice text-indigo-500"></i>
+                </div>
+                <div class="menu-content">
+                    <div class="menu-title">运单管理</div>
+                    <div class="menu-subtitle">运输单据、回单管理</div>
+                </div>
+                <span class="menu-badge">24</span>
+                <i class="fas fa-chevron-right menu-arrow"></i>
+            </a>
+            <a href="#" class="menu-item" onclick="openWallet(event)">
                 <div class="menu-icon">
                     <i class="fas fa-wallet text-green-500"></i>
                 </div>
                 <div class="menu-content">
-                    <div class="menu-title">资金账户</div>
-                    <div class="menu-subtitle">余额、交易记录、提现</div>
+                    <div class="menu-title">我的钱包</div>
+                    <div class="menu-subtitle">余额¥8,520 • 充值 • 提现</div>
                 </div>
                 <i class="fas fa-chevron-right menu-arrow"></i>
             </a>
@@ -535,6 +566,12 @@
                 e.preventDefault();
                 const title = this.querySelector('.menu-title').textContent;
                 
+                // 钱包功能单独处理
+                if (title.includes('我的钱包')) {
+                    openWallet();
+                    return;
+                }
+                
                 // 根据不同菜单项显示不同内容
                 if (title.includes('客服中心')) {
                     alert('客服中心\n\n📞 客服热线：400-888-6688\n💬 在线客服：24小时服务\n📧 邮箱：service@eflow.com');
@@ -553,6 +590,13 @@
             action.addEventListener('click', function(e) {
                 e.preventDefault();
                 const title = this.querySelector('span').textContent;
+                
+                // 钱包功能单独处理
+                if (title.includes('我的钱包')) {
+                    openWallet();
+                    return;
+                }
+                
                 alert(`${title}功能\n\n即将跳转到相应页面...`);
             });
         });
@@ -582,6 +626,20 @@
         function navigateToOrders(event) {
             event.preventDefault();
             window.location.href = 'orders.html';
+        }
+        
+        // 导航到运单页面
+        function navigateToWaybill(event) {
+            event.preventDefault();
+            window.location.href = 'waybill-orders.html';
+        }
+        
+        // 打开钱包功能
+        function openWallet(event) {
+            if (event) event.preventDefault();
+            
+            // 跳转到专门的钱包页面
+            window.location.href = 'wallet.html';
         }
         
         // 模拟数据更新

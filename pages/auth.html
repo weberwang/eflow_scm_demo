@@ -277,51 +277,55 @@
                     </div>
                 </div>
                 
-                <!-- 金融机构 - 即将开放 -->
-                <div class="role-option disabled" data-role="finance">
+                <!-- 金融机构 -->
+                <div class="role-option" data-role="finance">
                     <div class="role-icon">
                         <i class="fas fa-university"></i>
                     </div>
                     <div class="role-title">金融机构</div>
                     <div class="role-description">提供供应链金融服务</div>
-                    <div class="role-badge">即将开放</div>
                     <div class="feature-list">
                         <div class="feature-item">
-                            <i class="fas fa-clock"></i>
+                            <i class="fas fa-check"></i>
                             <span>运费垫付服务</span>
                         </div>
                         <div class="feature-item">
-                            <i class="fas fa-clock"></i>
+                            <i class="fas fa-check"></i>
                             <span>信用评估服务</span>
                         </div>
                         <div class="feature-item">
-                            <i class="fas fa-clock"></i>
+                            <i class="fas fa-check"></i>
                             <span>风险管理服务</span>
                         </div>
                     </div>
+                    <div class="role-stats">
+                        合作金融机构：68家 | 累计放贷：¥28.6亿
+                    </div>
                 </div>
                 
-                <!-- 服务提供商 - 即将开放 -->
-                <div class="role-option disabled" data-role="service">
+                <!-- 服务商 -->
+                <div class="role-option" data-role="service">
                     <div class="role-icon">
-                        <i class="fas fa-cogs"></i>
+                        <i class="fas fa-concierge-bell"></i>
                     </div>
-                    <div class="role-title">服务提供商</div>
+                    <div class="role-title">服务商</div>
                     <div class="role-description">提供专业增值服务</div>
-                    <div class="role-badge">即将开放</div>
                     <div class="feature-list">
                         <div class="feature-item">
-                            <i class="fas fa-clock"></i>
-                            <span>仓储管理服务</span>
-                        </div>
-                        <div class="feature-item">
-                            <i class="fas fa-clock"></i>
+                            <i class="fas fa-check"></i>
                             <span>保险理赔服务</span>
                         </div>
                         <div class="feature-item">
-                            <i class="fas fa-clock"></i>
-                            <span>技术支持服务</span>
+                            <i class="fas fa-check"></i>
+                            <span>维修保养服务</span>
                         </div>
+                        <div class="feature-item">
+                            <i class="fas fa-check"></i>
+                            <span>培训认证服务</span>
+                        </div>
+                    </div>
+                    <div class="role-stats">
+                        认证服务商：2,450+ | 平均评分：4.7分
                     </div>
                 </div>
             </div>
@@ -379,7 +383,9 @@
             const roleNames = {
                 'shipper': '货主企业',
                 'carrier': '物流公司',
-                'driver': '个体司机'
+                'driver': '个体司机',
+                'finance': '金融机构',
+                'service': '服务商'
             };
             
             const roleName = roleNames[selectedRole];

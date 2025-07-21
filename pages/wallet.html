@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>eFlow - 我的钱包</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="../components/styles.css" rel="stylesheet">
+    <style>
+        body {
+            padding-bottom: 80px;
+        }
+        
+        .wallet-header {
+            background: linear-gradient(135deg, #4CAF50 0%, #66BB6A 100%);
+            color: white;
+            padding: 24px 16px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .wallet-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 200px;
+            height: 200px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+        }
+        
+        .wallet-balance {
+            text-align: center;
+            margin-bottom: 24px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .balance-label {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 8px;
+        }
+        
+        .balance-amount {
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        
+        .balance-detail {
+            font-size: 12px;
+            opacity: 0.8;
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+        }
+        
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 20px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .quick-action {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 12px;
+            text-align: center;
+            text-decoration: none;
+            color: white;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        
+        .quick-action:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .quick-action i {
+            font-size: 20px;
+            margin-bottom: 6px;
+            display: block;
+        }
+        
+        .quick-action span {
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .section {
+            background: white;
+            margin: 16px;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        }
+        
+        .section-title {
+            padding: 16px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #212121;
+            border-bottom: 1px solid #F0F0F0;
+            background: #FAFAFA;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .section-item {
+            display: flex;
+            align-items: center;
+            padding: 16px 20px;
+            border-bottom: 1px solid #F0F0F0;
+            text-decoration: none;
+            color: #212121;
+            transition: all 0.3s ease;
+        }
+        
+        .section-item:hover {
+            background: #F8F9FA;
+        }
+        
+        .section-item:last-child {
+            border-bottom: none;
+        }
+        
+        .item-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 20px;
+            margin-right: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+        
+        .item-content {
+            flex: 1;
+        }
+        
+        .item-title {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+        
+        .item-subtitle {
+            font-size: 12px;
+            color: #757575;
+        }
+        
+        .item-value {
+            font-size: 14px;
+            font-weight: 500;
+            color: #4CAF50;
+        }
+        
+        .transaction-item {
+            display: flex;
+            align-items: center;
+            padding: 16px 20px;
+            border-bottom: 1px solid #F0F0F0;
+        }
+        
+        .transaction-item:last-child {
+            border-bottom: none;
+        }
+        
+        .transaction-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 16px;
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+        
+        .transaction-info {
+            flex: 1;
+        }
+        
+        .transaction-title {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+        
+        .transaction-time {
+            font-size: 12px;
+            color: #757575;
+        }
+        
+        .transaction-amount {
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .amount-positive {
+            color: #4CAF50;
+        }
+        
+        .amount-negative {
+            color: #F44336;
+        }
+        
+        .security-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            padding: 16px 20px;
+        }
+        
+        .security-item {
+            background: #F8F9FA;
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            text-decoration: none;
+            color: #212121;
+            transition: all 0.3s ease;
+        }
+        
+        .security-item:hover {
+            background: #E3F2FD;
+            transform: translateY(-2px);
+        }
+        
+        .security-item i {
+            font-size: 24px;
+            margin-bottom: 8px;
+            display: block;
+            color: #1B73E8;
+        }
+        
+        .security-item span {
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .back-button {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 32px;
+            height: 32px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            z-index: 2;
+        }
+        
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Wallet Header -->
+    <div class="wallet-header">
+        <a href="profile.html" class="back-button">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        
+        <div class="wallet-balance">
+            <div class="balance-label">账户余额</div>
+            <div class="balance-amount">¥8,520.00</div>
+            <div class="balance-detail">
+                <span>可提现 ¥7,890.00</span>
+                <span>冻结 ¥630.00</span>
+            </div>
+        </div>
+        
+        <div class="quick-actions">
+            <a href="#" class="quick-action" onclick="recharge(event)">
+                <i class="fas fa-plus"></i>
+                <span>充值</span>
+            </a>
+            <a href="#" class="quick-action" onclick="withdraw(event)">
+                <i class="fas fa-minus"></i>
+                <span>提现</span>
+            </a>
+            <a href="#" class="quick-action" onclick="transfer(event)">
+                <i class="fas fa-exchange-alt"></i>
+                <span>转账</span>
+            </a>
+        </div>
+    </div>
+    
+    <!-- Wallet Services -->
+    <div class="section">
+        <div class="section-title">
+            <span>
+                <i class="fas fa-credit-card mr-2 text-blue-500"></i>
+                钱包服务
+            </span>
+        </div>
+        <a href="#" class="section-item" onclick="showBankCards(event)">
+            <div class="item-icon" style="background: #E3F2FD;">
+                <i class="fas fa-credit-card text-blue-500"></i>
+            </div>
+            <div class="item-content">
+                <div class="item-title">银行卡管理</div>
+                <div class="item-subtitle">已绑定2张卡</div>
+            </div>
+            <i class="fas fa-chevron-right text-gray-400"></i>
+        </a>
+        <a href="#" class="section-item" onclick="showPaymentPassword(event)">
+            <div class="item-icon" style="background: #FFF3E0;">
+                <i class="fas fa-lock text-orange-500"></i>
+            </div>
+            <div class="item-content">
+                <div class="item-title">支付密码</div>
+                <div class="item-subtitle">保障账户安全</div>
+            </div>
+            <i class="fas fa-chevron-right text-gray-400"></i>
+        </a>
+        <a href="#" class="section-item" onclick="showCoupons(event)">
+            <div class="item-icon" style="background: #F3E5F5;">
+                <i class="fas fa-ticket-alt text-purple-500"></i>
+            </div>
+            <div class="item-content">
+                <div class="item-title">优惠券</div>
+                <div class="item-subtitle">3张可用</div>
+            </div>
+            <span class="item-value">3张</span>
+            <i class="fas fa-chevron-right text-gray-400"></i>
+        </a>
+    </div>
+    
+    <!-- Security Center -->
+    <div class="section">
+        <div class="section-title">
+            <span>
+                <i class="fas fa-shield-alt mr-2 text-green-500"></i>
+                安全中心
+            </span>
+        </div>
+        <div class="security-grid">
+            <a href="#" class="security-item" onclick="realNameAuth(event)">
+                <i class="fas fa-user-check"></i>
+                <span>实名认证</span>
+            </a>
+            <a href="#" class="security-item" onclick="fingerprint(event)">
+                <i class="fas fa-fingerprint"></i>
+                <span>指纹支付</span>
+            </a>
+            <a href="#" class="security-item" onclick="faceId(event)">
+                <i class="fas fa-eye"></i>
+                <span>面容支付</span>
+            </a>
+            <a href="#" class="security-item" onclick="transactionLimit(event)">
+                <i class="fas fa-coins"></i>
+                <span>交易限额</span>
+            </a>
+        </div>
+    </div>
+    
+    <!-- Recent Transactions -->
+    <div class="section">
+        <div class="section-title">
+            <span>
+                <i class="fas fa-history mr-2 text-gray-500"></i>
+                最近交易
+            </span>
+            <a href="#" class="text-blue-500 text-sm" onclick="viewAllTransactions(event)">查看全部</a>
+        </div>
+        <div class="transaction-item">
+            <div class="transaction-icon" style="background: #E8F5E8;">
+                <i class="fas fa-plus text-green-500"></i>
+            </div>
+            <div class="transaction-info">
+                <div class="transaction-title">运费收入</div>
+                <div class="transaction-time">今天 14:32</div>
+            </div>
+            <div class="transaction-amount amount-positive">+¥1,250.00</div>
+        </div>
+        <div class="transaction-item">
+            <div class="transaction-icon" style="background: #FFF3E0;">
+                <i class="fas fa-gas-pump text-orange-500"></i>
+            </div>
+            <div class="transaction-info">
+                <div class="transaction-title">油费支付</div>
+                <div class="transaction-time">今天 10:15</div>
+            </div>
+            <div class="transaction-amount amount-negative">-¥380.00</div>
+        </div>
+        <div class="transaction-item">
+            <div class="transaction-icon" style="background: #E3F2FD;">
+                <i class="fas fa-plus text-blue-500"></i>
+            </div>
+            <div class="transaction-info">
+                <div class="transaction-title">钱包充值</div>
+                <div class="transaction-time">昨天 16:45</div>
+            </div>
+            <div class="transaction-amount amount-positive">+¥2,000.00</div>
+        </div>
+        <div class="transaction-item">
+            <div class="transaction-icon" style="background: #F3E5F5;">
+                <i class="fas fa-truck text-purple-500"></i>
+            </div>
+            <div class="transaction-info">
+                <div class="transaction-title">运输保险</div>
+                <div class="transaction-time">昨天 09:20</div>
+            </div>
+            <div class="transaction-amount amount-negative">-¥89.00</div>
+        </div>
+    </div>
+    
+    <!-- Tab Bar -->
+    <div class="tab-bar flex">
+        <a href="home.html" class="tab-item">
+            <i class="fas fa-home"></i>
+            <span>首页</span>
+        </a>
+        <a href="transport.html" class="tab-item">
+            <i class="fas fa-truck"></i>
+            <span>货运</span>
+        </a>
+        <a href="service.html" class="tab-item">
+            <i class="fas fa-cogs"></i>
+            <span>服务</span>
+        </a>
+        <a href="analytics.html" class="tab-item">
+            <i class="fas fa-chart-bar"></i>
+            <span>数据</span>
+        </a>
+        <a href="profile.html" class="tab-item active">
+            <i class="fas fa-user"></i>
+            <span>我的</span>
+        </a>
+    </div>
+    
+    <script>
+        // 充值功能
+        function recharge(event) {
+            event.preventDefault();
+            alert('钱包充值\n\n请选择充值金额：\n💰 ¥100\n💰 ¥500\n💰 ¥1000\n💰 ¥2000\n💰 自定义金额\n\n支付方式：\n🏦 银行卡\n📱 微信支付\n📱 支付宝');
+        }
+        
+        // 提现功能
+        function withdraw(event) {
+            event.preventDefault();
+            alert('钱包提现\n\n💸 可提现余额：¥7,890.00\n⏰ 预计到账时间：2小时内\n💳 提现到：招商银行(尾号1234)\n💰 手续费：2元/笔\n\n请输入提现金额...');
+        }
+        
+        // 转账功能
+        function transfer(event) {
+            event.preventDefault();
+            alert('钱包转账\n\n💸 转账给其他用户\n📱 扫码转账\n📞 手机号转账\n💼 企业转账\n\n转账免手续费');
+        }
+        
+        // 银行卡管理
+        function showBankCards(event) {
+            event.preventDefault();
+            alert('银行卡管理\n\n已绑定银行卡：\n🏦 招商银行 尾号1234 (默认)\n🏦 工商银行 尾号5678\n\n➕ 添加新卡\n⚙️ 卡片设置');
+        }
+        
+        // 支付密码
+        function showPaymentPassword(event) {
+            event.preventDefault();
+            alert('支付密码设置\n\n🔒 修改支付密码\n📱 忘记密码\n⚡ 快捷支付设置\n🔐 支付验证方式');
+        }
+        
+        // 优惠券
+        function showCoupons(event) {
+            event.preventDefault();
+            alert('我的优惠券\n\n🎫 可用优惠券：3张\n• 运费减10元 (有效期7天)\n• 服务费8折券 (有效期15天)\n• 新用户专享券 (有效期30天)\n\n🎯 已过期：2张');
+        }
+        
+        // 实名认证
+        function realNameAuth(event) {
+            event.preventDefault();
+            alert('实名认证\n\n✅ 认证状态：已通过\n👤 姓名：张三\n🆔 身份证：320***********1234\n📱 手机号：138****5678\n\n认证时间：2024-01-15');
+        }
+        
+        // 指纹支付
+        function fingerprint(event) {
+            event.preventDefault();
+            alert('指纹支付\n\n👆 指纹验证：已开启\n🔐 支付时验证指纹\n⚡ 快速安全支付\n\n⚙️ 管理指纹');
+        }
+        
+        // 面容支付
+        function faceId(event) {
+            event.preventDefault();
+            alert('面容支付\n\n👁️ 面容识别：已开启\n🔐 支付时验证面容\n⚡ 快速安全支付\n\n⚙️ 重新录入面容');
+        }
+        
+        // 交易限额
+        function transactionLimit(event) {
+            event.preventDefault();
+            alert('交易限额\n\n💰 单笔限额：¥50,000\n📊 日累计限额：¥200,000\n📅 月累计限额：¥2,000,000\n\n⚙️ 申请提额');
+        }
+        
+        // 查看全部交易
+        function viewAllTransactions(event) {
+            event.preventDefault();
+            alert('交易记录\n\n📊 本月交易：23,450.00\n📈 收入：18,230.00\n📉 支出：5,220.00\n\n🔍 筛选条件：\n• 时间范围\n• 交易类型\n• 金额范围');
+        }
+        
+        // 模拟余额变化
+        let currentBalance = 8520.00;
+        setInterval(() => {
+            // 随机小幅变化
+            const change = (Math.random() - 0.5) * 100;
+            currentBalance += change;
+            if (currentBalance < 0) currentBalance = 0;
+            
+            const balanceElement = document.querySelector('.balance-amount');
+            if (balanceElement) {
+                balanceElement.textContent = `¥${currentBalance.toFixed(2)}`;
+            }
+        }, 30000); // 每30秒更新一次
+    </script>
+</body>
+</html>

@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>eFlow 司机门户 - Driver Portal</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --driver-primary: #FF8F00;
+            --driver-secondary: #FFB74D;
+            --driver-accent: #FFE0B2;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+        
+        .sidebar {
+            background: linear-gradient(135deg, var(--driver-primary) 0%, var(--driver-secondary) 100%);
+            width: 280px;
+            min-height: 100vh;
+            color: white;
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .main-content {
+            margin-left: 280px;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .top-bar {
+            background: white;
+            border-radius: 16px;
+            padding: 20px 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+        }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 16px 24px;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+        
+        .nav-item:hover, .nav-item.active {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border-left-color: white;
+        }
+        
+        .nav-icon {
+            margin-right: 12px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .logo-section {
+            padding: 24px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .logo-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+        
+        .user-info {
+            padding: 20px 24px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, var(--driver-primary), var(--driver-secondary));
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            color: white;
+        }
+        
+        .stat-number {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        
+        .order-item {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            border-left: 4px solid var(--driver-primary);
+            transition: all 0.3s ease;
+        }
+        
+        .order-item:hover {
+            transform: translateX(8px);
+            box-shadow: 0 4px 20px rgba(255, 143, 0, 0.2);
+        }
+        
+        .btn-driver {
+            background: var(--driver-primary);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-driver:hover {
+            background: #F57C00;
+            transform: translateY(-2px);
+        }
+        
+        .earning-chart {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        
+        .vehicle-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: rgba(76, 175, 80, 0.1);
+            border-radius: 20px;
+            color: #4CAF50;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .status-offline {
+            background: rgba(244, 67, 54, 0.1);
+            color: #F44336;
+        }
+        
+        .quick-action {
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            background: white;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .quick-action:hover {
+            border-color: var(--driver-primary);
+            transform: translateY(-2px);
+        }
+        
+        .action-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--driver-accent);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 16px;
+            color: var(--driver-primary);
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo-section">
+            <div class="logo-icon">
+                <i class="fas fa-user-tie" style="color: white;"></i>
+            </div>
+            <h2 style="color: white; font-size: 20px; font-weight: bold;">司机工作台</h2>
+            <p style="color: rgba(255,255,255,0.7); font-size: 14px;">Driver Portal</p>
+        </div>
+        
+        <div class="user-info">
+            <div style="display: flex; align-items: center; margin-bottom: 12px;">
+                <i class="fas fa-user-circle" style="font-size: 48px; margin-right: 16px;"></i>
+                <div>
+                    <div style="font-weight: bold; font-size: 16px;">李师傅</div>
+                    <div style="opacity: 0.8; font-size: 14px;">A2驾照 | 8年驾龄</div>
+                </div>
+            </div>
+            <div class="vehicle-status">
+                <i class="fas fa-truck"></i>
+                <span>车辆在线 • 京A88888</span>
+            </div>
+        </div>
+        
+        <nav style="padding: 20px 0;">
+            <a href="#dashboard" class="nav-item active" onclick="showSection('dashboard')">
+                <i class="nav-icon fas fa-tachometer-alt"></i>
+                工作台
+            </a>
+            <a href="#orders" class="nav-item" onclick="showSection('orders')">
+                <i class="nav-icon fas fa-list-alt"></i>
+                订单管理
+            </a>
+            <a href="#routes" class="nav-item" onclick="showSection('routes')">
+                <i class="nav-icon fas fa-route"></i>
+                路线规划
+            </a>
+            <a href="#earnings" class="nav-item" onclick="showSection('earnings')">
+                <i class="nav-icon fas fa-chart-line"></i>
+                收入统计
+            </a>
+            <a href="#vehicle" class="nav-item" onclick="showSection('vehicle')">
+                <i class="nav-icon fas fa-truck"></i>
+                车辆管理
+            </a>
+            <a href="#documents" class="nav-item" onclick="showSection('documents')">
+                <i class="nav-icon fas fa-file-alt"></i>
+                证件管理
+            </a>
+            <a href="#settings" class="nav-item" onclick="showSection('settings')">
+                <i class="nav-icon fas fa-cog"></i>
+                设置
+            </a>
+        </nav>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div>
+                <h1 style="font-size: 24px; font-weight: bold; color: #333; margin: 0;">司机工作台</h1>
+                <p style="color: #666; margin: 4px 0 0 0;">今天是个赚钱的好日子</p>
+            </div>
+            <div style="display: flex; align-items: center; gap: 16px;">
+                <button class="btn-driver" onclick="toggleOnlineStatus()">
+                    <i class="fas fa-power-off mr-2"></i>上线接单
+                </button>
+                <div style="position: relative;">
+                    <i class="fas fa-bell" style="font-size: 20px; color: #666; cursor: pointer;"></i>
+                    <span style="position: absolute; top: -4px; right: -4px; background: #FF5722; color: white; border-radius: 50%; width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; font-size: 10px;">5</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Dashboard Section -->
+        <div id="dashboard" class="section">
+            <!-- Statistics Cards -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 24px; margin-bottom: 24px;">
+                <div class="stat-card">
+                    <div class="stat-number">¥2,856</div>
+                    <div style="opacity: 0.9;">今日收入</div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #4CAF50, #66BB6A);">
+                    <div class="stat-number">8</div>
+                    <div style="opacity: 0.9;">完成订单</div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #2196F3, #42A5F5);">
+                    <div class="stat-number">485</div>
+                    <div style="opacity: 0.9;">行驶里程</div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #9C27B0, #BA68C8);">
+                    <div class="stat-number">4.9</div>
+                    <div style="opacity: 0.9;">服务评分</div>
+                </div>
+            </div>
+            
+            <!-- Quick Actions -->
+            <div class="card">
+                <h3 style="font-size: 18px; font-weight: bold; margin-bottom: 20px; color: #333;">
+                    <i class="fas fa-bolt" style="color: var(--driver-primary); margin-right: 8px;"></i>
+                    快速操作
+                </h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px;">
+                    <div class="quick-action" onclick="grabOrder()">
+                        <div class="action-icon">
+                            <i class="fas fa-hand-paper"></i>
+                        </div>
+                        <div>
+                            <div style="font-weight: 600; color: #333;">抢单接货</div>
+                            <div style="font-size: 14px; color: #666;">查看附近优质货源</div>
+                        </div>
+                    </div>
+                    
+                    <div class="quick-action" onclick="startNavigation()">
+                        <div class="action-icon">
+                            <i class="fas fa-route"></i>
+                        </div>
+                        <div>
+                            <div style="font-weight: 600; color: #333;">开始导航</div>
+                            <div style="font-size: 14px; color: #666;">智能路线规划</div>
+                        </div>
+                    </div>
+                    
+                    <div class="quick-action" onclick="uploadPOD()">
+                        <div class="action-icon">
+                            <i class="fas fa-camera"></i>
+                        </div>
+                        <div>
+                            <div style="font-weight: 600; color: #333;">上传回单</div>
+                            <div style="font-size: 14px; color: #666;">确认货物送达</div>
+                        </div>
+                    </div>
+                    
+                    <div class="quick-action" onclick="viewEarnings()">
+                        <div class="action-icon">
+                            <i class="fas fa-wallet"></i>
+                        </div>
+                        <div>
+                            <div style="font-weight: 600; color: #333;">收入结算</div>
+                            <div style="font-size: 14px; color: #666;">查看待结算费用</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Current Orders -->
+            <div class="card">
+                <h3 style="font-size: 18px; font-weight: bold; margin-bottom: 20px; color: #333;">
+                    <i class="fas fa-truck-loading" style="color: var(--driver-primary); margin-right: 8px;"></i>
+                    进行中订单
+                </h3>
+                
+                <div class="order-item">
+                    <div style="display: flex; justify-content: between; align-items: flex-start; margin-bottom: 16px;">
+                        <div>
+                            <div style="font-weight: bold; color: #333; margin-bottom: 4px;">
+                                订单 #T2025072101
+                                <span style="background: #4CAF50; color: white; padding: 2px 8px; border-radius: 12px; font-size: 12px; margin-left: 8px;">运输中</span>
+                            </div>
+                            <div style="color: #666; font-size: 14px;">
+                                <i class="fas fa-map-marker-alt" style="color: #4CAF50; margin-right: 4px;"></i>
+                                北京朝阳 → 上海浦东
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-size: 20px; font-weight: bold; color: var(--driver-primary);">¥3,200</div>
+                            <div style="font-size: 12px; color: #666;">运费</div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; margin-bottom: 16px;">
+                        <div>
+                            <div style="font-size: 12px; color: #666;">货物类型</div>
+                            <div style="font-weight: 500;">电子产品</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #666;">重量</div>
+                            <div style="font-weight: 500;">2.5吨</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #666;">预计到达</div>
+                            <div style="font-weight: 500;">今天 18:30</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #666;">剩余里程</div>
+                            <div style="font-weight: 500;">85公里</div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 12px;">
+                        <button class="btn-driver" style="flex: 1;" onclick="contactShipper()">
+                            <i class="fas fa-phone mr-2"></i>联系货主
+                        </button>
+                        <button class="btn-driver" style="flex: 1;" onclick="updateLocation()">
+                            <i class="fas fa-location-arrow mr-2"></i>更新位置
+                        </button>
+                        <button class="btn-driver" style="flex: 1;" onclick="confirmDelivery()">
+                            <i class="fas fa-check mr-2"></i>确认送达
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Other sections would be similar but hidden initially -->
+        <div id="orders" class="section" style="display: none;">
+            <div class="card">
+                <h3 style="font-size: 18px; font-weight: bold; margin-bottom: 20px; color: #333;">订单管理</h3>
+                <p>订单管理功能开发中...</p>
+            </div>
+        </div>
+        
+        <div id="routes" class="section" style="display: none;">
+            <div class="card">
+                <h3 style="font-size: 18px; font-weight: bold; margin-bottom: 20px; color: #333;">路线规划</h3>
+                <p>路线规划功能开发中...</p>
+            </div>
+        </div>
+        
+        <div id="earnings" class="section" style="display: none;">
+            <div class="card">
+                <h3 style="font-size: 18px; font-weight: bold; margin-bottom: 20px; color: #333;">收入统计</h3>
+                <p>收入统计功能开发中...</p>
+            </div>
+        </div>
+        
+        <div id="vehicle" class="section" style="display: none;">
+            <div class="card">
+                <h3 style="font-size: 18px; font-weight: bold; margin-bottom: 20px; color: #333;">车辆管理</h3>
+                <p>车辆管理功能开发中...</p>
+            </div>
+        </div>
+        
+        <div id="documents" class="section" style="display: none;">
+            <div class="card">
+                <h3 style="font-size: 18px; font-weight: bold; margin-bottom: 20px; color: #333;">证件管理</h3>
+                <p>证件管理功能开发中...</p>
+            </div>
+        </div>
+        
+        <div id="settings" class="section" style="display: none;">
+            <div class="card">
+                <h3 style="font-size: 18px; font-weight: bold; margin-bottom: 20px; color: #333;">设置</h3>
+                <p>设置功能开发中...</p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 导航功能
+        function showSection(sectionId) {
+            // 隐藏所有section
+            document.querySelectorAll('.section').forEach(section => {
+                section.style.display = 'none';
+            });
+            
+            // 移除所有nav-item的active状态
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // 显示选中的section
+            document.getElementById(sectionId).style.display = 'block';
+            
+            // 添加active状态到对应的nav-item
+            document.querySelector(`[href="#${sectionId}"]`).classList.add('active');
+        }
+        
+        // 上线/下线状态切换
+        function toggleOnlineStatus() {
+            const btn = event.target;
+            const isOnline = btn.textContent.includes('上线');
+            
+            if (isOnline) {
+                btn.innerHTML = '<i class="fas fa-power-off mr-2"></i>下线休息';
+                btn.style.background = '#F44336';
+                alert('已上线接单！\n\n系统将为您推送附近的优质货源');
+            } else {
+                btn.innerHTML = '<i class="fas fa-power-off mr-2"></i>上线接单';
+                btn.style.background = 'var(--driver-primary)';
+                alert('已下线休息！\n\n期待您的下次上线');
+            }
+        }
+        
+        // 快速操作功能
+        function grabOrder() {
+            alert('抢单接货\n\n附近货源：\n• 北京→天津 2.5吨 ¥800\n• 北京→石家庄 5吨 ¥1,200\n• 北京→太原 8吨 ¥2,400');
+        }
+        
+        function startNavigation() {
+            alert('开始导航\n\n当前订单路线：\n起点：北京朝阳区\n终点：上海浦东新区\n距离：1,218公里\n预计时间：14小时30分钟');
+        }
+        
+        function uploadPOD() {
+            alert('上传回单\n\n请拍照上传：\n• 货物交接单\n• 收货人签字\n• 货物照片\n• 车辆里程表');
+        }
+        
+        function viewEarnings() {
+            alert('收入结算\n\n待结算：¥8,650\n今日收入：¥2,856\n本周收入：¥12,480\n本月收入：¥35,920');
+        }
+        
+        // 订单操作功能
+        function contactShipper() {
+            alert('联系货主\n\n货主：张经理\n电话：138****8888\n公司：北京科技有限公司\n备注：货物易碎，请小心搬运');
+        }
+        
+        function updateLocation() {
+            alert('位置更新成功！\n\n当前位置：河北廊坊服务区\nGPS坐标：39.5°N, 116.4°E\n已通知货主您的实时位置');
+        }
+        
+        function confirmDelivery() {
+            if (confirm('确认货物已送达？\n\n确认后将：\n• 完成订单状态\n• 触发费用结算\n• 发送送达通知')) {
+                alert('送达确认成功！\n\n订单已完成，运费将在24小时内到账');
+            }
+        }
+    </script>
+</body>
+</html>

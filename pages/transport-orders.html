@@ -299,12 +299,15 @@
 
     <!-- 底部操作栏 -->
     <div class="fixed bottom-0 left-0 right-0 bg-white border-t p-4">
-        <div class="flex space-x-3">
-            <button onclick="bulkOperation()" class="flex-1 bg-gray-100 text-gray-700 py-3 rounded-lg">
-                <i class="fas fa-check-square mr-2"></i>批量操作
+        <div class="flex space-x-2">
+            <button onclick="bulkOperation()" class="flex-1 bg-gray-100 text-gray-700 py-3 rounded-lg text-sm">
+                <i class="fas fa-check-square mr-1"></i>批量操作
             </button>
-            <button onclick="exportOrders()" class="flex-1 bg-blue-600 text-white py-3 rounded-lg">
-                <i class="fas fa-file-export mr-2"></i>导出订单
+            <button onclick="navigateToWaybill()" class="flex-1 bg-indigo-600 text-white py-3 rounded-lg text-sm">
+                <i class="fas fa-file-invoice mr-1"></i>运单管理
+            </button>
+            <button onclick="exportOrders()" class="flex-1 bg-blue-600 text-white py-3 rounded-lg text-sm">
+                <i class="fas fa-file-export mr-1"></i>导出订单
             </button>
         </div>
     </div>
@@ -417,6 +420,10 @@
 
         function exportOrders() {
             alert('导出订单数据\n\n导出格式：\n• Excel表格\n• PDF报告\n• CSV数据\n• 自定义字段\n• 按时间筛选');
+        }
+        
+        function navigateToWaybill() {
+            window.location.href = 'waybill-orders.html';
         }
     </script>
 </body>
